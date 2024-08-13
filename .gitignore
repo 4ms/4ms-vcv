@@ -1,0 +1,13 @@
+*.d
+*.o
+/build
+/dist
+/plugin.so
+/plugin.dylib
+/plugin-arm64.dylib
+/plugin.dll
+.DS_Store
+.nvimrc
+.ccls-cache
+.cache
+.vscode
