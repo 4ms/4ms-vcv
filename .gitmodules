@@ -4,3 +4,6 @@
 [submodule "lib/cpputil"]
 	path = lib/cpputil
 	url = https://github.com/4ms/cpputil
+[submodule "lib/patch-serial"]
+	path = lib/patch-serial
+	url = git@github.com:4ms/metamodule-patch-serial
