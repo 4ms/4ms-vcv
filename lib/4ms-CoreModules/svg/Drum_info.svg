@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="76.2mm" height="132.13mm" viewBox="0 0 216 374.53">
+  <g id="faceplate">
+    <g>
+      <rect x=".13" y=".13" width="215.75" height="364" style="fill: #ededed; stroke-width: 0px;"/>
+      <path d="M215.75.25v363.75H.25V.25h215.5M216,0H0v364.25h216V0h0Z" style="fill: #9d9d9e; stroke-width: 0px;"/>
+    </g>
+    <g>
+      <path d="M99.8,18.19c-.37,0-.71-.17-.97-.47-.51-.6-.52-1.54-.04-2.16l6.97-8.88c.38-.48,1.05-.65,1.57-.39.5.25.79.82.79,1.45v4.77l4.64-5.85c.38-.48,1.01-.64,1.53-.38.5.25.83.81.83,1.44v8.82c0,.86-.61,1.57-1.36,1.57s-1.36-.7-1.36-1.57v-4.79l-4.64,5.85c-.38.48-1.01.64-1.54.38-.5-.24-.83-.81-.83-1.44v-4.67l-4.61,5.8c-.26.32-.62.51-1,.51h0Z" style="fill: #2cabe1; stroke-width: 0px;"/>
+      <path d="M99.8,18.19c-.75,0-1.35-.7-1.35-1.57v-4.93l-2.26,2.84c-.5.63-1.44.65-1.97.04-.51-.6-.52-1.53-.03-2.15l4.61-5.76c.26-.32.63-.5,1-.5.18,0,.37.04.54.12.5.25.82.81.82,1.44v8.89c0,.86-.61,1.57-1.36,1.57h0Z" style="fill: #ea2228; stroke-width: 0px;"/>
+      <path d="M116.4,18.21h0c-.35,0-.68-.15-.94-.42-.76-.78-.14-1.84.29-2.3l1.95-2.36-1.26-.02c-.56-.01-1.04-.4-1.24-1-.19-.56-.07-1.21.29-1.64l3.16-3.83c.23-.28.55-.48,1.13-.47.33,0,.67.17.92.4.71.66.29,1.7-.07,2.2l-1.04,1.26,1.26.02c.56.01,1.04.4,1.24,1,.19.56.07,1.21-.29,1.64l-4.1,4.97c-.35.35-.65.55-1.3.54h0Z" style="fill: #00a650; stroke-width: 0px;"/>
+    </g>
+    <g id="Layer_3" data-name="Layer 3">
+      <g>
+        <g>
+          <path d="M31.57,341.95h129.33s23.6,0,23.6,0c7.49,0,13.57-7.04,13.57-15.71v-107.97l-.06-6.23c-.3-8.38-6.24-15.07-13.54-15.07H31.54c-7.3,0-13.25,6.69-13.54,15.07l-.06,6.23v46.63l.07,61.34" style="fill: #ededed; stroke: #000; stroke-miterlimit: 10;"/>
+          <path d="M198.51,317.02v-23.22h-1.14s-20.4,0-20.4,0c-7.49,0-13.57,7.04-13.57,15.71v32.44s0,.5,0,.5h15.07s0,0,0,0h14.39c3.12,0,5.64-2.55,5.64-5.67v-10.04s0-9.8,0-9.8v.08Z" style="fill: #000; stroke-width: 0px;"/>
+          <path d="M17.49,317.02v-23.22h1.14s20.4,0,20.4,0c7.49,0,13.57,7.04,13.57,15.71v32.44s0,.5,0,.5h-15.07s0,0,0,0h-14.39c-3.12,0-5.64-2.55-5.64-5.67v-10.04s0-9.8,0-9.8v.08Z" style="fill: #000; stroke-width: 0px;"/>
+        </g>
+        <path d="M18,325.32v10.96c0,3.12,2.55,5.67,5.67,5.67h12.93" style="fill: none; stroke: #000; stroke-miterlimit: 10;"/>
+      </g>
+    </g>
+    <g id="Layer_4" data-name="Layer 4">
+      <text transform="translate(23.6 189.47) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 10px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Tone Env</tspan></text>
+      <path d="M43.5,143.48c-.83,0-1.65.07-2.45.17l-.39-2.21c.93-.12,1.88-.19,2.84-.19s1.91.07,2.84.19l-.39,2.21c-.81-.1-1.62-.17-2.45-.17Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M29.01,149.85l-1.73-1.45c1.28-1.4,2.74-2.63,4.34-3.66l1.12,1.94c-1.38.9-2.62,1.96-3.73,3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M34.47,145.68l-1.12-1.94c1.67-.87,3.46-1.53,5.34-1.95l.39,2.21c-1.62.37-3.16.94-4.61,1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M25.27,155.61l-2.1-.76c.73-1.77,1.69-3.42,2.83-4.92l1.73,1.45c-.98,1.3-1.82,2.71-2.46,4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M47.92,143.99l.39-2.21c1.88.42,3.67,1.08,5.34,1.95l-1.12,1.94c-1.44-.74-2.98-1.31-4.6-1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M23.78,162.31h-2.26c.08-1.93.41-3.8.96-5.58l2.11.77c-.47,1.53-.73,3.15-.81,4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M24.65,169.11l-2.1.76c-.57-1.79-.91-3.65-1.01-5.56h2.23c.09,1.65.39,3.25.88,4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M27.79,175.19l-1.71,1.44c-1.15-1.5-2.11-3.14-2.84-4.88l2.1-.77c.64,1.5,1.46,2.91,2.45,4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M59.27,151.38l1.73-1.45c1.14,1.5,2.1,3.15,2.83,4.92l-2.1.77c-.64-1.52-1.48-2.93-2.46-4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M62.41,157.49l2.11-.77c.55,1.78.88,3.65.96,5.58h-2.26c-.08-1.66-.34-3.28-.81-4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M63.23,164.31h2.23c-.09,1.91-.44,3.78-1.01,5.56l-2.1-.77c.48-1.54.79-3.15.88-4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M61.66,170.99l2.11.77c-.73,1.74-1.69,3.38-2.84,4.88l-1.71-1.44c.99-1.3,1.81-2.71,2.45-4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M32.81,179.83l-1.12,1.93c-1.61-1.03-3.05-2.24-4.32-3.62l1.71-1.44c1.1,1.18,2.34,2.23,3.72,3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M57.92,176.71l1.71,1.44c-1.27,1.37-2.71,2.59-4.32,3.62l-1.12-1.93c1.38-.89,2.62-1.94,3.72-3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M54.26,146.68l1.12-1.94c1.6,1.03,3.06,2.26,4.34,3.66l-1.73,1.45c-1.11-1.2-2.36-2.27-3.74-3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <text transform="translate(32.67 72.8) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 10px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Pitch</tspan></text>
+      <g>
+        <path d="M43.5,26.37c-.83,0-1.65.07-2.45.17l-.39-2.21c.93-.12,1.88-.19,2.84-.19s1.91.07,2.84.19l-.39,2.21c-.81-.1-1.62-.17-2.45-.17Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M29.01,32.74l-1.73-1.45c1.28-1.4,2.74-2.63,4.34-3.66l1.12,1.94c-1.38.9-2.62,1.96-3.73,3.16Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M34.47,28.57l-1.12-1.94c1.67-.87,3.46-1.53,5.34-1.95l.39,2.21c-1.62.37-3.16.94-4.61,1.69Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M25.27,38.51l-2.1-.76c.73-1.77,1.69-3.42,2.83-4.92l1.73,1.45c-.98,1.3-1.82,2.71-2.46,4.23Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M47.92,26.88l.39-2.21c1.88.42,3.67,1.08,5.34,1.95l-1.12,1.94c-1.44-.74-2.98-1.31-4.6-1.69Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M23.78,45.2h-2.26c.08-1.93.41-3.8.96-5.58l2.11.77c-.47,1.53-.73,3.15-.81,4.81Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M24.65,52l-2.1.76c-.57-1.79-.91-3.65-1.01-5.56h2.23c.09,1.65.39,3.25.88,4.8Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M27.79,58.08l-1.71,1.44c-1.15-1.5-2.11-3.14-2.84-4.88l2.1-.77c.64,1.5,1.46,2.91,2.45,4.2Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M59.27,34.27l1.73-1.45c1.14,1.5,2.1,3.15,2.83,4.92l-2.1.77c-.64-1.52-1.48-2.93-2.46-4.23Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M62.41,40.39l2.11-.77c.55,1.78.88,3.65.96,5.58h-2.26c-.08-1.66-.34-3.28-.81-4.81Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M63.23,47.2h2.23c-.09,1.91-.44,3.78-1.01,5.56l-2.1-.77c.48-1.54.79-3.15.88-4.8Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M61.66,53.88l2.11.77c-.73,1.74-1.69,3.38-2.84,4.88l-1.71-1.44c.99-1.3,1.81-2.71,2.45-4.2Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M32.81,62.73l-1.12,1.93c-1.61-1.03-3.05-2.24-4.32-3.62l1.71-1.44c1.1,1.18,2.34,2.23,3.72,3.12Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M57.92,59.6l1.71,1.44c-1.27,1.37-2.71,2.59-4.32,3.62l-1.12-1.93c1.38-.89,2.62-1.94,3.72-3.12Z" style="fill: #000; stroke-width: 0px;"/>
+        <path d="M54.26,29.57l1.12-1.94c1.6,1.03,3.06,2.26,4.34,3.66l-1.73,1.45c-1.11-1.2-2.36-2.27-3.74-3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      </g>
+      <path d="M108,26.37c-.83,0-1.65.07-2.45.17l-.39-2.21c.93-.12,1.88-.19,2.84-.19s1.91.07,2.84.19l-.39,2.21c-.81-.1-1.62-.17-2.45-.17Z" style="fill: #000; stroke-width: 0px;"/>
+      <text transform="translate(88.35 72.8) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 10px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Pitch Env</tspan></text>
+      <path d="M93.51,32.74l-1.73-1.45c1.28-1.4,2.74-2.63,4.34-3.66l1.12,1.94c-1.38.9-2.62,1.96-3.73,3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M98.97,28.57l-1.12-1.94c1.67-.87,3.46-1.53,5.34-1.95l.39,2.21c-1.62.37-3.16.94-4.61,1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M89.77,38.51l-2.1-.76c.73-1.77,1.69-3.42,2.83-4.92l1.73,1.45c-.98,1.3-1.82,2.71-2.46,4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M112.42,26.88l.39-2.21c1.88.42,3.67,1.08,5.34,1.95l-1.12,1.94c-1.44-.74-2.98-1.31-4.6-1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M88.28,45.2h-2.26c.08-1.93.41-3.8.96-5.58l2.11.77c-.47,1.53-.73,3.15-.81,4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M89.15,52l-2.1.76c-.57-1.79-.91-3.65-1.01-5.56h2.23c.09,1.65.39,3.25.88,4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M92.29,58.08l-1.71,1.44c-1.15-1.5-2.11-3.14-2.84-4.88l2.1-.77c.64,1.5,1.46,2.91,2.45,4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M123.77,34.27l1.73-1.45c1.14,1.5,2.1,3.15,2.83,4.92l-2.1.77c-.64-1.52-1.48-2.93-2.46-4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M126.91,40.39l2.11-.77c.55,1.78.88,3.65.96,5.58h-2.26c-.08-1.66-.34-3.28-.81-4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M127.73,47.2h2.23c-.09,1.91-.44,3.78-1.01,5.56l-2.1-.77c.48-1.54.79-3.15.88-4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M126.16,53.88l2.11.77c-.73,1.74-1.69,3.38-2.84,4.88l-1.71-1.44c.99-1.3,1.81-2.71,2.45-4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M97.31,62.73l-1.12,1.93c-1.61-1.03-3.05-2.24-4.32-3.62l1.71-1.44c1.1,1.18,2.34,2.23,3.72,3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M122.42,59.61l1.71,1.44c-1.27,1.37-2.71,2.59-4.32,3.62l-1.12-1.93c1.38-.89,2.62-1.94,3.72-3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M118.76,29.57l1.12-1.94c1.6,1.03,3.06,2.26,4.34,3.66l-1.73,1.45c-1.11-1.2-2.36-2.27-3.74-3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <text transform="translate(150.98 72.8) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 10px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Pitch Amt</tspan></text>
+      <path d="M172.5,26.37c-.83,0-1.65.07-2.45.17l-.39-2.21c.93-.12,1.88-.19,2.84-.19s1.91.07,2.84.19l-.39,2.21c-.81-.1-1.62-.17-2.45-.17Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M158.01,32.74l-1.73-1.45c1.28-1.4,2.74-2.63,4.34-3.66l1.12,1.94c-1.38.9-2.62,1.96-3.73,3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M163.47,28.57l-1.12-1.94c1.67-.87,3.46-1.53,5.34-1.95l.39,2.21c-1.62.37-3.16.94-4.61,1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M154.27,38.51l-2.1-.76c.73-1.77,1.69-3.42,2.83-4.92l1.73,1.45c-.98,1.3-1.82,2.71-2.46,4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M176.92,26.88l.39-2.21c1.88.42,3.67,1.08,5.34,1.95l-1.12,1.94c-1.44-.74-2.98-1.31-4.6-1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M152.78,45.2h-2.26c.08-1.93.41-3.8.96-5.58l2.11.77c-.47,1.53-.73,3.15-.81,4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M153.65,52l-2.1.76c-.57-1.79-.91-3.65-1.01-5.56h2.23c.09,1.65.39,3.25.88,4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M156.79,58.08l-1.71,1.44c-1.15-1.5-2.11-3.14-2.84-4.88l2.1-.77c.64,1.5,1.46,2.91,2.45,4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M188.27,34.27l1.73-1.45c1.14,1.5,2.1,3.15,2.83,4.92l-2.1.77c-.64-1.52-1.48-2.93-2.46-4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M191.41,40.39l2.11-.77c.55,1.78.88,3.65.96,5.58h-2.26c-.08-1.66-.34-3.28-.81-4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M192.23,47.2h2.23c-.09,1.91-.44,3.78-1.01,5.56l-2.1-.77c.48-1.54.79-3.15.88-4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M190.66,53.88l2.11.77c-.73,1.74-1.69,3.38-2.84,4.88l-1.71-1.44c.99-1.3,1.81-2.71,2.45-4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M161.81,62.73l-1.12,1.93c-1.61-1.03-3.05-2.24-4.32-3.62l1.71-1.44c1.1,1.18,2.34,2.23,3.72,3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M186.92,59.61l1.71,1.44c-1.27,1.37-2.71,2.59-4.32,3.62l-1.12-1.93c1.38-.89,2.62-1.94,3.72-3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M183.26,29.57l1.12-1.94c1.6,1.03,3.06,2.26,4.34,3.66l-1.73,1.45c-1.11-1.2-2.36-2.27-3.74-3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <text transform="translate(32.17 130.92) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 10px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Ratio</tspan></text>
+      <path d="M43.5,84.92c-.83,0-1.65.07-2.45.17l-.39-2.21c.93-.12,1.88-.19,2.84-.19s1.91.07,2.84.19l-.39,2.21c-.81-.1-1.62-.17-2.45-.17Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M29.01,91.29l-1.73-1.45c1.28-1.4,2.74-2.63,4.34-3.66l1.12,1.94c-1.38.9-2.62,1.96-3.73,3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M34.47,87.12l-1.12-1.94c1.67-.87,3.46-1.53,5.34-1.95l.39,2.21c-1.62.37-3.16.94-4.61,1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M25.27,97.06l-2.1-.76c.73-1.77,1.69-3.42,2.83-4.92l1.73,1.45c-.98,1.3-1.82,2.71-2.46,4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M47.92,85.44l.39-2.21c1.88.42,3.67,1.08,5.34,1.95l-1.12,1.94c-1.44-.74-2.98-1.31-4.6-1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M23.78,103.76h-2.26c.08-1.93.41-3.8.96-5.58l2.11.77c-.47,1.53-.73,3.15-.81,4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M24.65,110.55l-2.1.76c-.57-1.79-.91-3.65-1.01-5.56h2.23c.09,1.65.39,3.25.88,4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M27.79,116.64l-1.71,1.44c-1.15-1.5-2.11-3.14-2.84-4.88l2.1-.77c.64,1.5,1.46,2.91,2.45,4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M59.27,92.83l1.73-1.45c1.14,1.5,2.1,3.15,2.83,4.92l-2.1.77c-.64-1.52-1.48-2.93-2.46-4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M62.41,98.94l2.11-.77c.55,1.78.88,3.65.96,5.58h-2.26c-.08-1.66-.34-3.28-.81-4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M63.23,105.75h2.23c-.09,1.91-.44,3.78-1.01,5.56l-2.1-.77c.48-1.54.79-3.15.88-4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M61.66,112.43l2.11.77c-.73,1.74-1.69,3.38-2.84,4.88l-1.71-1.44c.99-1.3,1.81-2.71,2.45-4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M32.81,121.28l-1.12,1.93c-1.61-1.03-3.05-2.24-4.32-3.62l1.71-1.44c1.1,1.18,2.34,2.23,3.72,3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M57.92,118.16l1.71,1.44c-1.27,1.37-2.71,2.59-4.32,3.62l-1.12-1.93c1.38-.89,2.62-1.94,3.72-3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M54.26,88.13l1.12-1.94c1.6,1.03,3.06,2.26,4.34,3.66l-1.73,1.45c-1.11-1.2-2.36-2.27-3.74-3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <text transform="translate(92.41 130.92) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 10px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">FM Env</tspan></text>
+      <path d="M108,84.92c-.83,0-1.65.07-2.45.17l-.39-2.21c.93-.12,1.88-.19,2.84-.19s1.91.07,2.84.19l-.39,2.21c-.81-.1-1.62-.17-2.45-.17Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M93.51,91.29l-1.73-1.45c1.28-1.4,2.74-2.63,4.34-3.66l1.12,1.94c-1.38.9-2.62,1.96-3.73,3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M98.97,87.13l-1.12-1.94c1.67-.87,3.46-1.53,5.34-1.95l.39,2.21c-1.62.37-3.16.94-4.61,1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M89.77,97.06l-2.1-.76c.73-1.77,1.69-3.42,2.83-4.92l1.73,1.45c-.98,1.3-1.82,2.71-2.46,4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M112.42,85.44l.39-2.21c1.88.42,3.67,1.08,5.34,1.95l-1.12,1.94c-1.44-.74-2.98-1.31-4.6-1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M88.28,103.76h-2.26c.08-1.93.41-3.8.96-5.58l2.11.77c-.47,1.53-.73,3.15-.81,4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M89.15,110.56l-2.1.76c-.57-1.79-.91-3.65-1.01-5.56h2.23c.09,1.65.39,3.25.88,4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M92.29,116.64l-1.71,1.44c-1.15-1.5-2.11-3.14-2.84-4.88l2.1-.77c.64,1.5,1.46,2.91,2.45,4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M123.77,92.83l1.73-1.45c1.14,1.5,2.1,3.15,2.83,4.92l-2.1.77c-.64-1.52-1.48-2.93-2.46-4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M126.91,98.94l2.11-.77c.55,1.78.88,3.65.96,5.58h-2.26c-.08-1.66-.34-3.28-.81-4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M127.73,105.75h2.23c-.09,1.91-.44,3.78-1.01,5.56l-2.1-.77c.48-1.54.79-3.15.88-4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M126.16,112.43l2.11.77c-.73,1.74-1.69,3.38-2.84,4.88l-1.71-1.44c.99-1.3,1.81-2.71,2.45-4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M97.31,121.28l-1.12,1.93c-1.61-1.03-3.05-2.24-4.32-3.62l1.71-1.44c1.1,1.18,2.34,2.23,3.72,3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M122.42,118.16l1.71,1.44c-1.27,1.37-2.71,2.59-4.32,3.62l-1.12-1.93c1.38-.89,2.62-1.94,3.72-3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M118.76,88.13l1.12-1.94c1.6,1.03,3.06,2.26,4.34,3.66l-1.73,1.45c-1.11-1.2-2.36-2.27-3.74-3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <text transform="translate(155.04 130.92) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 10px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">FM Amt</tspan></text>
+      <path d="M172.5,84.92c-.83,0-1.65.07-2.45.17l-.39-2.21c.93-.12,1.88-.19,2.84-.19s1.91.07,2.84.19l-.39,2.21c-.81-.1-1.62-.17-2.45-.17Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M158.01,91.29l-1.73-1.45c1.28-1.4,2.74-2.63,4.34-3.66l1.12,1.94c-1.38.9-2.62,1.96-3.73,3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M163.47,87.12l-1.12-1.94c1.67-.87,3.46-1.53,5.34-1.95l.39,2.21c-1.62.37-3.16.94-4.61,1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M154.27,97.06l-2.1-.76c.73-1.77,1.69-3.42,2.83-4.92l1.73,1.45c-.98,1.3-1.82,2.71-2.46,4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M176.92,85.44l.39-2.21c1.88.42,3.67,1.08,5.34,1.95l-1.12,1.94c-1.44-.74-2.98-1.31-4.6-1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M152.78,103.76h-2.26c.08-1.93.41-3.8.96-5.58l2.11.77c-.47,1.53-.73,3.15-.81,4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M153.65,110.55l-2.1.76c-.57-1.79-.91-3.65-1.01-5.56h2.23c.09,1.65.39,3.25.88,4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M156.79,116.64l-1.71,1.44c-1.15-1.5-2.11-3.14-2.84-4.88l2.1-.77c.64,1.5,1.46,2.91,2.45,4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M188.27,92.83l1.73-1.45c1.14,1.5,2.1,3.15,2.83,4.92l-2.1.77c-.64-1.52-1.48-2.93-2.46-4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M191.41,98.94l2.11-.77c.55,1.78.88,3.65.96,5.58h-2.26c-.08-1.66-.34-3.28-.81-4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M192.23,105.75h2.23c-.09,1.91-.44,3.78-1.01,5.56l-2.1-.77c.48-1.54.79-3.15.88-4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M190.66,112.43l2.11.77c-.73,1.74-1.69,3.38-2.84,4.88l-1.71-1.44c.99-1.3,1.81-2.71,2.45-4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M161.81,121.28l-1.12,1.93c-1.61-1.03-3.05-2.24-4.32-3.62l1.71-1.44c1.1,1.18,2.34,2.23,3.72,3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M186.92,118.16l1.71,1.44c-1.27,1.37-2.71,2.59-4.32,3.62l-1.12-1.93c1.38-.89,2.62-1.94,3.72-3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M183.26,88.13l1.12-1.94c1.6,1.03,3.06,2.26,4.34,3.66l-1.73,1.45c-1.11-1.2-2.36-2.27-3.74-3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <text transform="translate(92.7 357.47) scale(.82 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 11px; font-weight: 700;"><tspan x="0" y="0">DRUM</tspan></text>
+      <text transform="translate(86.99 189.47) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 10px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Noise Env</tspan></text>
+      <path d="M108,143.48c-.83,0-1.65.07-2.45.17l-.39-2.21c.93-.12,1.88-.19,2.84-.19s1.91.07,2.84.19l-.39,2.21c-.81-.1-1.62-.17-2.45-.17Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M93.51,149.85l-1.73-1.45c1.28-1.4,2.74-2.63,4.34-3.66l1.12,1.94c-1.38.9-2.62,1.96-3.73,3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M98.97,145.68l-1.12-1.94c1.67-.87,3.46-1.53,5.34-1.95l.39,2.21c-1.62.37-3.16.94-4.61,1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M89.77,155.61l-2.1-.76c.73-1.77,1.69-3.42,2.83-4.92l1.73,1.45c-.98,1.3-1.82,2.71-2.46,4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M112.42,143.99l.39-2.21c1.88.42,3.67,1.08,5.34,1.95l-1.12,1.94c-1.44-.74-2.98-1.31-4.6-1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M88.28,162.31h-2.26c.08-1.93.41-3.8.96-5.58l2.11.77c-.47,1.53-.73,3.15-.81,4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M89.15,169.11l-2.1.76c-.57-1.79-.91-3.65-1.01-5.56h2.23c.09,1.65.39,3.25.88,4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M92.29,175.19l-1.71,1.44c-1.15-1.5-2.11-3.14-2.84-4.88l2.1-.77c.64,1.5,1.46,2.91,2.45,4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M123.77,151.38l1.73-1.45c1.14,1.5,2.1,3.15,2.83,4.92l-2.1.77c-.64-1.52-1.48-2.93-2.46-4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M126.91,157.49l2.11-.77c.55,1.78.88,3.65.96,5.58h-2.26c-.08-1.66-.34-3.28-.81-4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M127.73,164.31h2.23c-.09,1.91-.44,3.78-1.01,5.56l-2.1-.77c.48-1.54.79-3.15.88-4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M126.16,170.99l2.11.77c-.73,1.74-1.69,3.38-2.84,4.88l-1.71-1.44c.99-1.3,1.81-2.71,2.45-4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M97.31,179.83l-1.12,1.93c-1.61-1.03-3.05-2.24-4.32-3.62l1.71-1.44c1.1,1.18,2.34,2.23,3.72,3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M122.42,176.71l1.71,1.44c-1.27,1.37-2.71,2.59-4.32,3.62l-1.12-1.93c1.38-.89,2.62-1.94,3.72-3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M118.76,146.68l1.12-1.94c1.6,1.03,3.06,2.26,4.34,3.66l-1.73,1.45c-1.11-1.2-2.36-2.27-3.74-3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <text transform="translate(147.19 189.47) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 10px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Noise Blend</tspan></text>
+      <path d="M172.5,143.48c-.83,0-1.65.07-2.45.17l-.39-2.21c.93-.12,1.88-.19,2.84-.19s1.91.07,2.84.19l-.39,2.21c-.81-.1-1.62-.17-2.45-.17Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M158.01,149.85l-1.73-1.45c1.28-1.4,2.74-2.63,4.34-3.66l1.12,1.94c-1.38.9-2.62,1.96-3.73,3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M163.47,145.68l-1.12-1.94c1.67-.87,3.46-1.53,5.34-1.95l.39,2.21c-1.62.37-3.16.94-4.61,1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M154.27,155.61l-2.1-.76c.73-1.77,1.69-3.42,2.83-4.92l1.73,1.45c-.98,1.3-1.82,2.71-2.46,4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M176.92,143.99l.39-2.21c1.88.42,3.67,1.08,5.34,1.95l-1.12,1.94c-1.44-.74-2.98-1.31-4.6-1.69Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M152.78,162.31h-2.26c.08-1.93.41-3.8.96-5.58l2.11.77c-.47,1.53-.73,3.15-.81,4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M153.65,169.11l-2.1.76c-.57-1.79-.91-3.65-1.01-5.56h2.23c.09,1.65.39,3.25.88,4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M156.79,175.19l-1.71,1.44c-1.15-1.5-2.11-3.14-2.84-4.88l2.1-.77c.64,1.5,1.46,2.91,2.45,4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M188.27,151.38l1.73-1.45c1.14,1.5,2.1,3.15,2.83,4.92l-2.1.77c-.64-1.52-1.48-2.93-2.46-4.23Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M191.41,157.49l2.11-.77c.55,1.78.88,3.65.96,5.58h-2.26c-.08-1.66-.34-3.28-.81-4.81Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M192.23,164.31h2.23c-.09,1.91-.44,3.78-1.01,5.56l-2.1-.77c.48-1.54.79-3.15.88-4.8Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M190.66,170.99l2.11.77c-.73,1.74-1.69,3.38-2.84,4.88l-1.71-1.44c.99-1.3,1.81-2.71,2.45-4.2Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M161.81,179.83l-1.12,1.93c-1.61-1.03-3.05-2.24-4.32-3.62l1.71-1.44c1.1,1.18,2.34,2.23,3.72,3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M186.92,176.71l1.71,1.44c-1.27,1.37-2.71,2.59-4.32,3.62l-1.12-1.93c1.38-.89,2.62-1.94,3.72-3.12Z" style="fill: #000; stroke-width: 0px;"/>
+      <path d="M183.26,146.68l1.12-1.94c1.6,1.03,3.06,2.26,4.34,3.66l-1.73,1.45c-1.11-1.2-2.36-2.27-3.74-3.16Z" style="fill: #000; stroke-width: 0px;"/>
+      <text transform="translate(23.87 238.32) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Trigger</tspan></text>
+      <text transform="translate(74.3 238.32) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">V/Oct</tspan></text>
+      <text transform="translate(124.25 238.32) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Pitch</tspan></text>
+      <text transform="translate(170.25 238.32) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">P Amt</tspan></text>
+      <text transform="translate(26.9 287.35) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Ratio</tspan></text>
+      <text transform="translate(74.4 334.61) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">N Env</tspan></text>
+      <text transform="translate(119.37 334.61) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">N Blend</tspan></text>
+      <text transform="translate(72.16 287.35) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">FM Env</tspan></text>
+      <text transform="translate(119.01 287.35) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">FM Amt</tspan></text>
+      <text transform="translate(172.33 287.35) scale(.88 1)" style="fill: #000; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Tone</tspan></text>
+      <text transform="translate(174.66 334.61) scale(.88 1)" style="fill: #ededed; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Out</tspan></text>
+      <text transform="translate(22.11 334.68) scale(.88 1)" style="fill: #ededed; font-family: GillSans-Bold, &apos;Gill Sans&apos;; font-size: 8px; font-weight: 700; letter-spacing: -.04em;"><tspan x="0" y="0">Inv Out</tspan></text>
+    </g>
+  </g>
+  <g id="components">
+    <circle id="Out" cx="181.26" cy="311.64" r="11.34" style="fill: blue; stroke-width: 0px;"/>
+    <circle id="N_Blend_CV" data-name="N Blend CV" cx="132.98" cy="311.64" r="11.34" style="fill: lime; stroke-width: 0px;"/>
+    <circle id="N_Env_CV" data-name="N Env CV" cx="84.7" cy="311.64" r="11.34" style="fill: lime; stroke-width: 0px;"/>
+    <circle id="Inv_Out" data-name="Inv Out" cx="36.42" cy="311.64" r="11.34" style="fill: blue; stroke-width: 0px;"/>
+    <circle id="T_Env_CV" data-name="T Env CV" cx="181.26" cy="262.92" r="11.34" style="fill: lime; stroke-width: 0px;"/>
+    <circle id="FM_Amt_CV" data-name="FM Amt CV" cx="132.98" cy="262.92" r="11.34" style="fill: lime; stroke-width: 0px;"/>
+    <circle id="FM_Env_CV" data-name="FM Env CV" cx="84.7" cy="262.92" r="11.34" style="fill: lime; stroke-width: 0px;"/>
+    <circle id="Ratio_CV" data-name="Ratio CV" cx="36.42" cy="262.92" r="11.34" style="fill: lime; stroke-width: 0px;"/>
+    <circle id="P_Amt_CV" data-name="P Amt CV" cx="181.26" cy="214.2" r="11.34" style="fill: lime; stroke-width: 0px;"/>
+    <circle id="P_Env_CV" data-name="P Env CV" cx="132.98" cy="214.2" r="11.34" style="fill: lime; stroke-width: 0px;"/>
+    <circle id="V_Oct" data-name="V/Oct" cx="84.7" cy="214.2" r="11.34" style="fill: lime; stroke-width: 0px;"/>
+    <circle id="Trigger" cx="36.42" cy="214.2" r="11.34" style="fill: lime; stroke-width: 0px;"/>
+    <circle id="Noise_Blend" data-name="Noise Blend" cx="172.46" cy="163.07" r="17.01" style="fill: red; stroke-width: 0px;"/>
+    <circle id="Noise_Env" data-name="Noise Env" cx="108" cy="163.07" r="17.01" style="fill: red; stroke-width: 0px;"/>
+    <circle id="Tone_Env" data-name="Tone Env" cx="43.5" cy="163.07" r="17.01" style="fill: #ff0020; stroke-width: 0px;"/>
+    <circle id="FM_Amt" data-name="FM Amt" cx="172.46" cy="104.39" r="17.01" style="fill: red; stroke-width: 0px;"/>
+    <circle id="FM_Env" data-name="FM Env" cx="108" cy="104.39" r="17.01" style="fill: #ff0020; stroke-width: 0px;"/>
+    <circle id="Ratio" cx="43.5" cy="104.39" r="17.01" style="fill: #ff0040; stroke-width: 0px;"/>
+    <circle id="Pitch_Amt" data-name="Pitch Amt" cx="172.46" cy="45.83" r="17.01" style="fill: red; stroke-width: 0px;"/>
+    <circle id="Pitch_Env" data-name="Pitch Env" cx="108" cy="45.83" r="17.01" style="fill: #ff0020; stroke-width: 0px;"/>
+    <circle id="Pitch" cx="43.5" cy="45.83" r="17.01" style="fill: #ff0020; stroke-width: 0px;"/>
+    <text id="slug" transform="translate(184.73 373.78)" style="fill: #000; font-family: MyriadPro-Regular, &apos;Myriad Pro&apos;; font-size: 3px;"><tspan x="0" y="0">Drum</tspan></text>
+    <text id="modulename" transform="translate(198.05 373.78)" style="fill: #000; font-family: MyriadPro-Regular, &apos;Myriad Pro&apos;; font-size: 3px;"><tspan x="0" y="0">Drum</tspan><tspan x="7.13" y="0" style="letter-spacing: -.04em;"> </tspan><tspan x="7.66" y="0" style="letter-spacing: -.03em;">V</tspan><tspan x="9.24" y="0" style="letter-spacing: 0em;">oi</tspan><tspan x="11.59" y="0" style="letter-spacing: 0em;">c</tspan><tspan x="12.91" y="0">e</tspan></text>
+  </g>
+</svg>
