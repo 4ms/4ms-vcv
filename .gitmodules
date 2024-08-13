@@ -1,0 +1,3 @@
+[submodule "lib/4ms-CoreModules/core/alpaca"]
+	path = lib/4ms-CoreModules/core/alpaca
+	url = https://github.com/4ms/alpaca
