@@ -1,5 +1,5 @@
 [submodule "lib/4ms-CoreModules/core/alpaca"]
-	path = lib/4ms-CoreModules/core/alpaca
+	path = lib/CoreModules/4ms/alpaca
 	url = https://github.com/4ms/alpaca
 [submodule "lib/cpputil"]
 	path = lib/cpputil
@@ -7,3 +7,6 @@
 [submodule "lib/patch-serial"]
 	path = lib/patch-serial
 	url = git@github.com:4ms/metamodule-patch-serial
+[submodule "lib/metamodule-core-interface"]
+	path = lib/metamodule-core-interface
+	url = https://github.com/4ms/metamodule-core-interface
