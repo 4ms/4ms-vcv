@@ -1,0 +1,10 @@
+CompileFlags:
+	Add: [-std=c++17,
+		-Isrc/shared/doctest/doctest,
+		-I../src/shared/doctest/doctest,
+		-Itests/fff,
+		-Ifff,
+		-Isrc,
+		-I../src,
+		-Isrc/shared,
+		-I../src/shared]

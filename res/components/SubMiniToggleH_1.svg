@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   id="SubMiniToggle_1"
+   data-name="SubMiniToggle 1"
+   width="0.30000001in"
+   height="0.23in"
+   viewBox="0 0 22.069566 16.675"
+   version="1.1"
+   sodipodi:docname="SubMiniToggleH_1.svg"
+   inkscape:version="1.1.1 (c3084ef, 2021-09-22)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1436" />
+  <sodipodi:namedview
+     id="namedview1434"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="in"
+     showgrid="false"
+     inkscape:zoom="24.965277"
+     inkscape:cx="14.359945"
+     inkscape:cy="12.717664"
+     inkscape:window-width="1742"
+     inkscape:window-height="1067"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="SubMiniToggle_1"
+     width="0.3in" />
+  <g
+     id="g1521"
+     transform="translate(0.55565088,-0.02880167)">
+    <path
+       id="path7255"
+       d="m 10.485857,16.483026 a 8.11,8.11 0 1 1 8.11,-8.1100003 8.12,8.12 0 0 1 -8.11,8.1100003"
+       style="fill:#e6e6e6;stroke:#666666;stroke-width:0.7px;stroke-miterlimit:11.3386" />
+    <path
+       id="path7261"
+       d="m 10.485857,14.193026 a 5.84,5.84 0 1 1 5.84,-5.8400003 5.84,5.84 0 0 1 -5.84,5.8400003"
+       style="fill:#e6e6e6;stroke:#666666;stroke-width:0.7px;stroke-miterlimit:11.3386" />
+    <path
+       id="path7265"
+       d="m 15.025857,8.3530257 a 4.5,4.5 0 1 1 -4.5,-4.5 4.51,4.51 0 0 1 4.5,4.5" />
+    <g
+       id="middle"
+       transform="translate(2.0258574,-2.5169743)">
+      <circle
+         cx="8.46"
+         cy="10.87"
+         r="3.5"
+         style="fill:#ffffff;stroke:#666666;stroke-width:0.7px;stroke-miterlimit:10"
+         id="circle1430" />
+    </g>
+  </g>
+</svg>

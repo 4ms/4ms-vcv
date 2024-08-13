@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 25.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.0"
+	 id="svg3778" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="31.88126px"
+	 height="21.0189px" viewBox="0 0 31.88126 21.0189" enable-background="new 0 0 31.88126 21.0189" xml:space="preserve">
+<linearGradient id="rect67113_00000091001754584683614080000002085694960695107969_" gradientUnits="userSpaceOnUse" x1="15.94063" y1="18.74212" x2="15.94063" y2="-0.17008" gradientTransform="matrix(1 0 0 -1 0 20.66132)">
+	<stop  offset="0" style="stop-color:#9E9E9E"/>
+	<stop  offset="1" style="stop-color:#0F0F0F"/>
+</linearGradient>
+<rect id="rect67113_00000057838271338307414790000007419487301970194828_" y="1.9192" fill="url(#rect67113_00000091001754584683614080000002085694960695107969_)" width="31.88126" height="18.9122"/>
+<rect id="rect67115_00000111188882769729973500000010802207072893364925_" x="7.14617" y="4.38109" fill="#424242" width="17.58891" height="14.15222"/>
+<rect x="6.41981" y="3.99395" fill="#707070" width="19.04163" height="1.35677"/>
+<rect x="6.41981" y="17.49086" fill="#303030" width="19.04163" height="1.35677"/>
+<rect id="rect67117_00000165949740415020409360000014256271243875940796_" x="14.76606" y="4.9187" opacity="0.99" fill="#D1D1D1" enable-background="new    " width="2.34914" height="13.1024"/>
+<linearGradient id="rect67117_00000011737539170052389860000009630678780341000610_" gradientUnits="userSpaceOnUse" x1="15.94063" y1="18.0211" x2="15.94063" y2="20.8314">
+	<stop  offset="0" style="stop-color:#B0B0B0"/>
+	<stop  offset="1" style="stop-color:#757575"/>
+</linearGradient>
+<rect id="rect67117_00000107575076893183312570000002470248900771033746_" x="14.76606" y="18.0211" fill="url(#rect67117_00000011737539170052389860000009630678780341000610_)" width="2.34914" height="2.8103"/>
+<rect id="rect67117_00000015341445941947446240000014296007559573183882_" x="14.76606" y="1.9192" fill="#FFFFFF" width="2.34914" height="2.9995"/>
+<g>
+	<path fill="#262626" d="M0,1.9192l6.6538,2.15984c0.55482,0.1801,0.93051,0.69704,0.93051,1.28035v12.17524
+		c0,0.59308-0.38816,1.11629-0.95576,1.28827L0,20.8314V1.9192z"/>
+	<path fill="#262626" d="M31.88126,1.9192l-6.6538,2.15984c-0.55482,0.1801-0.93051,0.69704-0.93051,1.28035v12.17524
+		c0,0.59308,0.38816,1.11629,0.95576,1.28827l6.62855,2.00849V1.9192z"/>
+</g>
+</svg>

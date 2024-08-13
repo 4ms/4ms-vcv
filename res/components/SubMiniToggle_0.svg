@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="0.23in" height="0.3in" viewBox="0 0 16.92 21.75">
+  <g id="Layer_1" data-name="Layer 1">
+    <path id="path7255" d="M8.46,19a8.11,8.11,0,1,1,8.11-8.11A8.12,8.12,0,0,1,8.46,19" style="fill: #e6e6e6;stroke: #666;stroke-miterlimit: 11.338582038879395;stroke-width: 0.7000000000000001px"/>
+    <path id="path7261" d="M8.46,16.71a5.84,5.84,0,1,1,5.84-5.84,5.84,5.84,0,0,1-5.84,5.84" style="fill: #e6e6e6;stroke: #666;stroke-miterlimit: 11.338582038879395;stroke-width: 0.7000000000000001px"/>
+    <path id="path7265" d="M13,10.87a4.5,4.5,0,1,1-4.5-4.5,4.51,4.51,0,0,1,4.5,4.5"/>
+  </g>
+  <g id="bottom">
+    <g>
+      <circle cx="8.46" cy="10.87" r="3" style="fill: #656565"/>
+      <path d="M8.46,21.4h0a4,4,0,0,1-4-4l.3-4c.24-2.31,1.5-3.85,3.7-3.85h0c2.2,0,3.53,1.62,3.7,3.85l.3,4A4,4,0,0,1,8.46,21.4Z" style="fill: #fff;stroke: #666;stroke-miterlimit: 10;stroke-width: 0.7000000000000001px"/>
+    </g>
+  </g>
+</svg>

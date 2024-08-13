@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="svg164153" xmlns="http://www.w3.org/2000/svg" width="2.12mm" height="1.52mm" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 6 4.32">
+  <defs>
+    <linearGradient id="linear-gradient" x1="-2896.17" y1="-995.32" x2="-2896.17" y2="-992.83" gradientTransform="translate(997.04 -2894.01) rotate(-90)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fdfdff"/>
+      <stop offset="1" stop-color="#fcfeff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect id="rect3" x="5.1" y=".47" width=".46" height="3.38" style="fill: #fff; isolation: isolate; opacity: .4;"/>
+  <rect id="rect5" x=".44" y=".47" width=".46" height="3.38" style="fill: #fff; isolation: isolate; opacity: .4;"/>
+  <rect id="rect7" x="0" y="3.85" width="6" height=".47" style="isolation: isolate; opacity: .11;"/>
+  <rect id="rect9" x="0" y="0" width="6" height=".47" style="isolation: isolate; opacity: .11;"/>
+  <ellipse id="ellipse16" cx="2.96" cy="2.16" rx="1.24" ry=".85" style="fill: url(#linear-gradient); isolation: isolate; opacity: .38;"/>
+</svg>

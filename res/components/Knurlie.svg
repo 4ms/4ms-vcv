@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 25.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.0"
+	 id="svg18800" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="15px" height="14.99889px"
+	 viewBox="0 0 15 14.99889" enable-background="new 0 0 15 14.99889" xml:space="preserve">
+<sodipodi:namedview  bordercolor="#666666" borderopacity="1.0" fit-margin-bottom="0" fit-margin-left="0" fit-margin-right="0" fit-margin-top="0" id="base" inkscape:current-layer="layer1" inkscape:cx="-17.002013" inkscape:cy="6.0114243" inkscape:document-units="mm" inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:snap-bbox="true" inkscape:snap-bbox-midpoints="true" inkscape:snap-object-midpoints="true" inkscape:snap-page="true" inkscape:window-height="1422" inkscape:window-maximized="0" inkscape:window-width="2560" inkscape:window-x="0" inkscape:window-y="18" inkscape:zoom="22.4" pagecolor="#ffffff" showgrid="false" units="px">
+	</sodipodi:namedview>
+<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="395.72443" y1="6128.3999" x2="408.72443" y2="6128.3999" gradientTransform="matrix(0 1 1 0 -6120.8999 -394.72443)">
+	<stop  offset="0.00559" style="stop-color:#303030"/>
+	<stop  offset="1" style="stop-color:#222222"/>
+</linearGradient>
+<circle fill="url(#SVGID_1_)" cx="7.49999" cy="7.50001" r="6.5"/>
+<linearGradient id="SVGID_00000029764950440674115040000004743350729457199288_" gradientUnits="userSpaceOnUse" x1="396.41196" y1="6128.3999" x2="408.03586" y2="6128.3999" gradientTransform="matrix(0 1 1 0 -6120.8999 -394.72443)">
+	<stop  offset="0.01118" style="stop-color:#636363"/>
+	<stop  offset="1" style="stop-color:#2B2B2B"/>
+</linearGradient>
+<circle fill="url(#SVGID_00000029764950440674115040000004743350729457199288_)" cx="7.49999" cy="7.49948" r="5.81194"/>
+<path fill-rule="evenodd" clip-rule="evenodd" fill="#171717" d="M6.27742,4.76177L4.51167,5.7813v0.50317H1.8174
+	c-0.04761,0.22388-0.08148,0.4524-0.10254,0.68482v1.06055c0.02155,0.23779,0.05707,0.47119,0.10638,0.69971h2.69043v0.5022
+	l1.76575,1.01953v2.92896c0.39447,0.08447,0.80292,0.13135,1.2226,0.13135s0.82813-0.04688,1.22253-0.13135v-2.92896
+	l1.76581-1.01953v-0.5022h2.69043c0.04926-0.22827,0.08478-0.46118,0.10632-0.69873V6.96807
+	c-0.02106-0.23218-0.05493-0.46021-0.10248-0.68359h-2.69427V5.7813L8.72255,4.76177V1.8189
+	C8.32814,1.73443,7.91969,1.68755,7.50002,1.68755S6.67189,1.73443,6.27742,1.8189V4.76177z"/>
+</svg>
