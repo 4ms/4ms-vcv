@@ -1,0 +1,7 @@
+CompileFlags:
+    Add: [
+      "-std=c++2a", 
+    ] 
+    Remove: [
+      "-march=nocona",
+    ]
