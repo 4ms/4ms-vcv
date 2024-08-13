@@ -5,8 +5,8 @@
 #include "jansson.h"
 #include "mapping/mapping.hh"
 #include "mapping/midi_modules.hh"
+#include "patch-serial/patch_to_yaml.hh"
 #include "patch/patch.hh"
-#include "patch_convert/patch_to_yaml.hh"
 #include <map>
 #include <rack.hpp>
 #include <span>

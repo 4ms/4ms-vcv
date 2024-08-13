@@ -1,8 +1,8 @@
 #include "patch_writer.hh"
 #include "mapping/midi_modules.hh"
 #include "mapping/module_directory.hh"
-#include "patch_convert/patch_to_yaml.hh"
-#include "patch_convert/ryml/ryml_serial.hh"
+#include "patch-serial/patch_to_yaml.hh"
+#include "patch-serial/ryml/ryml_serial.hh"
 #include <algorithm>
 
 PatchFileWriter::PatchFileWriter(std::vector<BrandModule> modules, int64_t hubModuleId)
