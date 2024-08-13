@@ -7,3 +7,6 @@
 [submodule "lib/metamodule-core-interface"]
 	path = lib/metamodule-core-interface
 	url = https://github.com/4ms/metamodule-core-interface
+[submodule "lib/CoreModules"]
+	path = lib/CoreModules
+	url = git@github.com:4ms/metamodule-core-modules
