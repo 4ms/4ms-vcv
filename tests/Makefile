@@ -4,9 +4,9 @@
 TEST_DIR ?= tests
 DOCTESTHEADER_DIR ?= $(TEST_DIR)
 BUILDDIR = $(TEST_DIR)/build/obj
-RYMLDIR = ../shared/patch_convert/ryml/rapidyaml
-JANSSON_CONF_DIR = ../firmware/vcv_plugin/export/jansson
-JANSSON_DIR = ../firmware/vcv_plugin/export/jansson/jansson/src
+RYMLDIR = lib/patch-serial/ryml/rapidyaml
+JANSSON_CONF_DIR = tests/jansson
+JANSSON_DIR = tests/jansson/jansson/src
 
 TEST_SOURCES = $(TEST_DIR)/doctest.cc
 TEST_SOURCES += $(wildcard $(TEST_DIR)/*_test.cc)
@@ -15,29 +15,29 @@ TEST_SOURCES += $(wildcard $(TEST_DIR)/*_tests.cc)
 TEST_SOURCES += $(wildcard $(TEST_DIR)/*_tests.cpp)
 TEST_SOURCES += $(wildcard $(TEST_DIR)/test_*.cc)
 TEST_SOURCES += $(wildcard $(TEST_DIR)/test_*.cpp)
-TEST_SOURCES += ../shared/patch_convert/patch_to_yaml.cc
-TEST_SOURCES += ../shared/patch_convert/ryml/ryml_serial.cc
-TEST_SOURCES += ../shared/patch_convert/ryml/ryml_init.cc
+TEST_SOURCES += lib/patch-serial/patch_to_yaml.cc
+TEST_SOURCES += lib/patch-serial/ryml/ryml_serial.cc
+TEST_SOURCES += lib/patch-serial/ryml/ryml_init.cc
 TEST_SOURCES += src/mapping/patch_writer.cc
 TEST_SOURCES += $(wildcard $(RYMLDIR)/src/c4/yml/*.cpp)
 TEST_SOURCES += $(wildcard $(RYMLDIR)/ext/c4core/src/c4/*.cpp)
 TEST_SOURCES += $(wildcard $(JANSSON_DIR)/*.c)
 
 
-INCLUDES = -I$(DOCTEST_DIR) \
-			-I../src\
-			-Isrc\
-			-Isrc/hub\
+INCLUDES = -I. \
+			-Isrc \
+			-Isrc/hub \
 			-Isrc/mapping\
-			-I../shared \
-			-I../shared/cpputil \
-			-I../shared/patch_convert/ryml \
-			-I$(JANSSON_DIR) \
-			-I$(JANSSON_CONF_DIR) \
+			-Ilib\
+			-Ilib/cpputil \
+			-Ilib/patch-serial \
+			-Ilib/patch-serial/ryml \
 			-I$(TEST_DIR) \
 			-I$(RYMLDIR)/src \
 			-I$(RYMLDIR)/ext/c4core/src \
-			-I../firmware/metamodule-plugin-sdk/metamodule-core-interface \
+			-Ilib/metamodule-core-interface \
+			-I$(JANSSON_DIR) \
+			-I$(JANSSON_CONF_DIR) \
 
 CFLAGS = -DHAVE_CONFIG_H \
 		 -DTESTPROJECT \
