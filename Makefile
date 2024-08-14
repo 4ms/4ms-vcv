@@ -14,7 +14,7 @@ ifdef ARCH_MAC
   ifdef ARCH_ARM64
     EXTRA_CMAKE := -DCMAKE_OSX_ARCHITECTURES="arm64"
   endif
-  EXTRA_CMAKE += -DCMAKE_OSX_DEPLOYMENT_TARGET="11.0"
+  EXTRA_CMAKE += -DCMAKE_OSX_DEPLOYMENT_TARGET="10.15"
 endif
 
 CMAKE_BUILD ?= build
@@ -29,7 +29,7 @@ $(shell touch $(RACK_PLUGIN))
 DEPS += $(cmake_rack_plugin)
 
 $(cmake_rack_plugin): CMakeLists.txt
-	$(CMAKE) -B $(CMAKE_BUILD) -GNinja -DRACK_SDK_DIR=$(RACK_DIR) -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(CMAKE_BUILD)/dist -DVCVRACK $(EXTRA_CMAKE)
+	$(CMAKE) -B $(CMAKE_BUILD) -GNinja -DRACK_SDK_DIR=$(RACK_DIR) -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(CMAKE_BUILD)/dist $(EXTRA_CMAKE)
 	cmake --build $(CMAKE_BUILD) # -- -j $(shell getconf _NPROCESSORS_ONLN)
 	cmake --install $(CMAKE_BUILD)
 
