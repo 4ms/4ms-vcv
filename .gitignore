@@ -11,3 +11,4 @@
 .ccls-cache
 .cache
 .vscode
+tests/build/obj/runtests
