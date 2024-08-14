@@ -32,7 +32,7 @@ DEPS += $(cmake_rack_plugin)
 
 $(cmake_rack_plugin): CMakeLists.txt
 	$(CMAKE) -B $(CMAKE_BUILD) -GNinja -DRACK_SDK_DIR=$(RACK_DIR) -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(CMAKE_BUILD)/dist $(EXTRA_CMAKE)
-	cmake --build $(CMAKE_BUILD) # -- -j $(shell getconf _NPROCESSORS_ONLN)
+	cmake --build $(CMAKE_BUILD)
 	cmake --install $(CMAKE_BUILD)
 
 rack_plugin: $(cmake_rack_plugin)
@@ -46,3 +46,7 @@ DISTRIBUTABLES += $(wildcard LICENSE*) res README.md
 # Include the VCV plugin Makefile framework
 include $(RACK_DIR)/plugin.mk
 
+.PHONY: tests
+
+tests:
+	@$(MAKE) --no-print-directory -f tests/Makefile
