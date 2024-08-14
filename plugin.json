@@ -122,12 +122,6 @@
       "tags": ["Clock generator", "Clock modulator", "Envelope Generator", "Hardware clone"]
     },
     {
-      "slug": "STS",
-      "name": "Stereo Triggered Sampler [STS]",
-      "description": "STS (not implemented)",
-      "tags": ["Sampler", "Hardware clone", "Digital"]
-    },
-    {
       "slug": "VCAM",
       "name": "VCA Matrix [VCAM]",
       "description": "VCAM",

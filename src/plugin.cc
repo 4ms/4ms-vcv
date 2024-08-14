@@ -11,7 +11,6 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelENVVCA);
 	p->addModel(modelDEV);
 	p->addModel(modelFreeverb);
-	p->addModel(modelSTS);
 	p->addModel(modelVCAM);
 	p->addModel(modelTapo);
 	p->addModel(modelSISM);
@@ -27,16 +26,13 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelDLD);
 	p->addModel(modelCLKM);
 	p->addModel(modelCLKD);
-	// p->addModel(modelADEnv);
 	p->addModel(modelVerb);
 	p->addModel(modelSwitch41);
 	p->addModel(modelSwitch14);
 	p->addModel(modelSeq8);
-	// p->addModel(modelQuant);
 	p->addModel(modelProb8);
 	p->addModel(modelOctave);
 	p->addModel(modelMNMX);
-	// p->addModel(modelLPF);
 	p->addModel(modelAtvert2);
 	p->addModel(modelBPF);
 	p->addModel(modelComplexEG);
