@@ -1,4 +1,5 @@
 # Mapping of plugin build definitions from the Rack-SDK arch.mk, compile.mk, dep.mk and plugin.mk to CMake.
+# From https://github.com/baconpaul/airwin2rack/blob/main/RackSDK.cmake
 
 set(RACK_SDK_VERSION 2.4.0)
 message(STATUS "Load RackSDK.cmake (mapping based on Rack-SDK-${RACK_SDK_VERSION})")

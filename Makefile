@@ -1,3 +1,5 @@
+#Makefile based on https://github.com/baconpaul/airwin2rack/blob/main/Makefile
+
 RACK_DIR ?= ../..
 include $(RACK_DIR)/arch.mk
 

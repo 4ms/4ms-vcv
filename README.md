@@ -1,10 +1,10 @@
 ## 4ms Company VCV Rack Modules
 
-These are the [4ms Company's](https://4mscompany.com/) Eurorack modules for the [VCV Rack](https://vcvrack.com/) platform.
+These are [4ms Company](https://4mscompany.com/) Eurorack modules for the [VCV Rack](https://vcvrack.com/) platform.
 
-There is also the MetaModule hub, used for creating patches to run on the MetaModule.
+This also contains the MetaModule hub module, used for creating patches to run on the MetaModule hardware.
 
-### Building VCV Rack Plugin
+### Building the VCV Rack Plugin
 
 You must have the Rack-SDK on your computer already. Set the environment
 variable `RACK_DIR` equal to the path to the location of Rack-SDK. For
