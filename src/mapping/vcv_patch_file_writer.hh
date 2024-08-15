@@ -40,7 +40,7 @@ struct VCVPatchFileWriter {
 			auto *module = engine->getModule(moduleID);
 
 			if (ModuleDirectory::isInPlugin(module)) {
-				auto brand_module = module->getModel()->plugin->slug + ":" + module->getModel()->slug;
+				auto brand_module = ModuleDirectory::convertSlugs(module);
 				moduleData.push_back({moduleID, brand_module.c_str()});
 				if (module->model->slug.size() > 31)
 					printf("Warning: module slug truncated to 31 chars\n");

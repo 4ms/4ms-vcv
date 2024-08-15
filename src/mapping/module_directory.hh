@@ -43,6 +43,29 @@ struct ModuleDirectory {
 		return true;
 	}
 
+	static std::string convertSlugs(rack::Module *module) {
+		if (!module)
+			return "";
+
+		auto brand = module->getModel()->plugin->slug;
+		auto module_slug = module->getModel()->slug;
+
+		if (brand == "Airwin2Rack") {
+			brand = "Airwindows";
+			auto json = module->dataToJson();
+			auto val = json_object_get(json, "airwindowSelectedFX");
+
+			if (val && json_typeof(val) == JSON_STRING)
+				module_slug = json_string_value(val);
+			else
+				module_slug = "Galactic";
+
+			json_decref(json);
+		}
+
+		return brand + ":" + module_slug;
+	}
+
 	static bool isHub(std::string_view slug) {
 		if (slug == "PanelMedium")
 			return true;
