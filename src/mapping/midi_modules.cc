@@ -104,7 +104,7 @@ std::optional<MidiCVSettings> readMidiCVModule(int64_t module_id) {
 	settings.pwRange = pwRangeJ ? json_number_value(pwRangeJ) : -1;
 	settings.channels = channelsJ ? json_integer_value(channelsJ) : 1;
 	settings.clockDivJack =
-		clockDivisionJ ? clockDivToMidiClockJack(json_integer_value(clockDivisionJ)) : MidiClockDiv96Jack;
+		clockDivisionJ ? clockDivToMidiClockJack(json_integer_value(clockDivisionJ)) : unsigned(MidiClockDiv96Jack);
 
 	auto polyMode = polyModeJ ? json_integer_value(polyModeJ) : 0;
 	if (polyMode >= 0 && polyMode <= 3)
