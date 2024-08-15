@@ -4,13 +4,13 @@
 
 struct ModuleDirectory {
 
-	// Return false if the module should not be included in the patch
+	// Return false if the module should not be included in the patch.
 	// Including a module that can't be loaded will give an warning
 	// message the user when they try to load the patch on hardware.
 	// This can be good feedback. Only exclude modules which users
 	// would not expect to have running on hardware (because returning false
 	// here will surpress the warning message).
-	static bool isInPlugin(rack::Module *module) {
+	static bool isRegularModule(rack::Module *module) {
 		if (!module)
 			return false;
 		if (!module->model)
@@ -94,7 +94,7 @@ struct ModuleDirectory {
 	}
 
 	static bool isModuleInPlugin(rack::Module *module) {
-		return isInPlugin(module) && !isHub(module);
+		return isRegularModule(module) && !isHub(module);
 	}
 
 	static bool isCoreMIDI(rack::Module *module) {
@@ -120,6 +120,6 @@ struct ModuleDirectory {
 	}
 
 	static bool isInPluginOrMIDI(rack::Module *module) {
-		return isInPlugin(module) || isCoreMIDI(module);
+		return isRegularModule(module) || isCoreMIDI(module);
 	}
 };
