@@ -33,6 +33,8 @@ struct MetaModuleHubBase : public rack::Module {
 	static constexpr uint32_t MaxKnobSets = 8;
 	HubKnobMappings<NumPots, MaxMapsPerPot, MaxKnobSets> mappings;
 
+	std::array<float, NumPots> last_knob_val{};
+
 	// Mapping State/Progress
 
 	void startMappingFrom(int hubParamId) {
@@ -87,22 +89,26 @@ struct MetaModuleHubBase : public rack::Module {
 
 	void processMaps() {
 		for (int hubParamId = 0; auto &knob : mappings) {
-			for (auto &mapset : knob) {
+			if (std::fabs(last_knob_val[hubParamId] - params[hubParamId].getValue()) > 0.0001f) {
+				last_knob_val[hubParamId] = params[hubParamId].getValue();
 
-				int paramId = mapset.paramHandle.paramId;
-				auto module = mapset.paramHandle.module;
-				if (!module)
-					continue;
+				for (auto &mapset : knob) {
 
-				rack::ParamQuantity *paramQuantity = module->paramQuantities[paramId];
-				if (!paramQuantity)
-					continue;
-				if (!paramQuantity->isBounded())
-					continue;
+					int paramId = mapset.paramHandle.paramId;
+					auto module = mapset.paramHandle.module;
+					if (!module)
+						continue;
 
-				auto &map = mappings.activeMap(mapset);
-				auto val = MathTools::map_value(params[hubParamId].getValue(), 0.f, 1.f, map.range_min, map.range_max);
-				paramQuantity->setScaledValue(val);
+					rack::ParamQuantity *paramQuantity = module->paramQuantities[paramId];
+					if (!paramQuantity)
+						continue;
+					if (!paramQuantity->isBounded())
+						continue;
+
+					auto &map = mappings.activeMap(mapset);
+					auto val = MathTools::map_value(last_knob_val[hubParamId], 0.f, 1.f, map.range_min, map.range_max);
+					paramQuantity->setScaledValue(val);
+				}
 			}
 			hubParamId++;
 		}
