@@ -50,6 +50,7 @@ struct ModuleDirectory {
 		auto brand = module->getModel()->plugin->slug;
 		auto module_slug = module->getModel()->slug;
 
+		// Convert Airwin2Rack FX selection to a MetaModule module
 		if (brand == "Airwin2Rack") {
 			brand = "Airwindows";
 			auto json = module->dataToJson();
@@ -61,6 +62,18 @@ struct ModuleDirectory {
 				module_slug = "Galactic";
 
 			json_decref(json);
+		}
+
+		// Fix capitalization error in early firmware
+		else if (brand == "HetrickCV")
+		{
+			brand = "hetrickcv";
+		}
+
+		// Fix capitalization error in early firmware
+		else if (brand == "NonlinearCircuits")
+		{
+			brand = "nonlinearcircuits";
 		}
 
 		return brand + ":" + module_slug;
