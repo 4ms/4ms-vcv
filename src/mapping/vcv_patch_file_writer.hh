@@ -39,8 +39,8 @@ struct VCVPatchFileWriter {
 
 			auto *module = engine->getModule(moduleID);
 
-			if (ModuleDirectory::isInPlugin(module)) {
-				auto brand_module = module->getModel()->plugin->slug + ":" + module->getModel()->slug;
+			if (ModuleDirectory::isRegularModule(module)) {
+				auto brand_module = ModuleDirectory::convertSlugs(module);
 				moduleData.push_back({moduleID, brand_module.c_str()});
 				if (module->model->slug.size() > 31)
 					printf("Warning: module slug truncated to 31 chars\n");
@@ -68,11 +68,11 @@ struct VCVPatchFileWriter {
 			auto in = cable->inputModule;
 
 			bool isMidiOutput = ModuleDirectory::isCoreMIDI(out) || midimodules.isPolySplitModule(out);
-			bool isKnownOutModule = ModuleDirectory::isInPlugin(out) || isMidiOutput;
+			bool isKnownOutModule = ModuleDirectory::isRegularModule(out) || isMidiOutput;
 
 			// The output module must be in the plugin, or a Core MIDI module, or a Split module connected to a Core MIDI module.
 			// The input module must be in the plugin.
-			if (!(isKnownOutModule && ModuleDirectory::isInPlugin(in)))
+			if (!(isKnownOutModule && ModuleDirectory::isRegularModule(in)))
 				continue;
 
 			// Ignore cables that are connected to a different hub
@@ -105,7 +105,7 @@ struct VCVPatchFileWriter {
 		// Add module state from Module::dataToJson()
 		for (auto moduleID : engine->getModuleIds()) {
 			auto *module = engine->getModule(moduleID);
-			if (ModuleDirectory::isInPlugin(module) && !ModuleDirectory::isHub(module)) {
+			if (ModuleDirectory::isRegularModule(module) && !ModuleDirectory::isHub(module)) {
 				pw.addModuleStateJson(module);
 			}
 		}

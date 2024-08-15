@@ -4,13 +4,13 @@
 
 struct ModuleDirectory {
 
-	// Return false if the module should not be included in the patch
+	// Return false if the module should not be included in the patch.
 	// Including a module that can't be loaded will give an warning
 	// message the user when they try to load the patch on hardware.
 	// This can be good feedback. Only exclude modules which users
 	// would not expect to have running on hardware (because returning false
 	// here will surpress the warning message).
-	static bool isInPlugin(rack::Module *module) {
+	static bool isRegularModule(rack::Module *module) {
 		if (!module)
 			return false;
 		if (!module->model)
@@ -43,6 +43,42 @@ struct ModuleDirectory {
 		return true;
 	}
 
+	static std::string convertSlugs(rack::Module *module) {
+		if (!module)
+			return "";
+
+		auto brand = module->getModel()->plugin->slug;
+		auto module_slug = module->getModel()->slug;
+
+		// Convert Airwin2Rack FX selection to a MetaModule module
+		if (brand == "Airwin2Rack") {
+			brand = "Airwindows";
+			auto json = module->dataToJson();
+			auto val = json_object_get(json, "airwindowSelectedFX");
+
+			if (val && json_typeof(val) == JSON_STRING)
+				module_slug = json_string_value(val);
+			else
+				module_slug = "Galactic";
+
+			json_decref(json);
+		}
+
+		// Fix capitalization error in early firmware
+		else if (brand == "HetrickCV")
+		{
+			brand = "hetrickcv";
+		}
+
+		// Fix capitalization error in early firmware
+		else if (brand == "NonlinearCircuits")
+		{
+			brand = "nonlinearcircuits";
+		}
+
+		return brand + ":" + module_slug;
+	}
+
 	static bool isHub(std::string_view slug) {
 		if (slug == "PanelMedium")
 			return true;
@@ -71,7 +107,7 @@ struct ModuleDirectory {
 	}
 
 	static bool isModuleInPlugin(rack::Module *module) {
-		return isInPlugin(module) && !isHub(module);
+		return isRegularModule(module) && !isHub(module);
 	}
 
 	static bool isCoreMIDI(rack::Module *module) {
@@ -97,6 +133,6 @@ struct ModuleDirectory {
 	}
 
 	static bool isInPluginOrMIDI(rack::Module *module) {
-		return isInPlugin(module) || isCoreMIDI(module);
+		return isRegularModule(module) || isCoreMIDI(module);
 	}
 };
