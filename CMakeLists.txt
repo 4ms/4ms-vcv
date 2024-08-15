@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.24)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
 project(4msVCVModules VERSION 1.0 LANGUAGES C CXX)
 
@@ -46,5 +46,6 @@ target_link_libraries(${RACK_PLUGIN_LIB} PRIVATE
 	metamodule::patch-serial
 	cpputil
 )
-target_link_libraries(${RACK_PLUGIN_LIB} PUBLIC "$<LINK_LIBRARY:WHOLE_ARCHIVE,CoreModules-4ms>")
+
+target_link_libraries(${RACK_PLUGIN_LIB} PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,CoreModules-4ms>")
 
