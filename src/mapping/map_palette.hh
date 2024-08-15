@@ -28,17 +28,21 @@ private:
 		MAGENTA,
 		ORANGE,
 		GREEN,
-		//TODO: less saturated for the knobs u-z?
-		RED,
-		YELLOW,
-		CYAN,
-		MAGENTA,
-		ORANGE,
-		GREEN,
+
+		rack::color::mult(RED, 0.65f),
+		rack::color::mult(YELLOW, 0.65f),
+		rack::color::mult(CYAN, 0.65f),
+		rack::color::mult(MAGENTA, 0.65f),
+		rack::color::mult(ORANGE, 0.65f),
+		rack::color::mult(GREEN, 0.65f),
 	};
 
 public:
 	static NVGcolor color(unsigned idx) {
 		return _color[idx % _color.size()];
+	}
+
+	static NVGcolor flash_color(unsigned idx) {
+		return idx == 1 || idx == 2 || idx == 7 || idx == 8 ? BLACK : WHITE;
 	}
 };

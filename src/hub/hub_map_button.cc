@@ -33,7 +33,7 @@ void HubMapButton::onDragStart(const rack::event::DragStart &e) {
 	if (e.button != GLFW_MOUSE_BUTTON_LEFT) {
 		return;
 	}
-	
+
 	start_mapping();
 
 	// ???What is this?
@@ -61,7 +61,8 @@ void HubMapButton::onHover(const rack::event::Hover &e) {
 	if (hub) {
 		auto &maps = hub->mappings.getAllMappings(hubParamObj.objID);
 		for (auto &map : maps) {
-			map.paramHandle.color = (flash < flash_rate / 2) ? PaletteHub::color(hubParamObj.objID) : PaletteHub::WHITE;
+			map.paramHandle.color = (flash < flash_rate / 2) ? PaletteHub::color(hubParamObj.objID) :
+															   PaletteHub::flash_color(hubParamObj.objID);
 		}
 		flash = flash ? flash - 1 : flash_rate;
 	}

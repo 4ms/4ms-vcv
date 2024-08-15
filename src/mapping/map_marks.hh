@@ -39,7 +39,7 @@ struct MapMark {
 		nvgFillColor(vg, color);
 		nvgFill(vg);
 		nvgStrokeColor(vg, rack::color::mult(color, 0.5));
-		nvgStrokeWidth(vg, 1.0);
+		nvgStrokeWidth(vg, 1.f);
 		nvgStroke(vg);
 	}
 };

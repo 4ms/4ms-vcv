@@ -21,7 +21,6 @@ public:
 	bool isMapped = false;
 	MappableObj mappedToId{MappableObj::Type::None, -1, -1};
 
-	// void _createMapping(LabelButtonID srcId);
 protected:
 	bool hovered{false};
 	rack::app::ModuleWidget &parent;
