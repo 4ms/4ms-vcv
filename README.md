@@ -16,15 +16,26 @@ export RACK_DIR=/Users/MyName/projects/Rack-SDK
 
 You will need a recent c++ compiler such as gcc-12 or later, or clang-14 or later.
 
+Make sure to clone all submodules:
 
-To build the plugin, run:
+```
+git submodule update --init --recursive
+```
+
+To build and the plugin, run:
+
+```
+make dep
+make dist
+```
+
+To install the plugin in your local VCV Rack plugin directory:
 
 ```
 make install
 ```
 
-This will create the plugin file and install it in your local VCV Rack plugin
-directory. The next time you start VCV Rack, it will load the modified plugin.
+The next time you start VCV Rack, it will load the modified plugin.
 
 
 To run the unit tests:
