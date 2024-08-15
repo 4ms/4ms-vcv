@@ -34,6 +34,8 @@ target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	${SOURCES}
 )
 
+set(VCVRACK TRUE)
+
 add_subdirectory(lib/CoreModules)
 add_subdirectory(lib/CoreModules/4ms)
 add_subdirectory(lib/metamodule-core-interface)
