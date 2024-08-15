@@ -1,47 +1,135 @@
 {
   "slug": "4msCompany",
-  "name": "4msCompany",
+  "name": "4ms",
   "version": "2.0.0",
-  "license": "proprietary",
+  "license": "GPL-3.0-or-later",
   "brand": "4msCompany",
-  "author": "",
-  "authorEmail": "",
+  "author": "4ms",
+  "authorEmail": "4ms@4mscompany.com",
   "authorUrl": "https://4mscompany.com",
-  "pluginUrl": "",
+  "pluginUrl": "https://github.com/4ms/4ms-vcv/",
   "manualUrl": "",
-  "sourceUrl": "https://github.com/4ms/metamodule/",
+  "sourceUrl": "https://github.com/4ms/4ms-vcv/",
   "donateUrl": "",
-  "changelogUrl": "https://github.com/4ms/metamodule/vcv/CHANGELOG.md",
+  "changelogUrl": "https://github.com/4ms/4ms-vcv/CHANGELOG.md",
   "modules": [
 	{
       "slug": "HubMedium",
       "name": "MetaModule",
       "description": "MetaModule Hub is used to create patches that run on MetaModule hardware. Use the hub to create mappings between physical and virtual controls and jacks.",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-metamodule",
       "tags": ["Utility", "External"]
 	},
 	{
       "slug": "EnOsc",
-      "name": "Ensemble Oscillator [ENOSC]",
+      "name": "Ensemble Oscillator",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-ensemble-oscillator",
       "description": "The Ensemble Oscillator is a unified polyphonic voice of sixteen complex oscillators combining additive, FM, phase-distortion and wavefolding synthesis techniques in new unorthodox ways.",
       "tags": ["Oscillator", "Digital", "Hardware clone"]
 	},
     {
+      "slug": "DLD",
+      "name": "Dual Looping Delay",
+      "description": "DLD",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-dual-looping-delay",
+      "tags": ["Dual", "Digital", "Delay", "Effect", "Hardware clone"]
+    },
+    {
+      "slug": "Tapo",
+      "name": "Tapographic Delay",
+      "description": "Tapographic delay",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-tapographic-delay",
+      "tags": ["Effect", "Delay", "Digital", "Hardware clone"]
+    },
+    {
+      "slug": "SHEV",
+      "name": "Shaped Dual EnvVCA",
+      "description": "SHEV",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-shaped-dual-envvca-shev",
+      "tags": ["Envelope Generator", "Voltage-controlled amplifier", "LFO", "Hardware clone", "Dual", "Slew limiter"]
+    },
+    {
+      "slug": "DEV",
+      "name": "Dual EnvVCA",
+      "description": "DEV",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-dual-envvca-dev",
+      "tags": ["Envelope Generator", "Voltage-controlled amplifier", "LFO", "Hardware clone", "Dual", "Slew limiter"]
+    },
+    {
       "slug": "ENVVCA",
       "name": "EnvVCA",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-envvca-env",
       "description": "A compact envelope generator with a built-in exponential VCA.",
       "tags": ["Envelope Generator", "Voltage-controlled amplifier", "LFO", "Hardware clone", "Slew limiter"]
     },
     {
-      "slug": "DEV",
-      "name": "Dual EnvVCA [DEV]",
-      "description": "DEV",
-      "tags": ["Envelope Generator", "Voltage-controlled amplifier", "LFO", "Hardware clone", "Dual", "Slew limiter"]
+      "slug": "PEG",
+      "name": "Pingable Envelope Generator PEG",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-pingable-envelope-generator",
+      "tags": ["Clock generator", "Clock modulator", "Envelope Generator", "Dual", "Hardware clone"]
     },
     {
-      "slug": "SHEV",
-      "name": "Shaped Dual EnvVCA [ShEV]",
-      "description": "SHEV",
-      "tags": ["Envelope Generator", "Voltage-controlled amplifier", "LFO", "Hardware clone", "Dual", "Slew limiter"]
+      "slug": "MPEG",
+      "name": "Mini Pingable Envelope Generator",
+      "description": "MiniPEG",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-mini-peg",
+      "tags": ["Clock generator", "Clock modulator", "Envelope Generator", "Hardware clone"]
+    },
+    {
+      "slug": "QCD",
+      "name": "Quad Clock Distributor [QCD]",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-qcd-quad-clock-distributor",
+      "description": "QCD",
+      "tags": ["Clock generator", "Clock modulator", "Quad", "Hardware clone"]
+    },
+    {
+      "slug": "SCM",
+      "name": "Shuffling Clock Multiplier [SCM]",
+      "description": "SCM",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-scm-shuffling-clock-multiplier-v2",
+      "tags": ["Clock modulator", "Hardware clone"]
+    },
+    {
+      "slug": "RCD",
+      "name": "Rotating Clock Divider [RCD]",
+      "description": "RCD",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-rotating-clock-divider-v2",
+      "tags": ["Clock modulator", "Hardware clone"]
+    },
+    {
+      "slug": "QPLFO",
+      "name": "Quad Pingable LFO [QPLFO]",
+      "description": "QPLFO",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-quad-pingable-lfo",
+      "tags": ["LFO", "Hardware clone", "Quad"]
+    },
+    {
+      "slug": "PI",
+      "name": "Percussion Interface + Expander",
+      "description": "Audio to gates, triggers and envelopes",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-percussion-interface",
+      "tags": ["Envelope follower", "Hardware clone"]
+    },
+    {
+      "slug": "VCAM",
+      "name": "VCA Matrix [VCAM]",
+      "description": "VCAM",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-vca-matrix",
+      "tags": ["Voltage-controlled amplifier", "Hardware clone", "Mixer"]
+    },
+    {
+      "slug": "SISM",
+      "name": "Shifting Inverting Signal Mingler [SISM]",
+      "description": "SISM",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-shifting-inverting-signal-mingler",
+      "tags": ["Utility", "Mixer", "Hardware clone"]
+    },
+    {
+      "slug": "L4",
+      "name": "Listen Four",
+      "description": "Four channel stereo mixer",
+	  "modularGridUrl": "https://modulargrid.net/e/4ms-company-listen-four",
+      "tags": ["Mixer"]
     },
     {
       "slug": "Freeverb",
@@ -51,13 +139,13 @@
     },
     {
       "slug": "CLKM",
-      "name": "Clock Multiplier [CLKM]",
+      "name": "Clock Multiplier",
       "description": "Outputs a clock signal at a multiple of an incoming clock signal's tempo.",
       "tags": ["Clock modulator"]
     },
     {
       "slug": "CLKD",
-      "name": "Clock Divider [CLKD]",
+      "name": "Clock Divider",
       "description": "Outputs a clock signal as a division of an incoming clock signal's tempo.",
       "tags": ["Clock modulator"]
     },
@@ -75,7 +163,7 @@
     },
     {
       "slug": "StMix",
-      "name": "Stereo Mixer [StMix]",
+      "name": "Stereo Mixer",
       "description": "A mixer with four stereo channels and variable panning per-channel.",
       "tags": ["Mixer", "Panning"]
     },
@@ -116,82 +204,10 @@
       "tags": ["Effect"]
     },
     {
-      "slug": "MPEG",
-      "name": "Mini Pingable Envelope Generator [MPEG]",
-      "description": "MiniPEG",
-      "tags": ["Clock generator", "Clock modulator", "Envelope Generator", "Hardware clone"]
-    },
-    {
-      "slug": "VCAM",
-      "name": "VCA Matrix [VCAM]",
-      "description": "VCAM",
-      "tags": ["Voltage-controlled amplifier", "Hardware clone", "Mixer"]
-    },
-    {
-      "slug": "Tapo",
-      "name": "Tapographic Delay [TAPO]",
-      "description": "Tapo",
-      "tags": ["Effect", "Delay", "Digital", "Hardware clone"]
-    },
-    {
-      "slug": "SISM",
-      "name": "Shifting Inverting Signal Mingler [SISM]",
-      "description": "SISM",
-      "tags": ["Utility", "Mixer", "Hardware clone"]
-    },
-    {
       "slug": "SH",
       "name": "Sample and Hold",
       "description": "SH",
       "tags": ["Random", "Sample and hold"]
-    },
-    {
-      "slug": "SCM",
-      "name": "Shuffling Clock Multiplier [SCM]",
-      "description": "SCM (partially implemented)",
-      "tags": ["Clock modulator", "Hardware clone"]
-    },
-    {
-      "slug": "RCD",
-      "name": "Rotating Clock Divider [RCD]",
-      "description": "RCD",
-      "tags": ["Clock modulator", "Hardware clone"]
-    },
-    {
-      "slug": "QPLFO",
-      "name": "Quad Pingable LFO [QPLFO]",
-      "description": "QPLFO",
-      "tags": ["LFO", "Hardware clone", "Quad"]
-    },
-    {
-      "slug": "QCD",
-      "name": "Quad Clock Distributor [QCD]",
-      "description": "QCD",
-      "tags": ["Clock generator", "Clock modulator", "Quad", "Hardware clone"]
-    },
-    {
-      "slug": "PI",
-      "name": "Percussion Interface + Expander [PI]",
-      "description": "PI (not implemented)",
-      "tags": ["Envelope follower", "Hardware clone"]
-    },
-    {
-      "slug": "PEG",
-      "name": "Pingable Envelope Generator [PEG]",
-      "description": "PEG (not implemented)",
-      "tags": ["Clock generator", "Clock modulator", "Envelope Generator", "Dual", "Hardware clone"]
-    },
-    {
-      "slug": "L4",
-      "name": "Listen Four [L4]",
-      "description": "L4",
-      "tags": ["Mixer"]
-    },
-    {
-      "slug": "DLD",
-      "name": "Dual Looping Delay [DLD]",
-      "description": "DLD",
-      "tags": ["Dual", "Digital", "Delay", "Effect", "Hardware clone"]
     },
     {
       "slug": "Switch41",
@@ -219,7 +235,7 @@
     },
     {
       "slug": "MNMX",
-      "name": "Min-Max [MNMX]",
+      "name": "Min-Max",
       "description": "Takes in two signals and outputs the minimum and maximum voltages.",
       "tags": ["Utility"]
     },
