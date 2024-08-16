@@ -86,6 +86,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   endif ()
   target_compile_definitions(RackSDK INTERFACE ARCH_WIN _USE_MATH_DEFINES)
   target_compile_options(RackSDK INTERFACE -municode -Wsuggest-override)
+  target_link_options(${RACK_PLUGIN_LIB} PUBLIC -static-libstdc++)
 endif ()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
