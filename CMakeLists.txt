@@ -12,9 +12,14 @@ include(RackSDK.cmake)
 
 message(STATUS "Installing into '${CMAKE_INSTALL_PREFIX}'")
 
-target_compile_options(${RACK_PLUGIN_LIB} PRIVATE -fvisibility=hidden -fvisibility-inlines-hidden) 
+target_compile_options(${RACK_PLUGIN_LIB} PRIVATE -fvisibility=hidden -fvisibility-inlines-hidden)
 
 add_compile_definitions(VCVRACK)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ${CMAKE_OSX_ARCHITECTURES} MATCHES "x86_64")
+  message("Disabling stack check for macOS x86")
+  add_compile_options(-fno-stack-check)
+endif()
 
 target_include_directories(${RACK_PLUGIN_LIB} PRIVATE 
 	src
