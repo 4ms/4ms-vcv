@@ -16,7 +16,7 @@ target_compile_options(${RACK_PLUGIN_LIB} PRIVATE -fvisibility=hidden -fvisibili
 
 add_compile_definitions(VCVRACK)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ${CMAKE_OSX_ARCHITECTURES} MATCHES "x86_64")
+if (("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin") AND ("${CMAKE_OSX_ARCHITECTURES}" MATCHES "x86_64"))
   message("Disabling stack check for macOS x86")
   add_compile_options(-fno-stack-check)
 endif()
