@@ -8,10 +8,10 @@
   "authorEmail": "4ms@4mscompany.com",
   "authorUrl": "https://4mscompany.com",
   "pluginUrl": "https://github.com/4ms/4ms-vcv/",
-  "manualUrl": "",
+  "manualUrl": "https://metamodule.info/docs",
   "sourceUrl": "https://github.com/4ms/4ms-vcv/",
   "donateUrl": "",
-  "changelogUrl": "https://github.com/4ms/4ms-vcv/CHANGELOG.md",
+  "changelogUrl": "https://github.com/4ms/4ms-vcv/blob/main/CHANGELOG.md",
   "modules": [
     {
       "slug": "HubMedium",
