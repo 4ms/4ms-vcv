@@ -4,6 +4,8 @@ These are [4ms Company](https://4mscompany.com/) Eurorack modules for the [VCV R
 
 This also contains the MetaModule hub module, used for creating patches to run on the MetaModule hardware.
 
+More information: [MetaModule website](https://metamodule.info)
+
 ### Building the VCV Rack Plugin
 
 You must have the Rack-SDK on your computer already. Set the environment
