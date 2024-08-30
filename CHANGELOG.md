@@ -6,7 +6,7 @@
 
 ## v2.0.2
 
-- Fix crash on MPEG and PEG modules (and potential, but not experienced crash on QPLFO and PitchShift). See [Issue 11](https://github.com/4ms/4ms-vcv/issues/11) and [Issue 9](https://github.com/4ms/4ms-vcv/issues/9)
+- Fix crash on QPLFO module (and potential, but not reported crash on PitchShift). See [Issue 11](https://github.com/4ms/4ms-vcv/issues/11).
 
 ## v2.0.1
 
