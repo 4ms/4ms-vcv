@@ -62,33 +62,6 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 		addParam(p);
 	}
 
-	void addMidiValueMapSrc(const std::string labelText, int knobId, rack::math::Vec posPx, MappableObj::Type type) {
-		auto *button = new HubMidiMapButton{hubModule, *this};
-		button->box.size.x = rack::mm2px(13.5);
-		button->box.size.y = rack::mm2px(5.6);
-		button->box.pos = posPx;
-		button->box.pos = button->box.pos.minus(button->box.size.div(2));
-		button->text = labelText;
-		button->hubParamObj = {type, knobId, hubModule ? hubModule->id : -1};
-		addChild(button);
-
-		auto *p = new HubMidiParam{hubModule, *button};
-		p->setSize(rack::mm2px({12, 4}));
-		p->box.pos = posPx;
-		p->box.pos = p->box.pos.minus(p->box.size.div(2));
-		p->rack::app::ParamWidget::module = hubModule;
-		p->rack::app::ParamWidget::paramId = knobId;
-		p->initParamQuantity();
-
-		if (module) {
-			auto pq = p->getParamQuantity();
-			pq = module->paramQuantities[knobId];
-			pq->defaultValue = 0.f;
-			button->setParamQuantity(pq);
-		}
-		addParam(p);
-	}
-
 	void onHover(const HoverEvent &e) override {
 		rack::app::ModuleWidget::onHover(e);
 		if (hubModule->should_write_patch()) {

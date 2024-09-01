@@ -1,5 +1,6 @@
 #pragma once
 #include "comm/comm_module.hh"
+#include "hub/hub_module.hh"
 #include "hub_knob_mappings.hh"
 #include "mapping/module_directory.hh"
 #include "mapping/vcv_patch_file_writer.hh"
@@ -8,9 +9,6 @@
 #include "util/string_util.hh"
 #include <osdialog.h>
 #include <span>
-
-// #define pr_dbg printf
-#define pr_dbg(x, ...)
 
 struct MetaModuleHubBase : public rack::Module {
 
@@ -55,7 +53,7 @@ struct MetaModuleHubBase : public rack::Module {
 
 	bool registerMap(int hubParamId, rack::Module *module, int64_t moduleParamId) {
 		if (!isMappingInProgress()) {
-			pr_dbg("Error: registerMap() called but we aren't mapping!\n");
+			pr_dbg("registerMap() called but we aren't mapping\n");
 			return false;
 		}
 
@@ -74,7 +72,7 @@ struct MetaModuleHubBase : public rack::Module {
 		mappings.linkToModule(id);
 		auto *map = mappings.addMap(hubParamId, module->id, moduleParamId);
 		if (!map) {
-			printf("Error: could not create mapping\n");
+			pr_dbg("Error: could not create mapping\n");
 			return false;
 		}
 
@@ -147,7 +145,7 @@ struct MetaModuleHubBase : public rack::Module {
 			json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
 			json_object_set_new(rootJ, "DefaultKnobSet", defaultKnobSetJ);
 		} else
-			printf("Error: Widget has not been constructed, but dataToJson is being called\n");
+			pr_dbg("Error: Widget has not been constructed, but dataToJson is being called\n");
 		return rootJ;
 	}
 

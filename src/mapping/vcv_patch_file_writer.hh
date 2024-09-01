@@ -1,4 +1,5 @@
 #pragma once
+#include "console/pr_dbg.hh"
 #include "cpputil/util/colors.hh"
 #include "hub/hub_knob_mappings.hh"
 #include "mapping/JackMap.hh"
@@ -43,7 +44,7 @@ struct VCVPatchFileWriter {
 				auto brand_module = ModuleDirectory::convertSlugs(module);
 				moduleData.push_back({moduleID, brand_module.c_str()});
 				if (module->model->slug.size() > 31)
-					printf("Warning: module slug truncated to 31 chars\n");
+					pr_dbg("Warning: module slug truncated to 31 chars\n");
 
 				if (!ModuleDirectory::isHub(module)) {
 					for (size_t i = 0; i < module->paramQuantities.size(); i++) {

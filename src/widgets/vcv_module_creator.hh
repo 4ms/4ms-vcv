@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreModules/elements/element_counter.hh"
 #include "base_modules_implemenation.hh"
+#include "console/pr_dbg.hh"
 #include "vcv_creation_context.hh"
 
 namespace MetaModule::VCVImplementation::Module
@@ -9,7 +10,7 @@ namespace MetaModule::VCVImplementation::Module
 inline void do_config_element(BaseElement el, const ElementCount::Indices &, const ModuleContext_t &) {
 	// Do nothing by default
 	// FIXME: This should probably be replaced with more specific fallbacks
-	printf("Element not configured (%.*s)\n", (int)el.short_name.size(), el.short_name.data());
+	pr_dbg("Element not configured (%.*s)\n", (int)el.short_name.size(), el.short_name.data());
 };
 } // namespace MetaModule::VCVImplementation::Module
 
