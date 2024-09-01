@@ -43,8 +43,9 @@ struct VCVPatchFileWriter {
 			if (ModuleDirectory::isRegularModule(module)) {
 				auto brand_module = ModuleDirectory::convertSlugs(module);
 				moduleData.push_back({moduleID, brand_module.c_str()});
-				if (module->model->slug.size() > 31)
-					pr_dbg("Warning: module slug truncated to 31 chars\n");
+				if (module->model->slug.size() > 31) {
+					pr_warn("Warning: module slug truncated to 31 chars\n");
+				}
 
 				if (!ModuleDirectory::isHub(module)) {
 					for (size_t i = 0; i < module->paramQuantities.size(); i++) {
