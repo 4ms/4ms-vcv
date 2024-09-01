@@ -350,7 +350,12 @@ private:
 		for (auto &knob : mappings) {
 			for (auto &mapset : knob) {
 				Mapping &map = mapset.maps[activeSetId];
-				APP->engine->updateParamHandle(&mapset.paramHandle, map.moduleId, map.paramId, true);
+				// Calling updateParamHandle(ph, m, p) where ph.moduleId == m && ph.paramId == p,
+				// will remove paramHandle from the engine. That is, calling updateParamHandle()
+				// without changing the module or param values will delete the paramHandle.
+				// To fix this, rack::Engine would need to check if oldParamHandle == paramHandle
+				if (mapset.paramHandle.moduleId != map.moduleId || mapset.paramHandle.paramId != map.paramId)
+					APP->engine->updateParamHandle(&mapset.paramHandle, map.moduleId, map.paramId, true);
 			}
 		}
 	}
