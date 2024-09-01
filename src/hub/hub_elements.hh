@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreModules/elements/element_counter.hh"
 #include "CoreModules/elements/elements.hh"
+#include "console/pr_dbg.hh"
 #include "hub/hub_module_widget.hh"
 #include "widgets/4ms/4ms_widgets.hh"
 
@@ -16,7 +17,7 @@ namespace HubWidgetImpl
 {
 
 inline void do_create(BaseElement element, const ElementCount::Indices &, const HubWidgetContext &) {
-	printf("Hub Widget not found\n");
+	pr_dbg("Hub Widget not found\n");
 }
 
 inline void do_create(Knob el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {

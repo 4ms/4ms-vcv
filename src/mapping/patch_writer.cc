@@ -1,4 +1,5 @@
 #include "patch_writer.hh"
+#include "console/pr_dbg.hh"
 #include "mapping/midi_modules.hh"
 #include "mapping/module_directory.hh"
 #include "patch-serial/patch_to_yaml.hh"
@@ -207,7 +208,7 @@ void PatchFileWriter::addKnobMaps(unsigned panelKnobId, unsigned knobSetId, cons
 
 	for (const auto &m : maps) {
 		if (!idMap.contains(m.moduleId)) {
-			printf("Skipping knob mapping to module not supported by MetaModule: %lld\n", (long long)m.moduleId);
+			pr_dbg("Skipping knob mapping to module not supported by MetaModule: %lld\n", (long long)m.moduleId);
 			continue;
 		}
 		pd.knob_sets[knobSetId].set.push_back({
