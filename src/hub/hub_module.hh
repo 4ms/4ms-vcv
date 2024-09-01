@@ -55,7 +55,7 @@ struct MetaModuleHubBase : public rack::Module {
 
 	bool registerMap(int hubParamId, rack::Module *module, int64_t moduleParamId) {
 		if (!isMappingInProgress()) {
-			pr_dbg("Error: registerMap() called but we aren't mapping!\n");
+			pr_dbg("registerMap() called but we aren't mapping\n");
 			return false;
 		}
 
@@ -74,7 +74,7 @@ struct MetaModuleHubBase : public rack::Module {
 		mappings.linkToModule(id);
 		auto *map = mappings.addMap(hubParamId, module->id, moduleParamId);
 		if (!map) {
-			printf("Error: could not create mapping\n");
+			pr_dbg("Error: could not create mapping\n");
 			return false;
 		}
 

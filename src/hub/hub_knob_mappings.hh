@@ -13,7 +13,6 @@
 // 5) which will notice the paramHandle is gone, and thus delete the map
 // 6) Then, hub::encodeJson is called and writes out json without that map
 
-//Rename HubKnobMapManager
 template<size_t NumKnobs, size_t MaxMapsPerPot, size_t MaxKnobSets = 8>
 class HubKnobMappings {
 	int64_t hubModuleId = -1;
@@ -28,9 +27,9 @@ public:
 	using KnobMultiMap = std::array<KnobMappingSet, MaxMapsPerPot>;
 	using HubKnobsMultiMaps = std::array<KnobMultiMap, NumKnobs>;
 	HubKnobsMultiMaps mappings;
+	//mappings[KnobId][MultiMapId].maps[KnobSetID].moduleId/paramId
 
 	std::array<std::string, MaxKnobSets> knobSetNames;
-	// TODO aliases
 	std::array<std::array<StaticString<31>, MaxKnobSets>, NumKnobs> aliases;
 
 	HubKnobMappings() {
