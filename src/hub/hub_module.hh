@@ -144,8 +144,9 @@ struct MetaModuleHubBase : public rack::Module {
 
 			json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
 			json_object_set_new(rootJ, "DefaultKnobSet", defaultKnobSetJ);
-		} else
-			pr_dbg("Error: Widget has not been constructed, but dataToJson is being called\n");
+		} else {
+			pr_err("Error: Widget has not been constructed, but dataToJson is being called\n");
+		}
 		return rootJ;
 	}
 
