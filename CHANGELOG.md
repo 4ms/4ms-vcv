@@ -1,12 +1,17 @@
 # CHANGE LOG
 
-## v2.0.4 (in progress)
+## v2.0.4
 
-- Fix issue where you couldn't map the same knob in two different knob sets, unless the hub knob was different in each. [Issue 16](https://github.com/4ms/4ms-vcv/issues/16)
+- Fix issue where you couldn't map the same knob in two different knob sets,
+  if the hub knob was the same in each. 
+  See [Issue 16](https://github.com/4ms/4ms-vcv/issues/16)
 
-- Updated CV range of Pitch and Root jacks to be -8V to +8V. Previously was -5V to +5V, which did not fully cover the original hardware range of -2V to +6V.
+- Updated CV range of Pitch and Root jacks to be -8V to +8V. Previously was -5V
+  to +5V, which did not fully cover the original hardware range of -2V to +6V.
 
-- Refactor many jack inputs handling whether they are patched or not. Fixes issues on hardware MetaModule but should not change behaviors when used from within VCV Rack.
+- Refactor many jack inputs handling whether they are patched or not. Fixes
+  issues on hardware MetaModule with MIDI jacks (non-streaming signals), but
+  should not change behaviors when used from within VCV Rack.
 
 
 ## v2.0.3
@@ -15,7 +20,8 @@
 
 ## v2.0.2
 
-- Fix crash on QPLFO module (and potential, but not reported crash on PitchShift). See [Issue 11](https://github.com/4ms/4ms-vcv/issues/11).
+- Fix crash on QPLFO module (and potential, but not reported crash on
+  PitchShift). See [Issue 11](https://github.com/4ms/4ms-vcv/issues/11).
 
 ## v2.0.1
 
