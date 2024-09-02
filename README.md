@@ -39,6 +39,19 @@ make install
 
 The next time you start VCV Rack, it will load the modified plugin.
 
+If you are developing or modifying the code, then use the cmake interface for building (it will handle dependencies and rebuild only what needs to):
+
+```
+# Configure cmake (only need to do this once):
+make dep
+
+# Then do this to rebuild after making changes:
+cmake --build build
+
+# Install normally:
+make install
+
+```
 
 To run the unit tests:
 
