@@ -41,6 +41,9 @@ struct Module {
 	json_t *dataToJson() {
 		return nullptr;
 	}
+	Model *getModel() {
+		return model;
+	}
 };
 
 struct ParamHandle {
@@ -52,7 +55,7 @@ struct ParamHandle {
 	NVGcolor color;
 };
 
-struct Cable{};
+struct Cable {};
 
 struct _Engine {
 	void removeParamHandle(rack::ParamHandle *) {
