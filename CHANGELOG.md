@@ -1,5 +1,14 @@
 # CHANGE LOG
 
+## v2.0.4 (in progress)
+
+- Fix issue where you couldn't map the same knob in two different knob sets, unless the hub knob was different in each. [Issue 16](https://github.com/4ms/4ms-vcv/issues/16)
+
+- Updated CV range of Pitch and Root jacks to be -8V to +8V. Previously was -5V to +5V, which did not fully cover the original hardware range of -2V to +6V.
+
+- Refactor many jack inputs handling whether they are patched or not. Fixes issues on hardware MetaModule but should not change behaviors when used from within VCV Rack.
+
+
 ## v2.0.3
 
 - Fix noise when modulating Root CV on Ensemble Osc, see [Issue 13](https://github.com/4ms/4ms-vcv/issues/13)
