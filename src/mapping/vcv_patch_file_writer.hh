@@ -15,11 +15,9 @@
 // Adpats VCVRack-format of patch data to a format PatchFileWriter can use
 template<size_t NumKnobs, size_t MaxMapsPerPot, size_t MaxKnobSets>
 struct VCVPatchFileWriter {
-	using HubKnobsMultiMap = typename HubKnobMappings<NumKnobs, MaxMapsPerPot, MaxKnobSets>::HubKnobsMultiMaps;
 
 	static void writePatchFile(int64_t hubModuleId,
-							   HubKnobsMultiMap &mappings,
-							   std::span<std::string> knobSetNames,
+							   HubKnobMappings<NumKnobs, MaxMapsPerPot, MaxKnobSets> &mappings,
 							   std::string fileName,
 							   std::string patchName,
 							   std::string patchDesc) {
@@ -114,15 +112,16 @@ struct VCVPatchFileWriter {
 
 		// Iterate mappings, by MaxKnobSets times
 		for (unsigned set_i = 0; set_i < MaxKnobSets; set_i++) {
-			pw.addKnobMapSet(set_i, knobSetNames[set_i]);
+			pw.addKnobMapSet(set_i, mappings.knobSetNames[set_i]);
 
-			for (unsigned hubParamId = 0; auto &knob_maps : mappings) {
+			for (unsigned hubParamId = 0; auto &knob_maps : mappings.mappings) {
 
 				std::vector<Mapping> active_maps;
 				active_maps.reserve(8);
 
 				for (auto &mapsets : knob_maps) {
 					auto &map = mapsets.maps[set_i];
+					map.alias_name = mappings.getMapAliasName({.objID = hubParamId}, set_i);
 					if (map.moduleId > 0)
 						active_maps.push_back(map);
 				}

@@ -219,7 +219,7 @@ struct MetaModuleHubBase : public rack::Module {
 		updateDisplay();
 
 		VCVPatchFileWriter<NumPots, MaxMapsPerPot, MaxKnobSets>::writePatchFile(
-			id, mappings.mappings, mappings.knobSetNames, patchFileName, patchName, patchDescText);
+			id, mappings, patchFileName, patchName, patchDescText);
 
 		labelText = "Wrote patch file: ";
 		labelText += rack::system::getFilename(patchFileName);
