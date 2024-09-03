@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## v2.0.5 (in progress)
+
+- Fix knob alias names not always saving into MM patch file. See [Issue 20](https://github.com/4ms/4ms-vcv/issues/20)
+
 ## v2.0.4
 
 - Fix issue where you couldn't map the same knob in two different knob sets,
