@@ -1,4 +1,5 @@
 #pragma once
+#include "console/pr_dbg.hh"
 #include "mapping/MappableObject.h"
 #include "mapping/map_palette.hh"
 #include "mapping/mapping.hh"
@@ -30,7 +31,7 @@ public:
 	//mappings[KnobId][MultiMapId].maps[KnobSetID].moduleId/paramId
 
 	std::array<std::string, MaxKnobSets> knobSetNames;
-	std::array<std::array<StaticString<31>, MaxKnobSets>, NumKnobs> aliases;
+	std::array<std::array<std::string, MaxKnobSets>, NumKnobs> aliases;
 
 	HubKnobMappings() {
 		for (unsigned i = 0; auto &knob_multimap : mappings) {
@@ -134,20 +135,25 @@ public:
 
 	// Mapping Alias:
 
-	void setMapAliasName(MappableObj paramObj, std::string newname) {
+	void setMapAliasName(MappableObj paramObj, std::string const &newname, unsigned set_id) {
 		if (paramObj.objID < (int)NumKnobs) {
-			aliases[paramObj.objID][activeSetId].copy(newname);
-			auto &knobmultimap = mappings[paramObj.objID];
-			auto &mapset = knobmultimap[0]; //first map per pot
-			mapset.maps[activeSetId].alias_name = newname;
+			aliases[paramObj.objID][set_id] = newname;
 		}
 	}
 
-	std::string getMapAliasName(MappableObj paramObj) {
+	void setMapAliasName(MappableObj paramObj, std::string const &newname) {
+		setMapAliasName(paramObj, newname, activeSetId);
+	}
+
+	std::string getMapAliasName(MappableObj paramObj, unsigned set_id) {
 		if (paramObj.objID < (int)NumKnobs) {
-			return std::string{aliases[paramObj.objID][activeSetId]};
+			return aliases[paramObj.objID][set_id];
 		}
 		return "";
+	}
+
+	std::string getMapAliasName(MappableObj paramObj) {
+		return getMapAliasName(paramObj, activeSetId);
 	}
 
 	// Add mappings to a knob in the active set:
@@ -290,7 +296,8 @@ public:
 							map->range_max = json_is_real(val) ? json_real_value(val) : 1.f;
 
 							val = json_object_get(mappingJ, "AliasName");
-							aliases[hubParamId][set_i] = json_is_string(val) ? json_string_value(val) : "";
+							std::string name = json_is_string(val) ? json_string_value(val) : "";
+							setMapAliasName({.objID = hubParamId}, name, set_i);
 						}
 					}
 
