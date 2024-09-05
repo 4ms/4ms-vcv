@@ -16,4 +16,6 @@ struct ModuleID {
 struct BrandModule {
 	int64_t id;
 	BrandModuleSlug slug;
+	float x;
+	float y;
 };

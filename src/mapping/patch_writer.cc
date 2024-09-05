@@ -52,6 +52,10 @@ void PatchFileWriter::setMidiSettings(MetaModule::MIDI::ModuleIds &ids, MetaModu
 void PatchFileWriter::setModuleList(std::vector<BrandModule> &modules) {
 	std::vector<int64_t> vcv_mod_ids;
 
+	std::sort(modules.begin(), modules.end(), [&](auto const &a, auto const &b) {
+		return a.y < b.y || (a.y == b.y && a.x < b.x);
+	});
+
 	// Reserved for PANEL
 	vcv_mod_ids.push_back(-1);
 	pd.module_slugs.push_back("");
