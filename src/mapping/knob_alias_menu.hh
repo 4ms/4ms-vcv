@@ -25,10 +25,10 @@ struct KnobAliasMenuItem : rack::widget::Widget {
 		: src{src}
 		, hub{hub} {
 		box.pos = {0, 0};
-		box.size = {120, BND_WIDGET_HEIGHT};
+		box.size = {180, BND_WIDGET_HEIGHT};
 		txt = new KnobAliasTextBox{hub, src};
 		txt->box.pos = {45, 0};
-		txt->box.size = {120 - txt->box.pos.x, BND_WIDGET_HEIGHT};
+		txt->box.size = {180 - txt->box.pos.x, BND_WIDGET_HEIGHT};
 		txt->text = "";
 		txt->text = hub->mappings.getMapAliasName(src);
 		addChild(txt);
