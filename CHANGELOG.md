@@ -7,7 +7,12 @@
 - When saving a MM patch, sort modules by row, then column.
 
 - When saving a MM patch, typing a filename in the Save diaog box will
-  automatically be copied to the patch name.
+  automatically be copied to the patch name. Remove slashes, colons, quotes,
+  and replace dots with underscores
+
+- Make knob alias name text color legible
+
+- Add "Unmap" to Hub knob menu for each mapped knob
 
 
 ## v2.0.5
