@@ -84,11 +84,13 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		patchName->cursor = 0;
 		addChild(patchName);
 
+#ifdef DEBUG_STATUS_LABEL
 		statusText = createWidget<Label>(rack::mm2px(rack::math::Vec(10, 1.5)));
 		statusText->color = rack::color::WHITE;
 		statusText->text = "";
 		statusText->fontSize = 10;
 		addChild(statusText);
+#endif
 
 		patchDesc = createWidget<MetaModule::MetaModuleTextBox>(rack::mm2px(rack::math::Vec(36.4, 18.f)));
 		if (hubModule != nullptr && hubModule->patchDescText.length() > 0)
@@ -179,15 +181,21 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		lastPatchFilePath = rack::system::getDirectory(patchFileName);
 
+#ifdef DEBUG_STATUS_LABEL
 		statusText->text = "Creating patch...";
+#endif
 
 		patchName->text = rack::system::getStem(filename);
 
 		VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>::writePatchFile(
 			hubModule->id, hubModule->mappings, patchFileName, patchName->text, patchDesc->text);
 
-		statusText->text = "Wrote patch file: ";
+#ifdef DEBUG_STATUS_LABEL
+		statusText->text = "Wrote patch file";
 		statusText->text += rack::system::getFilename(patchFileName);
+
+		statusText->text = "";
+#endif
 	}
 
 	struct HubSaveButton : rack::BefacoPush {
