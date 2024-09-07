@@ -15,11 +15,13 @@ using namespace rack;
 struct HubMedium : MetaModuleHubBase {
 	using INFO = MetaModule::HubMediumInfo;
 
+	static constexpr unsigned num_extra_params = 1; //Save Button
+
 	HubMedium() {
 
 		// Register with VCV the number of elements of each type
 		auto cnt = ElementCount::count<INFO>();
-		config(cnt.num_params, cnt.num_inputs, cnt.num_outputs, cnt.num_lights);
+		config(cnt.num_params + num_extra_params, cnt.num_inputs, cnt.num_outputs, cnt.num_lights);
 
 		// Configure elements with VCV
 		MetaModule::VCVModuleParamCreator<INFO> creator{this};
@@ -29,7 +31,6 @@ struct HubMedium : MetaModuleHubBase {
 	}
 
 	void process(const ProcessArgs &args) override {
-		processPatchButton(params[save_patch_button_idx].getValue());
 		processMaps();
 	}
 
@@ -40,25 +41,22 @@ private:
 		auto element_idx = static_cast<std::underlying_type_t<INFO::Elem>>(el);
 		return indices[element_idx];
 	}
-
-	unsigned save_patch_button_idx = index(INFO::Elem::SavepatchButton).param_idx;
 };
 
 struct HubMediumWidget : MetaModuleHubWidget {
+
 	using INFO = MetaModule::HubMediumInfo;
 
 	LedDisplayTextField *patchName;
 	LedDisplayTextField *patchDesc;
+
+	std::string lastPatchFilePath;
 
 	HubMediumWidget(HubMedium *module) {
 		setModule(module);
 		hubModule = module;
 
 		if (hubModule != nullptr) {
-			hubModule->updateDisplay = [this] {
-				statusText->text = hubModule->labelText;
-			};
-
 			hubModule->updatePatchName = [this] {
 				hubModule->patchNameText = patchName->text;
 				hubModule->patchDescText = patchDesc->text;
@@ -132,7 +130,73 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		for (auto &element : INFO::Elements) {
 			std::visit([&creator](auto &el) { creator.create(el); }, element);
 		}
+
+		// Add the Save button
+		constexpr auto saveButtonIndex = ElementCount::count<INFO>().num_params;
+		auto saveButton = createParamCentered<HubSaveButton>(rack::math::Vec(358.5f, 38.57f), module, saveButtonIndex);
+		saveButton->click_callback = [this]() {
+			writePatchFile();
+		};
+		addParam(saveButton);
 	}
+
+	void writePatchFile() {
+		std::string patchnm = patchName->text;
+
+		if (patchnm == "" || patchnm == "Enter Patch Name") {
+			patchnm = "Untitled Patch " + std::to_string(MathTools::randomNumber<unsigned int>(100, 999));
+		}
+
+		ReplaceString patchStructName{patchnm};
+		// Remove slashes, colons, quotes, and replace dots with _
+		patchStructName.replace_all("/", "")
+			.replace_all("\\", "")
+			.replace_all("\"", "")
+			.replace_all("'", "")
+			.replace_all(":", "")
+			.replace_all(".", "_");
+
+		osdialog_filters *filters = osdialog_filters_parse("Metamodule Patch File (.yml):yml");
+		DEFER({ osdialog_filters_free(filters); });
+
+		std::string dir = lastPatchFilePath;
+		if (dir == "")
+			dir = rack::asset::userDir.c_str();
+
+		char *filename = osdialog_file(OSDIALOG_SAVE, dir.c_str(), patchStructName.str.c_str(), filters);
+		if (!filename)
+			return;
+
+		std::string patchFileName = filename;
+		DEFER({ free(filename); });
+
+		if (rack::system::getExtension(rack::system::getFilename(patchFileName)) != ".yml") {
+			patchFileName += ".yml";
+		}
+
+		lastPatchFilePath = rack::system::getDirectory(patchFileName);
+
+		statusText->text = "Creating patch...";
+
+		patchName->text = rack::system::getStem(filename);
+
+		VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>::writePatchFile(
+			hubModule->id, hubModule->mappings, patchFileName, patchName->text, patchDesc->text);
+
+		statusText->text = "Wrote patch file: ";
+		statusText->text += rack::system::getFilename(patchFileName);
+	}
+
+	struct HubSaveButton : rack::BefacoPush {
+		std::function<void(void)> click_callback;
+
+		void onDragEnd(const rack::event::DragEnd &e) override {
+			OpaqueWidget::onDragEnd(e);
+			if (click_callback) {
+				click_callback();
+			}
+		}
+	};
 };
 
 rack::Model *modelHubMedium = rack::createModel<HubMedium, HubMediumWidget>("HubMedium");

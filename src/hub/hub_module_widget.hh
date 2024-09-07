@@ -62,15 +62,6 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 		addParam(p);
 	}
 
-	void onHover(const HoverEvent &e) override {
-		rack::app::ModuleWidget::onHover(e);
-		if (hubModule->should_write_patch()) {
-			hubModule->mappings.removeMapsToDeletedModules();
-			hubModule->writePatchFile();
-			e.consume(this);
-		}
-	}
-
 	void appendContextMenu(rack::Menu *menu) override {
 		using namespace rack;
 		menu->addChild(new MenuSeparator());

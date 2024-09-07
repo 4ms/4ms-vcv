@@ -13,14 +13,8 @@
 struct MetaModuleHubBase : public rack::Module {
 
 	std::function<void()> updatePatchName;
-	std::function<void()> updateDisplay;
-	std::string labelText = "";
 	std::string patchNameText = "";
 	std::string patchDescText = "";
-	std::string lastPatchFilePath = "";
-
-	EdgeStateDetector patchWriteButton;
-	bool ready_to_write_patch = false;
 
 	std::optional<int> inProgressMapParamId{};
 
@@ -112,24 +106,6 @@ struct MetaModuleHubBase : public rack::Module {
 		}
 	}
 
-	// Handle writing patches
-
-	void processPatchButton(float patchButtonState) {
-		patchWriteButton.update(patchButtonState > 0.5f);
-		if (patchWriteButton.went_high()) {
-			updatePatchName();
-			updateDisplay();
-			ready_to_write_patch = true;
-			// writePatchFile();
-		}
-	}
-
-	bool should_write_patch() {
-		auto t = ready_to_write_patch;
-		ready_to_write_patch = false;
-		return t;
-	}
-
 	// VCV Rack calls this periodically on auto-save
 	json_t *dataToJson() override {
 		json_t *rootJ = mappings.encodeJson();
@@ -169,60 +145,5 @@ struct MetaModuleHubBase : public rack::Module {
 		}
 
 		mappings.decodeJson(rootJ);
-	}
-
-	void writePatchFile() {
-		std::string patchName;
-		std::string patchDir;
-
-		if (patchNameText != "" && patchNameText != "Enter Patch Name") {
-			patchName = patchNameText.c_str();
-		} else {
-			std::string randomname = "Unnamed" + std::to_string(MathTools::randomNumber<unsigned int>(10, 99));
-			patchName = randomname.c_str();
-		}
-
-		ReplaceString patchStructName{patchName};
-		patchStructName.replace_all(" ", "")
-			.replace_all("-", "_")
-			.replace_all(",", "_")
-			.replace_all("/", "")
-			.replace_all("\\", "")
-			.replace_all("\"", "")
-			.replace_all("'", "")
-			.replace_all(".", "_")
-			.replace_all("?", "")
-			.replace_all("#", "")
-			.replace_all("!", "");
-
-		osdialog_filters *filters = osdialog_filters_parse("Metamodule Patch File (.yml):yml");
-		DEFER({ osdialog_filters_free(filters); });
-
-		std::string dir = lastPatchFilePath;
-		if (dir == "")
-			dir = rack::asset::userDir.c_str();
-
-		char *filename = osdialog_file(OSDIALOG_SAVE, dir.c_str(), patchStructName.str.c_str(), filters);
-		if (!filename)
-			return;
-
-		std::string patchFileName = filename;
-		DEFER({ free(filename); });
-
-		if (rack::system::getExtension(rack::system::getFilename(patchFileName)) != ".yml") {
-			patchFileName += ".yml";
-		}
-
-		lastPatchFilePath = rack::system::getDirectory(patchFileName);
-
-		labelText = "Creating patch...";
-		updateDisplay();
-
-		VCVPatchFileWriter<NumPots, MaxMapsPerPot, MaxKnobSets>::writePatchFile(
-			id, mappings, patchFileName, patchName, patchDescText);
-
-		labelText = "Wrote patch file: ";
-		labelText += rack::system::getFilename(patchFileName);
-		updateDisplay();
 	}
 };
