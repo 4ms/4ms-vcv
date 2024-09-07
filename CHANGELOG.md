@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+## In progress (will be a part of next release)
+
+- Removed unused Hold jack from Verb module
+
+- When saving a MM patch, sort modules by row, then column.
+
+
 ## v2.0.5
 
 - Fix knob alias names not always saving into MM patch file. See [Issue 20](https://github.com/4ms/4ms-vcv/issues/20)
