@@ -28,6 +28,9 @@ struct HubMedium : MetaModuleHubBase {
 		for (auto &element : INFO::Elements) {
 			std::visit([&creator](auto &el) { creator.config_element(el); }, element);
 		}
+
+		constexpr auto saveButtonIndex = ElementCount::count<INFO>().num_params;
+		configParam(saveButtonIndex, 0, 1, 0, "Save Patch");
 	}
 
 	void process(const ProcessArgs &args) override {
