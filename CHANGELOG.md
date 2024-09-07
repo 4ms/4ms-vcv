@@ -14,6 +14,8 @@
 
 - Add "Unmap" to Hub knob menu for each mapped knob
 
+- Hide "Wrote Patch File:" text at top of module
+
 
 ## v2.0.5
 
