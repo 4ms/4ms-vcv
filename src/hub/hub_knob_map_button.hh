@@ -89,8 +89,7 @@ public:
 				if (!ph.module->paramQuantities[paramId])
 					continue;
 
-				auto *sep = new rack::MenuSeparator;
-				menu->addChild(sep);
+				menu->addChild(new rack::MenuSeparator);
 
 				MappedKnobMenuLabel *paramLabel2 = new MappedKnobMenuLabel;
 				paramLabel2->moduleName = ph.module->model->name;
@@ -98,6 +97,11 @@ public:
 				paramLabel2->moduleId = moduleId;
 				paramLabel2->paramId = paramId;
 				menu->addChild(paramLabel2);
+
+				ParamUnmapItem *unmapItem = new ParamUnmapItem;
+				unmapItem->text = "Unmap";
+				unmapItem->paramQuantity = ph.module->paramQuantities[paramId];
+				menu->addChild(unmapItem);
 
 				MappableObj paramObj{MappableObj::Type::Knob, paramId, moduleId};
 
@@ -110,6 +114,7 @@ public:
 				menu->addChild(mx);
 			}
 
+			// Add "Unmap" item if the Hub knob is mapped to another module (e.g. MIDI CC module)
 			rack::ParamHandle *paramHandle =
 				paramQuantity ? APP->engine->getParamHandle(paramQuantity->module->id, paramQuantity->paramId) :
 								nullptr;
