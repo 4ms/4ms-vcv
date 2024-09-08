@@ -4,12 +4,6 @@
 namespace MetaModule
 {
 
-class MetaModuleTextBox : public rack::LedDisplayTextField {
-	void draw(const DrawArgs &args) override {
-		rack::LedDisplayTextField::draw(args);
-	}
-};
-
 struct Davies1900hBlackKnob4ms : rack::Davies1900hKnob {
 	Davies1900hBlackKnob4ms() {
 		setSvg(APP->window->loadSvg(rack::asset::plugin(pluginInstance, "res/components/Davies1900hBlack.svg")));

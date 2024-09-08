@@ -73,7 +73,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		addChild(createWidget<ScrewBlack>(
 			rack::math::Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		patchName = createWidget<MetaModule::MetaModuleTextBox>(rack::mm2px(rack::math::Vec(36.1, 9.5)));
+		patchName = createWidget<MetaModule::TextField>(rack::mm2px(rack::math::Vec(36.1, 9.5)));
 		if (hubModule != nullptr && hubModule->patchNameText.length() > 0)
 			patchName->setText(this->hubModule->patchNameText);
 		else
@@ -92,7 +92,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		addChild(statusText);
 #endif
 
-		patchDesc = createWidget<MetaModule::MetaModuleTextBox>(rack::mm2px(rack::math::Vec(36.4, 18.f)));
+		patchDesc = createWidget<MetaModule::TextField>(rack::mm2px(rack::math::Vec(36.4, 18.f)));
 		if (hubModule != nullptr && hubModule->patchDescText.length() > 0)
 			patchDesc->setText(this->hubModule->patchDescText);
 		else
@@ -109,11 +109,11 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		knobSetTitle->fontSize = 10;
 		addChild(knobSetTitle);
 
-		knobSetNameField = new MetaModuleTextField{[this](std::string &text) {
-													   auto idx = hubModule->mappings.getActiveKnobSetIdx();
-													   hubModule->mappings.setKnobSetName(idx, text);
-												   },
-												   kMaxKnobSetNameChars};
+		knobSetNameField = new MetaModule::TextField{[this](std::string &text) {
+														 auto idx = hubModule->mappings.getActiveKnobSetIdx();
+														 hubModule->mappings.setKnobSetName(idx, text);
+													 },
+													 kMaxKnobSetNameChars};
 		knobSetNameField->box.pos = rack::mm2px(rack::math::Vec(52.0, 49.0));
 		knobSetNameField->box.size = {rack::mm2px(rack::math::Vec(40.f, 7.f))};
 		knobSetNameField->text = "";

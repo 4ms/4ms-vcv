@@ -23,7 +23,7 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 
 	rack::Label *statusText;
 	KnobSetButtonGroup *knobSetButtons;
-	MetaModuleTextField *knobSetNameField;
+	MetaModule::TextField *knobSetNameField;
 
 	static constexpr float kKnobSpacingY = 17;
 	static constexpr float kKnobSpacingX = 18;
