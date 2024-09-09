@@ -3,8 +3,6 @@
 #include "mapping/MappableObject.h"
 #include "mapping/map_palette.hh"
 #include "mapping/mapping.hh"
-#include "util/countzip.hh"
-#include "util/static_string.hh"
 
 // Test: quitting normally could fail to save a valid map in the patch.json.
 // 1) As VCV quits, it removes modules
@@ -13,6 +11,9 @@
 // 4) Then hub::knob::draw() is called, which calls is_valid()
 // 5) which will notice the paramHandle is gone, and thus delete the map
 // 6) Then, hub::encodeJson is called and writes out json without that map
+
+
+enum class ShouldLock { No, Yes };
 
 template<size_t NumKnobs, size_t MaxMapsPerPot, size_t MaxKnobSets = 8>
 class HubKnobMappings {
@@ -28,7 +29,8 @@ public:
 	using KnobMultiMap = std::array<KnobMappingSet, MaxMapsPerPot>;
 	using HubKnobsMultiMaps = std::array<KnobMultiMap, NumKnobs>;
 	HubKnobsMultiMaps mappings;
-	//mappings[KnobId][MultiMapId].maps[KnobSetID].moduleId/paramId
+	// Usage:
+	// mappings[KnobId][MultiMapId].maps[KnobSetID].moduleId/paramId
 
 	std::array<std::string, MaxKnobSets> knobSetNames;
 	std::array<std::array<std::string, MaxKnobSets>, NumKnobs> aliases;
@@ -85,13 +87,19 @@ public:
 		return activeSetId;
 	}
 
-	void setActiveKnobSetIdx(unsigned setId) {
+	void changeActiveKnobSet(unsigned setId, ShouldLock do_lock) {
 		if (setId == activeSetId || setId >= MaxKnobSets)
 			return;
 
 		updateMapsFromParamHandles();
 		activeSetId = setId;
-		refreshParamHandles();
+		refreshParamHandles(do_lock);
+	}
+
+	void setActiveKnobSetIdx(unsigned setId) {
+		if (setId == activeSetId || setId >= MaxKnobSets)
+			return;
+		activeSetId = setId;
 	}
 
 	// Mapping Range:
@@ -157,7 +165,7 @@ public:
 	}
 
 	// Add mappings to a knob in the active set:
-	Mapping *addMap(unsigned hubParamId, int64_t destModuleId, int destParamId, unsigned set_id) {
+	Mapping *addMap(unsigned hubParamId, int64_t destModuleId, int destParamId, unsigned set_id, ShouldLock do_lock) {
 		if (set_id >= MaxKnobSets) {
 			// Recover from error if set_is is out of range
 			set_id = activeSetId;
@@ -166,7 +174,7 @@ public:
 		auto &knob = nextFreeMap(hubParamId, set_id);
 
 		if (set_id == activeSetId) {
-			APP->engine->updateParamHandle(&knob.paramHandle, destModuleId, destParamId, true);
+			updateParamHandle(do_lock, &knob.paramHandle, destModuleId, destParamId, true);
 		}
 
 		auto *map = &knob.maps[set_id];
@@ -175,8 +183,8 @@ public:
 		return map;
 	}
 
-	Mapping *addMap(unsigned hubParamId, int64_t destModuleId, int destParamId) {
-		return addMap(hubParamId, destModuleId, destParamId, activeSetId);
+	Mapping *addMap(unsigned hubParamId, int64_t destModuleId, int destParamId, ShouldLock do_lock) {
+		return addMap(hubParamId, destModuleId, destParamId, activeSetId, do_lock);
 	}
 
 	// Return a reference to an array of KnobMappingSets of a knob
@@ -256,7 +264,7 @@ public:
 		auto knobSetsJ = json_object_get(rootJ, "Mappings");
 
 		if (json_is_array(knobSetsJ)) {
-			clear_all();
+			clear_all(ShouldLock::No);
 
 			for (size_t set_i = 0; set_i < json_array_size(knobSetsJ); set_i++) {
 				auto mapsJ = json_array_get(knobSetsJ, set_i);
@@ -287,7 +295,7 @@ public:
 							val = json_object_get(mappingJ, "DstObjID");
 							auto destModuleParamId = json_is_integer(val) ? json_integer_value(val) : -1;
 
-							auto *map = addMap(hubParamId, destModuleId, destModuleParamId, set_i);
+							auto *map = addMap(hubParamId, destModuleId, destModuleParamId, set_i, ShouldLock::No);
 
 							val = json_object_get(mappingJ, "RangeMin");
 							map->range_min = json_is_real(val) ? json_real_value(val) : 0.f;
@@ -352,7 +360,16 @@ private:
 		}
 	}
 
-	void refreshParamHandles() {
+	void updateParamHandle(
+		ShouldLock do_lock, rack::ParamHandle *paramHandle, int64_t moduleId, int paramId, bool overwrite = true) {
+		if (do_lock == ShouldLock::Yes)
+			APP->engine->updateParamHandle(paramHandle, moduleId, paramId, overwrite);
+		else
+			APP->engine->updateParamHandle_NoLock(paramHandle, moduleId, paramId, overwrite);
+	}
+
+public:
+	void refreshParamHandles(ShouldLock do_lock) {
 		for (auto &knob : mappings) {
 			for (auto &mapset : knob) {
 				Mapping &map = mapset.maps[activeSetId];
@@ -360,17 +377,18 @@ private:
 				// will remove paramHandle from the engine. That is, calling updateParamHandle()
 				// without changing the module or param values will delete the paramHandle.
 				// To fix this, rack::Engine would need to check if oldParamHandle == paramHandle
-				if (mapset.paramHandle.moduleId != map.moduleId || mapset.paramHandle.paramId != map.paramId)
-					APP->engine->updateParamHandle(&mapset.paramHandle, map.moduleId, map.paramId, true);
+				if (mapset.paramHandle.moduleId != map.moduleId || mapset.paramHandle.paramId != map.paramId) {
+					updateParamHandle(do_lock, &mapset.paramHandle, map.moduleId, map.paramId, true);
+				}
 			}
 		}
 	}
 
-	void clear_all() {
+	void clear_all(ShouldLock do_lock) {
 		// invalidate all maps
 		for (auto &knob : mappings) {
 			for (auto &mapset : knob) {
-				APP->engine->updateParamHandle(&mapset.paramHandle, -1, 0, true);
+				updateParamHandle(do_lock, &mapset.paramHandle, -1, 0, true);
 				for (auto &map : mapset.maps) {
 					map.clear();
 				}
@@ -378,7 +396,6 @@ private:
 		}
 	}
 
-public:
 	// Removes all maps that point to deleted modules
 	void removeMapsToDeletedModules() {
 		for (auto &knob : mappings) {

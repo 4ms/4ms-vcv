@@ -123,7 +123,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		knobSetButtons = new KnobSetButtonGroup(
 			[this](unsigned idx) {
-				hubModule->mappings.setActiveKnobSetIdx(idx);
+				hubModule->mappings.changeActiveKnobSet(idx, ShouldLock::Yes);
 				updateKnobSetLabel();
 			},
 			rack::mm2px(rack::Vec(39.5, 57.5)));

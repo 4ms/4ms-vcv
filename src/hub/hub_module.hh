@@ -45,6 +45,7 @@ struct MetaModuleHubBase : public rack::Module {
 		return inProgressMapParamId.has_value();
 	}
 
+	// Always locks
 	bool registerMap(int hubParamId, rack::Module *module, int64_t moduleParamId) {
 		if (!isMappingInProgress()) {
 			pr_dbg("registerMap() called but we aren't mapping\n");
@@ -64,7 +65,7 @@ struct MetaModuleHubBase : public rack::Module {
 		}
 
 		mappings.linkToModule(id);
-		auto *map = mappings.addMap(hubParamId, module->id, moduleParamId);
+		auto *map = mappings.addMap(hubParamId, module->id, moduleParamId, ShouldLock::Yes);
 		if (!map) {
 			pr_dbg("Error: could not create mapping\n");
 			return false;
@@ -141,9 +142,18 @@ struct MetaModuleHubBase : public rack::Module {
 		auto defaultKnobSetJ = json_object_get(rootJ, "DefaultKnobSet");
 		if (json_is_integer(defaultKnobSetJ)) {
 			unsigned idx = json_integer_value(defaultKnobSetJ);
-			mappings.setActiveKnobSetIdx(idx);
+			mappings.changeActiveKnobSet(idx, ShouldLock::No);
 		}
 
 		mappings.decodeJson(rootJ);
+	}
+
+	void onReset(const ResetEvent &e) override {
+		Module::onReset(e);
+		patchNameText = "";
+		patchDescText = "";
+		mappings.clear_all(ShouldLock::No);
+		mappings.setActiveKnobSetIdx(0);
+		mappings.refreshParamHandles(ShouldLock::No);
 	}
 };

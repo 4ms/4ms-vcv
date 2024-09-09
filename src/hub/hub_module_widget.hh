@@ -36,7 +36,7 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 						  int knobId,
 						  rack::math::Vec posPx,
 						  float sz_mm = kKnobSpacingX,
-						  float defaultValue = 0.f) {
+						  float defaultValue = 0.5f) {
 		auto button = new HubKnobMapButton{hubModule, *this};
 		button->box.pos =
 			rack::math::Vec(posPx.x - rack::mm2px(sz_mm) / 2, posPx.y - rack::mm2px(sz_mm) / 2); // top-left
@@ -74,7 +74,7 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 				"",
 				[=, this]() { return hubModule->mappings.getActiveKnobSetIdx() == knobset_idx; },
 				[=, this]() {
-					hubModule->mappings.setActiveKnobSetIdx(knobset_idx);
+					hubModule->mappings.changeActiveKnobSet(knobset_idx, ShouldLock::Yes);
 					updateKnobSetLabel();
 				}));
 
