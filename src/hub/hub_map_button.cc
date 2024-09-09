@@ -2,6 +2,9 @@
 #include "mapping/map_palette.hh"
 #include <cstdio>
 
+namespace MetaModule
+{
+
 void HubMapButton::draw(const DrawArgs &args) {
 	hubParamObj.moduleID = parent.module ? parent.module->id : -1;
 
@@ -90,3 +93,5 @@ void HubMapButton::onEnter(const rack::event::Enter &e) {
 	}
 	e.consume(this);
 }
+
+} // namespace MetaModule

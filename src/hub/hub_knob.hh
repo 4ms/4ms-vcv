@@ -3,6 +3,9 @@
 #include "mapping/map_marks.hh"
 #include "mapping/map_palette.hh"
 
+namespace MetaModule
+{
+
 template<typename BaseKnobT>
 class HubKnob : public BaseKnobT {
 public:
@@ -46,8 +49,7 @@ public:
 						APP->scene->rack->setTouchedParam(this);
 					}
 					e.consume(this);
-				}
-				else if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
+				} else if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
 					mapBut.start_mapping();
 				}
 			}
@@ -89,3 +91,5 @@ private:
 	MetaModuleHubBase *hub;
 	HubKnobMapButton &mapBut;
 };
+
+} // namespace MetaModule

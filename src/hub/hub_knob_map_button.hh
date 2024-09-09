@@ -6,6 +6,9 @@
 #include "mapping/knob_alias_menu.hh"
 #include "mapping/range_slider.hh"
 
+namespace MetaModule
+{
+
 class HubKnobMapButton : public HubMapButton {
 	rack::ParamQuantity *paramQuantity = nullptr;
 	MetaModuleHubBase *hub;
@@ -140,3 +143,5 @@ public:
 		}
 	};
 };
+
+} // namespace MetaModule

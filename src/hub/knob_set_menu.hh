@@ -2,6 +2,9 @@
 #include "hub/hub_module.hh"
 #include <rack.hpp>
 
+namespace MetaModule
+{
+
 struct KnobSetNameTextBox : rack::ui::TextField {
 	using CallbackT = std::function<void(unsigned, std::string const &)>;
 	CallbackT onChangeCallback;
@@ -48,3 +51,5 @@ struct KnobSetNameMenuItem : rack::widget::Widget {
 		Widget::draw(args);
 	}
 };
+
+} // namespace MetaModule

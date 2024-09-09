@@ -2,6 +2,9 @@
 #include "hub/hub_module.hh"
 #include <rack.hpp>
 
+namespace MetaModule
+{
+
 class HubMapButton : public rack::Button {
 
 public:
@@ -26,3 +29,5 @@ protected:
 	rack::app::ModuleWidget &parent;
 	MetaModuleHubBase *hub;
 };
+
+} // namespace MetaModule

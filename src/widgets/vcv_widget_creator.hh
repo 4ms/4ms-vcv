@@ -36,7 +36,7 @@ struct VCVWidgetCreator {
 	template<typename EL>
 	void create(const EL &element) {
 		// alt parameters do not have a widget
-		if constexpr (not std::derived_from<EL, MetaModule::AltParamElement>) {
+		if constexpr (not std::derived_from<EL, AltParamElement>) {
 			// forward to implementation together with current context
 			if (auto indices = ElementCount::get_indices<INFO>(element)) {
 				VCVImplementation::Widget::do_create(element, indices.value(), context);
@@ -47,7 +47,7 @@ struct VCVWidgetCreator {
 	template<typename EL>
 	void renderToContextMenu(const EL &element, rack::ui::Menu *menu) {
 		// only alt parameters are considered for rendering to menu for now
-		if constexpr (std::derived_from<EL, MetaModule::AltParamElement>) {
+		if constexpr (std::derived_from<EL, AltParamElement>) {
 			// forward to implementation with required context
 			if (auto indices = ElementCount::get_indices<INFO>(element)) {
 				VCVImplementation::Widget::do_render_to_menu(element, menu, indices.value(), context);

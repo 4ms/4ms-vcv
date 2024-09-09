@@ -3,8 +3,10 @@
 #include "mapping/midi_modules.hh"
 #include "mapping/module_directory.hh"
 #include "patch-serial/patch_to_yaml.hh"
-#include "patch-serial/ryml/ryml_serial.hh"
 #include <algorithm>
+
+namespace MetaModule
+{
 
 PatchFileWriter::PatchFileWriter(std::vector<BrandModule> modules, int64_t hubModuleId)
 	: hubModuleId{hubModuleId} {
@@ -24,7 +26,7 @@ void PatchFileWriter::setPatchDesc(std::string patchDesc) {
 	pd.description = patchDesc.c_str();
 }
 
-void PatchFileWriter::setMidiSettings(MetaModule::MIDI::ModuleIds &ids, MetaModule::MIDI::Settings const &settings) {
+void PatchFileWriter::setMidiSettings(MIDI::ModuleIds &ids, MIDI::Settings const &settings) {
 	midiModuleIds = ids;
 	midiSettings = settings;
 
@@ -298,7 +300,7 @@ void PatchFileWriter::mapMidiCVPolySplitJack(CableMap &cable, unsigned monoJackI
 }
 
 void PatchFileWriter::mapMidiCVJack(CableMap &cable) {
-	using enum MetaModule::MIDI::CoreMidiJacks;
+	using enum MIDI::CoreMidiJacks;
 
 	if (cable.sendingJackId == VoctJack)
 		cable.sendingJackId = MidiMonoNoteJack;
@@ -373,6 +375,8 @@ std::map<int64_t, uint16_t> PatchFileWriter::squash_ids(std::vector<int64_t> ids
 	return s;
 }
 
-MetaModule::PatchData &PatchFileWriter::get_data() {
+PatchData &PatchFileWriter::get_data() {
 	return pd;
 }
+
+} // namespace MetaModule

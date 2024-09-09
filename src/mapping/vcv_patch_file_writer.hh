@@ -12,6 +12,9 @@
 #include <fstream>
 #include <rack.hpp>
 
+namespace MetaModule
+{
+
 // Adpats VCVRack-format of patch data to a format PatchFileWriter can use
 template<size_t NumKnobs, size_t MaxMapsPerPot, size_t MaxKnobSets>
 struct VCVPatchFileWriter {
@@ -31,7 +34,7 @@ struct VCVPatchFileWriter {
 		std::vector<BrandModule> moduleData;
 		std::vector<ParamMap> paramData;
 		std::vector<int64_t> splitModuleIds;
-		MetaModule::MIDI::Modules midimodules;
+		MIDI::Modules midimodules;
 
 		auto moduleIDs = engine->getModuleIds();
 		for (auto moduleID : moduleIDs) {
@@ -165,3 +168,5 @@ struct VCVPatchFileWriter {
 		myfile.close();
 	}
 };
+
+} // namespace MetaModule

@@ -1,20 +1,14 @@
 #pragma once
-#include "../comm/comm_module.hh"
-#include "CoreModules/moduleFactory.hh"
 #include "hub/knob_set_buttons.hh"
 #include "hub/knob_set_menu.hh"
 #include "hub/text_field.hh"
 #include "hub_knob.hh"
-#include "hub_midi.hh"
 #include "hub_module.hh"
-#include "mapping/ModuleID.h"
-#include "mapping/map_palette.hh"
-#include "mapping/module_directory.hh"
-#include "mapping/patch_writer.hh"
-#include "util/math.hh"
-#include "util/string_util.hh"
 #include <functional>
 #include <string>
+
+namespace MetaModule
+{
 
 struct MetaModuleHubWidget : rack::app::ModuleWidget {
 	MetaModuleHubWidget() = default;
@@ -23,7 +17,7 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 
 	rack::Label *statusText;
 	KnobSetButtonGroup *knobSetButtons;
-	MetaModule::TextField *knobSetNameField;
+	TextField *knobSetNameField;
 
 	static constexpr float kKnobSpacingY = 17;
 	static constexpr float kKnobSpacingX = 18;
@@ -102,3 +96,5 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 		knobSetButtons->active_idx = activeKnobSetIdx;
 	}
 };
+
+} // namespace MetaModule

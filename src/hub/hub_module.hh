@@ -10,6 +10,9 @@
 #include <osdialog.h>
 #include <span>
 
+namespace MetaModule
+{
+
 struct MetaModuleHubBase : public rack::Module {
 
 	std::function<void()> updatePatchName;
@@ -157,3 +160,5 @@ struct MetaModuleHubBase : public rack::Module {
 		mappings.refreshParamHandles(ShouldLock::No);
 	}
 };
+
+} // namespace MetaModule

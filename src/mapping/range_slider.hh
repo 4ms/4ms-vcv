@@ -3,6 +3,9 @@
 #include "hub/hub_module.hh"
 #include <rack.hpp>
 
+namespace MetaModule
+{
+
 enum class RangePart { Min, Max };
 
 template<RangePart MINMAX>
@@ -57,3 +60,5 @@ public:
 		delete quantity;
 	}
 };
+
+} // namespace MetaModule

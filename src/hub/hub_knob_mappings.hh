@@ -12,6 +12,8 @@
 // 5) which will notice the paramHandle is gone, and thus delete the map
 // 6) Then, hub::encodeJson is called and writes out json without that map
 
+namespace MetaModule
+{
 
 enum class ShouldLock { No, Yes };
 
@@ -422,3 +424,5 @@ public:
 
 	KnobMultiMap nullmap{};
 };
+
+} // namespace MetaModule

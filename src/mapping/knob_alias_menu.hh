@@ -2,6 +2,9 @@
 #include "hub/hub_module.hh"
 #include <rack.hpp>
 
+namespace MetaModule
+{
+
 struct KnobAliasTextBox : rack::ui::TextField {
 	MappableObj src;
 	MetaModuleHubBase *hub;
@@ -39,3 +42,5 @@ struct KnobAliasMenuItem : rack::widget::Widget {
 		Widget::draw(args);
 	}
 };
+
+} // namespace MetaModule

@@ -1,6 +1,9 @@
 #pragma once
 #include "hub_knob.hh"
 
+namespace MetaModule
+{
+
 class HubMidiMapButton : public HubKnobMapButton {
 	MetaModuleHubBase *hub;
 
@@ -114,3 +117,5 @@ private:
 	MetaModuleHubBase *hub;
 	HubKnobMapButton &mapBut;
 };
+
+} // namespace MetaModule
