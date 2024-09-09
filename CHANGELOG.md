@@ -1,6 +1,6 @@
 # CHANGE LOG
 
-## In progress (will be a part of next release)
+## v2.0.6
 
 - Removed unused Hold jack from Verb module
 
@@ -10,11 +10,17 @@
   automatically be copied to the patch name. Remove slashes, colons, quotes,
   and replace dots with underscores
 
-- Make knob alias name text color legible
+- Make knob alias name text color legible, and make box wider in the context menu
+
+- Use better color for cursor in text boxes on the Hub
 
 - Add "Unmap" to Hub knob menu for each mapped knob
 
 - Hide "Wrote Patch File:" text at top of module
+
+- Fix crash when loading a preset on the Hub
+
+- Doing Initialize on the Hub removes all mappings
 
 
 ## v2.0.5
