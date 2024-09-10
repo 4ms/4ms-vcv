@@ -26,7 +26,7 @@
       "name": "Ensemble Oscillator",
       "modularGridUrl": "https://modulargrid.net/e/4ms-company-ensemble-oscillator",
       "manualUrl": "https://4mscompany.com/media/ENOSC/manual/Ensemble-Osc-manual.pdf",
-      "description": "The Ensemble Oscillator is a unified polyphonic voice of sixteen complex oscillators combining additive, FM, phase-distortion and wavefolding synthesis techniques in new unorthodox ways.",
+      "description": "The Ensemble Oscillator (EnOsc) is a unified polyphonic voice of sixteen complex oscillators combining additive, FM, phase-distortion and wavefolding synthesis techniques in new unorthodox ways.",
       "tags": ["Oscillator", "Digital", "Hardware clone"]
     },
     {
@@ -248,7 +248,7 @@
       "slug": "Octave",
       "name": "Octave",
       "description": "Octave",
-      "tags": []
+      "tags": ["Utility"]
     },
     {
       "slug": "MNMX",
@@ -277,7 +277,7 @@
     {
       "slug": "Noise",
       "name": "Noise",
-      "description": "Noise (partially implemented)",
+      "description": "Noise",
       "tags": ["Noise"]
     },
     {
@@ -290,7 +290,7 @@
       "slug": "Gate",
       "name": "Gate",
       "description": "Gate/trigger delay with pulse width control",
-      "tags": []
+      "tags": ["Utility"]
     },
     {
       "slug": "Follow",
@@ -314,7 +314,7 @@
       "slug": "LPG",
       "name": "LPG",
       "description": "Low-pass Gate",
-      "tags": ["Filter", "VCA"]
+      "tags": ["Filter", "VCA", "LPG"]
     },
     {
       "slug": "BPF",
