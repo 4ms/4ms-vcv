@@ -27,6 +27,10 @@ struct GenericModule {
 			for (auto &element : INFO::Elements) {
 				std::visit([&creator](auto &el) { creator.config_element(el); }, element);
 			}
+			// Bypass Routes
+			for (auto route : INFO::bypass_routes) {
+				configBypass(route.input, route.output);
+			}
 		}
 	};
 
