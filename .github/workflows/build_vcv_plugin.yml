@@ -29,6 +29,11 @@ on:
       - 'debug-*'
     branches:
       - main
+    paths:
+      - '!**.json'
+      - '!**.md'
+      - '!**.svg'
+
 
 env:
   rack-sdk-version: latest
