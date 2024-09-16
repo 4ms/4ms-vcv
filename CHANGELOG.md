@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## in progress
+
+- Fixed Verb module: fixed CV jacks, added DC blocking, clamped output
+
 ## v2.0.6
 
 - Removed unused Hold jack from Verb module
