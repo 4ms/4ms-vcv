@@ -1,8 +1,16 @@
 # CHANGE LOG
 
-## in progress
+## v2.0.7
+
+- Add Bypass routes for FX modules (DLD, Tapo, BPF, Verb, PitchShift, LPF, HPF, Freeverb, Detune, ENVVCA, SHEV, DEV)
 
 - Fixed Verb module: fixed CV jacks, added DC blocking, clamped output
+
+- Fix labels on Verb and SHEV module (small text by switches missing on some systems)
+
+- Fix Djembe locking up when Pitch CV is a high frequency
+
+- plugin.json: Add some tags to previously un-tagged modules
 
 ## v2.0.6
 
