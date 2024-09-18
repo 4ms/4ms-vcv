@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## v2.0.8
+
+- Fix plugin not loading on older Linux systems
+
 ## v2.0.7
 
 - Add Bypass routes for FX modules (DLD, Tapo, BPF, Verb, PitchShift, LPF, HPF, Freeverb, Detune, ENVVCA, SHEV, DEV)
