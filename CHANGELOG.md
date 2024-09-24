@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+## In progress
+
+- Fixed default values for AltParams (e.g. Tapo Seq mode, or EnOsc Stereo Split)
+
+- Fixed Tapographic Delay CV jacks being inverted
+
+
 ## v2.0.8
 
 - Fix plugin not loading on older Linux systems
