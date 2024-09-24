@@ -26,7 +26,7 @@ struct AltParamChoiceItem : rack::ui::MenuItem {
 	}
 	void draw(const DrawArgs &args) override {
 		// add checkmark if this choice is selected
-		auto currentState = std::clamp<unsigned>(std::round(module->getParam(param_idx).getValue()), 1, el.num_pos);
+		auto currentState = std::clamp<unsigned>(std::round(module->getParam(param_idx).getValue()), 0, el.num_pos - 1);
 		rightText = currentState == choiceIndex ? CHECKMARK_STRING : " ";
 
 		rack::ui::MenuItem::draw(args);
@@ -54,7 +54,7 @@ struct AltParamChoiceLabledMenu : rack::ui::MenuItem {
 		auto childMenu = new rack::ui::Menu;
 
 		for (std::size_t i = 0; i < element.num_pos; i++) {
-			auto choiceItem = new AltParamChoiceItem(module, param_idx, element, i + 1);
+			auto choiceItem = new AltParamChoiceItem(module, param_idx, element, i);
 			auto choiceText = element.pos_names[i];
 			choiceItem->text = std::string(choiceText);
 			childMenu->addChild(choiceItem);
