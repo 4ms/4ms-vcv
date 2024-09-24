@@ -94,6 +94,18 @@ struct QuantizedSlider : public rack::ui::Slider {
 		}
 	}
 
+	void draw(const DrawArgs &args) override {
+		BNDwidgetState state = BND_DEFAULT;
+		if (APP->event->hoveredWidget == this)
+			state = BND_HOVER;
+		if (APP->event->draggedWidget == this)
+			state = BND_ACTIVE;
+
+		float progress = quantity ? quantity->getScaledValue() : 0.f;
+		std::string text = quantity ? std::to_string(int(quantity->getValue() + 1)) : "";
+		bndSlider(args.vg, 0.0, 0.0, box.size.x, box.size.y, BND_CORNER_NONE, state, progress, text.c_str(), NULL);
+	}
+
 	float accumulatedDrag = 0.0f;
 };
 
