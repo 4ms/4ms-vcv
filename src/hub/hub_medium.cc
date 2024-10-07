@@ -55,13 +55,17 @@ Volume wifiVolume = Volume::Card;
 struct HubMediumWidget : MetaModuleHubWidget {
 
 	using INFO = HubMediumInfo;
+	static constexpr float kTextOffset = 5;
+	static constexpr unsigned kMaxKnobSetNameChars = 16;
 
 	MetaModule::LabelDelay *wifiResponseLabel;
 
+	rack::Label *statusText;
 	KnobSetButtonGroup *knobSetButtons;
 	TextField *knobSetNameField;
-	TextField *patchName;
-	TextField *patchDesc;
+
+	LedDisplayTextField *patchName;
+	LedDisplayTextField *patchDesc;
 
 	HubWifiButton *wifiSendButton;
 	MetaModule::LabelOverlay *wifiConnectionLabel;
@@ -74,8 +78,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	// enum Volume { Internal = 0, USB = 1, Card = 2 };
 	// std::string wifiUrl = "";
 	// Volume wifiVolume = Volume::Card;
-
-	static constexpr unsigned kMaxKnobSetNameChars = 16;
 
 	HubMediumWidget(HubMedium *module) {
 		setModule(module);
