@@ -17,10 +17,11 @@ namespace MetaModule
 
 enum class ShouldLock { No, Yes };
 
-template<size_t NumKnobs, size_t MaxMapsPerPot, size_t MaxKnobSets = 8>
+template<size_t MaxMapsPerPot, size_t MaxKnobSets = 8>
 class HubKnobMappings {
 	int64_t hubModuleId = -1;
 	unsigned activeSetId = 0;
+	size_t num_knobs;
 
 public:
 	struct KnobMappingSet {
@@ -29,15 +30,17 @@ public:
 	};
 
 	using KnobMultiMap = std::array<KnobMappingSet, MaxMapsPerPot>;
-	using HubKnobsMultiMaps = std::array<KnobMultiMap, NumKnobs>;
-	HubKnobsMultiMaps mappings;
+	std::vector<KnobMultiMap> mappings;
 	// Usage:
 	// mappings[KnobId][MultiMapId].maps[KnobSetID].moduleId/paramId
 
 	std::array<std::string, MaxKnobSets> knobSetNames;
-	std::array<std::array<std::string, MaxKnobSets>, NumKnobs> aliases;
+	std::vector<std::array<std::string, MaxKnobSets>> aliases;
 
-	HubKnobMappings() {
+	HubKnobMappings(size_t num_knobs = 12)
+		: num_knobs{num_knobs} {
+		mappings.resize(num_knobs);
+		aliases.resize(num_knobs);
 		for (unsigned i = 0; auto &knob_multimap : mappings) {
 			auto color = PaletteHub::color(i++);
 			for (auto &map : knob_multimap) {
@@ -146,7 +149,7 @@ public:
 	// Mapping Alias:
 
 	void setMapAliasName(MappableObj paramObj, std::string const &newname, unsigned set_id) {
-		if (paramObj.objID < (int)NumKnobs) {
+		if (paramObj.objID < (int)num_knobs) {
 			aliases[paramObj.objID][set_id] = newname;
 		}
 	}
@@ -156,7 +159,7 @@ public:
 	}
 
 	std::string getMapAliasName(MappableObj paramObj, unsigned set_id) {
-		if (paramObj.objID < (int)NumKnobs) {
+		if (paramObj.objID < (int)num_knobs) {
 			return aliases[paramObj.objID][set_id];
 		}
 		return "";
@@ -191,7 +194,7 @@ public:
 
 	// Return a reference to an array of KnobMappingSets of a knob
 	auto &getAllMappings(int hubParamId) {
-		if (hubParamId >= (int)NumKnobs)
+		if (hubParamId >= (int)num_knobs)
 			return nullmap;
 
 		return mappings[hubParamId];
@@ -200,7 +203,7 @@ public:
 	unsigned getNumActiveMappings(int hubParamId) {
 		unsigned num = 0;
 
-		if (hubParamId >= (int)NumKnobs)
+		if (hubParamId >= (int)num_knobs)
 			return 0;
 
 		for (auto &mapset : mappings[hubParamId]) {
@@ -288,7 +291,7 @@ public:
 
 							val = json_object_get(mappingJ, "SrcObjID");
 							auto hubParamId = json_is_integer(val) ? json_integer_value(val) : -1;
-							if (hubParamId >= (int)NumKnobs)
+							if (hubParamId >= (int)num_knobs)
 								continue;
 
 							val = json_object_get(mappingJ, "DstModID");

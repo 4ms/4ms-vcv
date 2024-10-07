@@ -20,7 +20,7 @@ template<size_t NumKnobs, size_t MaxMapsPerPot, size_t MaxKnobSets>
 struct VCVPatchFileWriter {
 
 	static std::string createPatchYml(int64_t hubModuleId,
-									  HubKnobMappings<NumKnobs, MaxMapsPerPot, MaxKnobSets> &mappings,
+									  HubKnobMappings<MaxMapsPerPot, MaxKnobSets> &mappings,
 									  std::string patchName,
 									  std::string patchDesc) {
 

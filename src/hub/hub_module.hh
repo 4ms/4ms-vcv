@@ -27,12 +27,10 @@ struct MetaModuleHubBase : public rack::Module {
 
 	std::optional<int> inProgressMapParamId{};
 
-	// FIXME: NumPots should be a template parameter
-	// We then need a common base class widgets can point to
 	static constexpr uint32_t NumPots = 12;
 	static constexpr uint32_t MaxMapsPerPot = 8;
 	static constexpr uint32_t MaxKnobSets = 8;
-	HubKnobMappings<NumPots, MaxMapsPerPot, MaxKnobSets> mappings;
+	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings{NumPots};
 
 	std::array<float, NumPots> last_knob_val{};
 
