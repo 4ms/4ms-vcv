@@ -7,7 +7,7 @@
 namespace MetaModule
 {
 
-struct AudioExpander : rack::Module {
+struct AudioExpander : MetaModuleHubBase {
 	using Info = MMAIOInfo;
 	AudioExpander() {
 		// Register with VCV the number of elements of each type
@@ -25,7 +25,7 @@ struct AudioExpander : rack::Module {
 	}
 };
 
-struct AudioExpanderWidget : rack::ModuleWidget {
+struct AudioExpanderWidget : MetaModuleHubWidget {
 
 	AudioExpanderWidget(rack::Module *module) {
 		using namespace rack;
@@ -33,7 +33,7 @@ struct AudioExpanderWidget : rack::ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(rack::asset::plugin(pluginInstance, std::string{MMAIOInfo::svg_filename})));
 		addChild(createWidget<ScrewBlack>(rack::math::Vec(RACK_GRID_WIDTH, 0)));
-		addChild(createWidget<ScrewBlack>(rack::math::Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+		addChild(createWidget<ScrewBlack>(rack::math::Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		HubWidgetCreator<MMAIOInfo> creator(this, module);
 		for (auto &element : MMAIOInfo::Elements) {
@@ -43,3 +43,6 @@ struct AudioExpanderWidget : rack::ModuleWidget {
 };
 
 } // namespace MetaModule
+
+rack::Model *modelMMAudioExpander =
+	rack::createModel<MetaModule::AudioExpander, MetaModule::AudioExpanderWidget>("MMAudioExpander");

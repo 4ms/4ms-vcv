@@ -54,4 +54,5 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelTapo);
 	p->addModel(modelVCAM);
 	p->addModel(modelVerb);
+	p->addModel(modelMMAudioExpander);
 }
