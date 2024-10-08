@@ -7,9 +7,9 @@
 namespace MetaModule
 {
 
-struct AudioExpander : MetaModuleHubBase {
+struct AudioExpanderModule : MetaModuleHubBase {
 	using Info = MMAudioExpanderInfo;
-	AudioExpander() {
+	AudioExpanderModule() {
 		// Register with VCV the number of elements of each type
 		auto cnt = ElementCount::count<Info>();
 		config(cnt.num_params, cnt.num_inputs, cnt.num_outputs, cnt.num_lights);
@@ -26,18 +26,18 @@ struct AudioExpander : MetaModuleHubBase {
 };
 
 struct AudioExpanderWidget : MetaModuleHubWidget {
+	using Info = AudioExpanderModule::Info;
 
 	AudioExpanderWidget(rack::Module *module) {
 		using namespace rack;
 
 		setModule(module);
-		setPanel(
-			APP->window->loadSvg(rack::asset::plugin(pluginInstance, std::string{AudioExpander::Info::svg_filename})));
+		setPanel(APP->window->loadSvg(rack::asset::plugin(pluginInstance, std::string{Info::svg_filename})));
 		addChild(createWidget<ScrewBlack>(rack::math::Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewBlack>(rack::math::Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		HubWidgetCreator<AudioExpander::Info> creator(this, module);
-		for (auto &element : AudioExpander::Info::Elements) {
+		HubWidgetCreator<Info> creator(this, module);
+		for (auto &element : Info::Elements) {
 			std::visit([&creator](auto &el) { creator.create(el); }, element);
 		}
 	}
@@ -46,4 +46,4 @@ struct AudioExpanderWidget : MetaModuleHubWidget {
 } // namespace MetaModule
 
 rack::Model *modelMMAudioExpander =
-	rack::createModel<MetaModule::AudioExpander, MetaModule::AudioExpanderWidget>("MMAudioExpander");
+	rack::createModel<MetaModule::AudioExpanderModule, MetaModule::AudioExpanderWidget>("MMAudioExpander");
