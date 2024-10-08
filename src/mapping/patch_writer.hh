@@ -2,6 +2,7 @@
 #include "JackMap.hh"
 #include "ModuleID.h"
 #include "ParamMap.hh"
+#include "mapping/expanders.hh"
 #include "mapping/mapping.hh"
 #include "mapping/midi_modules.hh"
 #include "patch/patch_data.hh"
@@ -23,6 +24,7 @@ public:
 	void setCableList(std::vector<CableMap> &cables);
 	void setParamList(std::vector<ParamMap> &params);
 	void setMidiSettings(MIDI::ModuleIds &ids, MIDI::Settings const &settings);
+	void setExpanders(ExpanderMappings const &exp);
 	void addModuleStateJson(rack::Module *module);
 
 	void addKnobMaps(unsigned panelKnobId, unsigned knobSetId, const std::span<const Mapping> maps);
@@ -49,6 +51,8 @@ private:
 
 	MIDI::ModuleIds midiModuleIds;
 	MIDI::Settings midiSettings;
+
+	ExpanderMappings expanders;
 
 	std::map<int64_t, uint16_t> idMap; // idMap[64 bit VCV module id] -> 16 bit MM-patch module id
 };

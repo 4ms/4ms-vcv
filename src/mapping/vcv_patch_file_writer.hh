@@ -5,6 +5,7 @@
 #include "mapping/JackMap.hh"
 #include "mapping/ModuleID.h"
 #include "mapping/ParamMap.hh"
+#include "mapping/expanders.hh"
 #include "mapping/midi_modules.hh"
 #include "mapping/module_directory.hh"
 #include "mapping/patch_writer.hh"
@@ -34,13 +35,14 @@ struct VCVPatchFileWriter {
 		std::vector<ParamMap> paramData;
 		std::vector<int64_t> splitModuleIds;
 		MIDI::Modules midimodules;
+		ExpanderMappings expanders;
 
 		auto moduleIDs = engine->getModuleIds();
 		for (auto moduleID : moduleIDs) {
 
 			auto *module = engine->getModule(moduleID);
 
-			if (ModuleDirectory::isRegularModule(module)) {
+			if (ModuleDirectory::isModuleInPatch(module)) {
 				auto brand_module = ModuleDirectory::convertSlugs(module);
 				auto moduleWidget = APP->scene->rack->getModule(moduleID);
 				if (moduleWidget) {
@@ -53,7 +55,7 @@ struct VCVPatchFileWriter {
 					}
 				}
 
-				if (!ModuleDirectory::isHub(module)) {
+				if (!ModuleDirectory::isHubOrExpander(module)) {
 					for (size_t i = 0; i < module->paramQuantities.size(); i++) {
 						float val = module->getParamQuantity(i)->getScaledValue();
 						paramData.push_back({.value = val, .paramID = (int)i, .moduleID = moduleID});
@@ -61,6 +63,7 @@ struct VCVPatchFileWriter {
 				}
 			}
 			midimodules.addMidiModule(module);
+			expanders.addModule(module);
 		}
 
 		// Scan cables for MIDICV -> Split connections
@@ -75,45 +78,50 @@ struct VCVPatchFileWriter {
 			auto out = cable->outputModule;
 			auto in = cable->inputModule;
 
-			bool isMidiOutput = ModuleDirectory::isCoreMIDI(out) || midimodules.isPolySplitModule(out);
-			bool isKnownOutModule = ModuleDirectory::isRegularModule(out) || isMidiOutput;
+			// The output module must be in the patch, or a Core MIDI module, or a Split module connected to a Core MIDI module.
+			bool isKnownOutModule = ModuleDirectory::isRegularModule(out) || ModuleDirectory::isHubOrExpander(out) ||
+									ModuleDirectory::isCoreMIDI(out) || midimodules.isPolySplitModule(out);
 
-			// The output module must be in the plugin, or a Core MIDI module, or a Split module connected to a Core MIDI module.
-			// The input module must be in the plugin.
-			if (!(isKnownOutModule && ModuleDirectory::isRegularModule(in)))
-				continue;
+			// The input module must be in the patch
+			bool isKnownInputModule = ModuleDirectory::isRegularModule(in) || ModuleDirectory::isHubOrExpander(in);
 
-			// Ignore cables that are connected to a different hub
-			if (ModuleDirectory::isHub(out) && (out->getId() != hubModuleId))
-				continue;
-			if (ModuleDirectory::isHub(in) && (in->getId() != hubModuleId))
-				continue;
+			if (isKnownOutModule || isKnownInputModule) {
 
-			uint8_t r_amt = (uint8_t)(rack::clamp(cableWidget->color.r) * 255);
-			uint8_t g_amt = (uint8_t)(rack::clamp(cableWidget->color.g) * 255);
-			uint8_t b_amt = (uint8_t)(rack::clamp(cableWidget->color.b) * 255);
-			uint16_t color = Color(r_amt, g_amt, b_amt).Rgb565();
+				// Ignore cables that are connected to a different hub or unknown expanders
+				if (ModuleDirectory::isHub(out) && (out->getId() != hubModuleId))
+					continue;
+				if (ModuleDirectory::isHub(in) && (in->getId() != hubModuleId))
+					continue;
+				if (expanders.isUnknownExpanderCable(cable))
+					continue;
 
-			cableData.push_back({
-				.sendingJackId = cable->outputId,
-				.receivedJackId = cable->inputId,
-				.sendingModuleId = out->getId(),
-				.receivedModuleId = in->getId(),
-				.lv_color_full = color,
-			});
+				uint8_t r_amt = (uint8_t)(rack::clamp(cableWidget->color.r) * 255);
+				uint8_t g_amt = (uint8_t)(rack::clamp(cableWidget->color.g) * 255);
+				uint8_t b_amt = (uint8_t)(rack::clamp(cableWidget->color.b) * 255);
+				uint16_t color = Color(r_amt, g_amt, b_amt).Rgb565();
+
+				cableData.push_back({
+					.sendingJackId = cable->outputId,
+					.receivedJackId = cable->inputId,
+					.sendingModuleId = out->getId(),
+					.receivedModuleId = in->getId(),
+					.lv_color_full = color,
+				});
+			}
 		}
 
 		PatchFileWriter pw{moduleData, hubModuleId};
 		pw.setMidiSettings(midimodules.moduleIds, midimodules.settings);
 		pw.setPatchName(patchName);
 		pw.setPatchDesc(patchDesc);
+		pw.setExpanders(expanders);
 		pw.setCableList(cableData);
 		pw.setParamList(paramData);
 
 		// Add module state from Module::dataToJson()
 		for (auto moduleID : engine->getModuleIds()) {
 			auto *module = engine->getModule(moduleID);
-			if (ModuleDirectory::isRegularModule(module) && !ModuleDirectory::isHub(module)) {
+			if (ModuleDirectory::isRegularModule(module)) {
 				pw.addModuleStateJson(module);
 			}
 		}
