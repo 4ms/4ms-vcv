@@ -51,6 +51,11 @@ void PatchFileWriter::setMidiSettings(MIDI::ModuleIds &ids, MIDI::Settings const
 	pd.midi_poly_num = std::min<uint32_t>(midiSettings.CV.channels, 8U);
 }
 
+void PatchFileWriter::setExpanders(ExpanderMappings const &exp) {
+	expanders = exp;
+	pd.uses_audio_expander = expanders.hasAudioExpander();
+}
+
 void PatchFileWriter::setModuleList(std::vector<BrandModule> &modules) {
 	std::vector<int64_t> vcv_mod_ids;
 
@@ -131,10 +136,22 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 		} else if (cable.receivedModuleId == hubModuleId) {
 			mapOutputJack(cable);
 			continue;
+
+		} else if (expanders.isKnownJackExpander(cable.sendingModuleId)) {
+			expanders.setExpanderInputJackId(&cable);
+			mapInputJack(cable);
+			continue;
+
+		} else if (expanders.isKnownJackExpander(cable.receivedModuleId)) {
+			expanders.setExpanderOutputJackId(&cable);
+			mapOutputJack(cable);
+			continue;
 		}
 
 		if (!idMap.contains(cable.receivedModuleId) || !idMap.contains(cable.sendingModuleId))
 			continue;
+
+		// Map internal cable:
 
 		auto in_mod = idMap[cable.receivedModuleId];
 		auto out_mod = idMap[cable.sendingModuleId];
@@ -229,9 +246,9 @@ void PatchFileWriter::addKnobMaps(unsigned panelKnobId, unsigned knobSetId, cons
 	}
 }
 
-// Presumes the map has already been verified that the sendingModuleId is the hub we're using
-// And the jack ids are valid
-// and the receivedModuleId is in our module list
+// Presumes the map has already been verified that the sendingModuleId is
+// the hub we're using or a known expander,
+// and the jack ids are valid, and the receivedModuleId is in our module list
 void PatchFileWriter::mapInputJack(const CableMap &map) {
 
 	// Look for an existing entry to this panel input jack

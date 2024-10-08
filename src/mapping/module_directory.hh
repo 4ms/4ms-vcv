@@ -4,18 +4,16 @@
 
 struct ModuleDirectory {
 
-	// Return false if the module should not be included in the patch.
-	// Including a module that can't be loaded will give an warning
-	// message the user when they try to load the patch on hardware.
-	// This can be good feedback. Only exclude modules which users
-	// would not expect to have running on hardware (because returning false
-	// here will surpress the warning message).
+	// "Regular" module means it's a virtual module that
+	// we should include in the patch file.
+	// We exclude modules which users would not expect to have
+	// running on hardware, like modules that do MIDI Mappings,
+	// notes, blanks, Scope modules, etc.
 	static bool isRegularModule(rack::Module *module) {
-		if (!module)
+		if (!isValid(module))
 			return false;
-		if (!module->model)
-			return false;
-		if (!module->model->plugin)
+
+		if (isHubOrExpander(module))
 			return false;
 
 		std::array blacklist = {"Scope",
@@ -43,8 +41,13 @@ struct ModuleDirectory {
 		return true;
 	}
 
+	// Regular modules and the Hub are in the patch (no expanders)
+	static bool isModuleInPatch(rack::Module *module) {
+		return isRegularModule(module) || isHub(module);
+	}
+
 	static std::string convertSlugs(rack::Module *module) {
-		if (!module)
+		if (!isValid(module))
 			return "";
 
 		auto brand = module->getModel()->plugin->slug;
@@ -93,11 +96,7 @@ struct ModuleDirectory {
 	}
 
 	static bool isHub(rack::Module *module) {
-		if (!module)
-			return false;
-		if (!module->model)
-			return false;
-		if (!module->model->plugin)
+		if (!isValid(module))
 			return false;
 
 		if (module->model->plugin->slug != "4msCompany")
@@ -106,16 +105,41 @@ struct ModuleDirectory {
 		return isHub(module->model->slug);
 	}
 
-	static bool isModuleInPlugin(rack::Module *module) {
-		return isRegularModule(module) && !isHub(module);
+	// Expanders
+	static bool isAudioExpander(std::string_view slug) {
+		return slug == "MMAudioExpander";
+	}
+
+	static bool isAudioExpander(rack::Module *module) {
+		if (!module || !module->model || !module->model->plugin)
+			return false;
+
+		if (module->model->plugin->slug != "4msCompany")
+			return false;
+
+		return isAudioExpander(module->model->slug);
+	}
+
+	static bool isExpander(std::string_view slug) {
+		return isAudioExpander(slug);
+	}
+
+	static bool isExpander(rack::Module *module) {
+		return isAudioExpander(module);
+	}
+
+	static bool isHubOrExpander(rack::Module *module) {
+		if (!isValid(module))
+			return false;
+
+		if (module->model->plugin->slug != "4msCompany")
+			return false;
+
+		return isHub(module->model->slug) || isExpander(module->model->slug);
 	}
 
 	static bool isCoreMIDI(rack::Module *module) {
-		if (!module)
-			return false;
-		if (!module->model)
-			return false;
-		if (!module->model->plugin)
+		if (!isValid(module))
 			return false;
 
 		if (module->model->plugin->slug == "Core") {
@@ -132,7 +156,7 @@ struct ModuleDirectory {
 		return false;
 	}
 
-	static bool isInPluginOrMIDI(rack::Module *module) {
-		return isRegularModule(module) || isCoreMIDI(module);
+	static bool isValid(rack::Module *module) {
+		return module && module->model && module->model->plugin;
 	}
 };
