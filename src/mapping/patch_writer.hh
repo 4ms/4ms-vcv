@@ -36,8 +36,8 @@ public:
 	static std::map<int64_t, uint16_t> squash_ids(std::vector<int64_t> ids);
 
 private:
-	void mapInputJack(const CableMap &map);
-	void mapOutputJack(const CableMap &map);
+	void mapInputJack(CableMap &map);
+	void mapOutputJack(CableMap &map);
 	void mapMidiCVJack(CableMap &map);
 	void mapMidiGateJack(CableMap &map);
 	void mapMidiCCJack(CableMap &cable);

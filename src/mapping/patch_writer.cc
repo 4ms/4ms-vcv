@@ -53,7 +53,7 @@ void PatchFileWriter::setMidiSettings(MIDI::ModuleIds &ids, MIDI::Settings const
 
 void PatchFileWriter::setExpanders(ExpanderMappings const &exp) {
 	expanders = exp;
-	pd.uses_audio_expander = expanders.hasAudioExpander();
+	// pd.uses_audio_expander = expanders.hasAudioExpander();
 }
 
 void PatchFileWriter::setModuleList(std::vector<BrandModule> &modules) {
@@ -138,12 +138,10 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 			continue;
 
 		} else if (expanders.isKnownJackExpander(cable.sendingModuleId)) {
-			expanders.setExpanderInputJackId(&cable);
 			mapInputJack(cable);
 			continue;
 
 		} else if (expanders.isKnownJackExpander(cable.receivedModuleId)) {
-			expanders.setExpanderOutputJackId(&cable);
 			mapOutputJack(cable);
 			continue;
 		}
@@ -249,7 +247,12 @@ void PatchFileWriter::addKnobMaps(unsigned panelKnobId, unsigned knobSetId, cons
 // Presumes the map has already been verified that the sendingModuleId is
 // the hub we're using or a known expander,
 // and the jack ids are valid, and the receivedModuleId is in our module list
-void PatchFileWriter::mapInputJack(const CableMap &map) {
+void PatchFileWriter::mapInputJack(CableMap &map) {
+	if (expanders.isKnownJackExpander(map.sendingModuleId))
+		expanders.setExpanderInputJackId(&map);
+
+	if (expanders.isKnownJackExpander(map.receivedModuleId))
+		expanders.setExpanderOutputJackId(&map);
 
 	// Look for an existing entry to this panel input jack
 	auto found = std::find_if(pd.mapped_ins.begin(), pd.mapped_ins.end(), [=](const auto &x) {
@@ -280,7 +283,12 @@ void PatchFileWriter::mapInputJack(const CableMap &map) {
 // Presumes the map has already been verified that the sendingModuleId is the hub we're using
 // And the jack ids are valid
 // and the receivedModuleId is in our module list
-void PatchFileWriter::mapOutputJack(const CableMap &map) {
+void PatchFileWriter::mapOutputJack(CableMap &map) {
+	if (expanders.isKnownJackExpander(map.sendingModuleId))
+		expanders.setExpanderInputJackId(&map);
+
+	if (expanders.isKnownJackExpander(map.receivedModuleId))
+		expanders.setExpanderOutputJackId(&map);
 
 	// Update the mapped_outs entry if there already is one with the same panel_jack_id (Note that this is
 	// an error, since we can't have multiple outs assigned to a net, but we're going to roll with it).
