@@ -1,5 +1,5 @@
 #include "CoreModules/elements/element_counter.hh"
-#include "CoreModules/hub/MMAIO_info.hh"
+#include "CoreModules/hub/MMAudioExpander_info.hh"
 #include "hub/hub_elements.hh"
 #include "widgets/4ms/4ms_widgets.hh"
 #include "widgets/vcv_module_creator.hh"
@@ -8,7 +8,7 @@ namespace MetaModule
 {
 
 struct AudioExpander : MetaModuleHubBase {
-	using Info = MMAIOInfo;
+	using Info = MMAudioExpanderInfo;
 	AudioExpander() {
 		// Register with VCV the number of elements of each type
 		auto cnt = ElementCount::count<Info>();
@@ -31,12 +31,13 @@ struct AudioExpanderWidget : MetaModuleHubWidget {
 		using namespace rack;
 
 		setModule(module);
-		setPanel(APP->window->loadSvg(rack::asset::plugin(pluginInstance, std::string{MMAIOInfo::svg_filename})));
+		setPanel(
+			APP->window->loadSvg(rack::asset::plugin(pluginInstance, std::string{AudioExpander::Info::svg_filename})));
 		addChild(createWidget<ScrewBlack>(rack::math::Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewBlack>(rack::math::Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		HubWidgetCreator<MMAIOInfo> creator(this, module);
-		for (auto &element : MMAIOInfo::Elements) {
+		HubWidgetCreator<AudioExpander::Info> creator(this, module);
+		for (auto &element : AudioExpander::Info::Elements) {
 			std::visit([&creator](auto &el) { creator.create(el); }, element);
 		}
 	}
