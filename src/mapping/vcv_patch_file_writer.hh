@@ -43,7 +43,7 @@ struct VCVPatchFileWriter {
 
 			auto *module = engine->getModule(moduleID);
 
-			if (ModuleDirectory::isModuleInPatch(module)) {
+			if (ModuleDirectory::isRegularModule(module) || ModuleDirectory::isHub(module)) {
 				auto brand_module = ModuleDirectory::convertSlugs(module);
 				auto moduleWidget = APP->scene->rack->getModule(moduleID);
 				moduleData.push_back({moduleID,

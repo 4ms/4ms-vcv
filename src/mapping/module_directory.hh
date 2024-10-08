@@ -8,7 +8,7 @@ struct ModuleDirectory {
 	// we should include in the patch file.
 	// We exclude modules which users would not expect to have
 	// running on hardware, like modules that do MIDI Mappings,
-	// notes, blanks, Scope modules, etc.
+	// notes, blanks, scope modules, etc.
 	static bool isRegularModule(rack::Module *module) {
 		if (!isValid(module))
 			return false;
@@ -39,11 +39,6 @@ struct ModuleDirectory {
 				return false;
 		}
 		return true;
-	}
-
-	// Regular modules and the Hub are in the patch (no expanders)
-	static bool isModuleInPatch(rack::Module *module) {
-		return isRegularModule(module) || isHub(module);
 	}
 
 	static std::string convertSlugs(rack::Module *module) {
@@ -82,6 +77,7 @@ struct ModuleDirectory {
 		return brand + ":" + module_slug;
 	}
 
+	// Hub
 	static bool isHub(std::string_view slug) {
 		if (slug == "PanelMedium")
 			return true;
@@ -137,6 +133,8 @@ struct ModuleDirectory {
 
 		return isHub(module->model->slug) || isExpander(module->model->slug);
 	}
+
+	// MIDI
 
 	static bool isCoreMIDI(rack::Module *module) {
 		if (!isValid(module))
