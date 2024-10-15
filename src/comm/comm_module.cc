@@ -23,8 +23,8 @@ void CommModule::process(const ProcessArgs &args) {
 			core->mark_input_patched(id);
 
 		if (injack.isJustUnpatched()) {
+			core->set_input(id, 0);
 			core->mark_input_unpatched(id);
-			core->set_input(id, 0); // 0 = unpatched value
 		}
 
 		if (injack.isConnected()) {
