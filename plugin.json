@@ -314,7 +314,7 @@
       "slug": "LPG",
       "name": "LPG",
       "description": "Low-pass Gate",
-      "tags": ["Filter", "VCA", "LPG"]
+      "tags": ["Filter", "VCA", "Low-pass gate"]
     },
     {
       "slug": "BPF",
