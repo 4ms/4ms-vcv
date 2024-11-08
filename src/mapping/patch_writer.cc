@@ -53,7 +53,7 @@ void PatchFileWriter::setMidiSettings(MIDI::ModuleIds &ids, MIDI::Settings const
 
 void PatchFileWriter::setExpanders(ExpanderMappings const &exp) {
 	expanders = exp;
-	pd.uses_audio_expander = expanders.hasAudioExpander();
+	// pd.uses_audio_expander = expanders.hasAudioExpander();
 }
 
 void PatchFileWriter::setModuleList(std::vector<BrandModule> &modules) {
