@@ -2,6 +2,7 @@
 #include "CoreModules/hub/HubMedium_info.hh"
 #include "CoreModules/moduleFactory.hh"
 #include "comm/comm_module.hh"
+#include "flatbuffers/encode.hh"
 #include "hub/hub_elements.hh"
 #include "hub/knob_set_buttons.hh"
 #include "hub_module_widget.hh"
@@ -151,7 +152,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		addParam(saveButton);
 
 		auto wifiSendButton =
-			createParamCentered<HubSaveButton>(rack::math::Vec(338.f, 38.57f), module, HubMedium::wifiSendButtonIndex);
+			createParamCentered<HubSaveButton>(rack::math::Vec(318.f, 38.57f), module, HubMedium::wifiSendButtonIndex);
 		wifiSendButton->click_callback = [this]() {
 			wifiSendPatchFile();
 		};
@@ -219,7 +220,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 	void wifiSendPatchFile() {
 		auto patchFileName = cleanupPatchName(patchName->text);
-
 		patchName->text = rack::system::getStem(patchFileName);
 
 		if (rack::system::getExtension(rack::system::getFilename(patchFileName)) != ".yml") {
@@ -232,7 +232,15 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		// Encode filename: patchFileName, content: yml, volume: ?? default Internal
 
-		network::requestRaw(rack::network::Method::METHOD_POST, "https://192.168.99.10:8080/action", "data 123 abc");
+		auto encoded = FlatBuffers::encode_file(patchFileName, yml, "Internal");
+		// printf("Encoded (%zu):\n", encoded.size());
+		// for (auto c : encoded) {
+		// 	printf("%02x ", c);
+		// }
+		auto response =
+			network::requestRaw(rack::network::Method::METHOD_POST, "http://192.168.99.10:8080/action", encoded);
+
+		// printf("Response: %s\n", response.c_str());
 	}
 
 	struct HubSaveButton : rack::BefacoPush {

@@ -59,3 +59,6 @@ target_link_libraries(${RACK_PLUGIN_LIB} PRIVATE
 
 target_link_libraries(${RACK_PLUGIN_LIB} PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,CoreModules-4ms>")
 
+add_subdirectory(src/flatbuffers)
+
+target_link_libraries(${RACK_PLUGIN_LIB} PRIVATE flatbuffers)

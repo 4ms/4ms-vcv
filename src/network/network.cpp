@@ -1,3 +1,4 @@
+#include <span>
 #include <string>
 #include <vector>
 
@@ -67,7 +68,7 @@ static std::string getCookieString(const rack::network::CookieMap &cookies) {
 
 std::string requestRaw(rack::network::Method method,
 					   const std::string &url,
-					   const std::string &reqStr,
+					   const std::span<uint8_t> &reqStr,
 					   const rack::network::CookieMap &cookies) {
 	using namespace rack::network;
 
@@ -89,8 +90,7 @@ std::string requestRaw(rack::network::Method method,
 
 	// Set headers
 	struct curl_slist *headers = NULL;
-	headers = curl_slist_append(headers, "Accept: application/json");
-	headers = curl_slist_append(headers, "Content-Type: application/json");
+	headers = curl_slist_append(headers, "bridge-timeout-ms: 10000");
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
 	// Cookies
@@ -99,8 +99,10 @@ std::string requestRaw(rack::network::Method method,
 	}
 
 	// Body callbacks
-	if (reqStr.c_str())
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, reqStr.c_str());
+	if (reqStr.size()) {
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, reqStr.data());
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, reqStr.size());
+	}
 
 	std::string resText;
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeStringCallback);
