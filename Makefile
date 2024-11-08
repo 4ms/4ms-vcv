@@ -42,7 +42,7 @@ rack_plugin: $(cmake_rack_plugin)
 dist: rack_plugin res
 
 configure:
-	$(CMAKE) -B $(CMAKE_BUILD) -DRACK_SDK_DIR=$(RACK_DIR) -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(CMAKE_BUILD)/dist $(EXTRA_CMAKE)
+	$(CMAKE) --fresh -B $(CMAKE_BUILD) -DRACK_SDK_DIR=$(RACK_DIR) -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(CMAKE_BUILD)/dist $(EXTRA_CMAKE)
 
 DISTRIBUTABLES += $(wildcard LICENSE*) res README.md 
 
