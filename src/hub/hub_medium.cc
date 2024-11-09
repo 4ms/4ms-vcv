@@ -68,7 +68,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	std::string lastPatchFilePath;
 
 	std::string wifiUrl = "";
-	enum Volume { Internal = 0, USB = 1, Card = 2 } wifiVolume;
+	enum Volume { Internal = 0, USB = 1, Card = 2 } wifiVolume = Volume::Card;
 	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
 
 	static constexpr unsigned kMaxKnobSetNameChars = 16;
@@ -78,10 +78,19 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		hubModule = module;
 
 		if (hubModule != nullptr) {
+
 			hubModule->updatePatchName = [this] {
 				hubModule->patchNameText = patchName->text;
 				hubModule->patchDescText = patchDesc->text;
+				hubModule->wifiUrl = wifiUrl;
+				hubModule->wifiPath = size_t(wifiVolume) < volumeLabels.size() ? volumeLabels[wifiVolume] : "Card";
 			};
+
+			wifiUrl = hubModule->wifiUrl;
+			wifiVolume = hubModule->wifiPath == "USB"	   ? Volume::USB :
+						 hubModule->wifiPath == "Card"	   ? Volume::Card :
+						 hubModule->wifiPath == "Internal" ? Volume::Internal :
+															 Volume::Card;
 		}
 
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/modules/HubMedium_artwork.svg")));
@@ -178,7 +187,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		wifiURLText = createWidget<Label>(rack::math::Vec(260, 5));
 		wifiURLText->box.size = rack::mm2px(rack::math::Vec(120, 20));
 		wifiURLText->color = rack::color::WHITE;
-		wifiURLText->text = "";
+		wifiURLText->text = formatWifiStatus();
 		wifiURLText->fontSize = 9;
 		addChild(wifiURLText);
 	}
@@ -251,7 +260,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			return;
 		}
 
-		std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "USB";
+		std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "Card";
 
 		auto encoded = FlatBuffers::encode_file(patchFileName, yml, vol_string);
 		auto response = network::requestRaw(rack::network::Method::METHOD_POST, wifiUrl + "/action", encoded);
@@ -290,7 +299,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			if (!wifiUrl.starts_with("http://")) {
 				wifiUrl = "http://" + wifiUrl;
 			}
-			wifiURLText->text = wifiUrl + "\n" + volumeLabels[wifiVolume];
+			wifiURLText->text = formatWifiStatus();
 			free(addr);
 		}
 	}
@@ -305,10 +314,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			[this]() { return wifiVolume; },
 			[this](size_t index) {
 				wifiVolume = Volume(index);
-				wifiURLText->text = wifiUrl + "\n" + volumeLabels[wifiVolume];
+				wifiURLText->text = formatWifiStatus();
 			}));
-
-		// std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "USB";
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel<MenuLabel>("Mapped Knob Sets"));
@@ -332,6 +339,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 												   hubModule->mappings.getKnobSetName(knobset_idx),
 												   kMaxKnobSetNameChars});
 		}
+	}
+
+	std::string formatWifiStatus() {
+		return wifiUrl + "\n" + (size_t(wifiVolume) < volumeLabels.size() ? volumeLabels[wifiVolume] : "");
 	}
 
 	void updateKnobSetLabel() {

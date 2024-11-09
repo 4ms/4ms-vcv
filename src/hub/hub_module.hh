@@ -18,6 +18,8 @@ struct MetaModuleHubBase : public rack::Module {
 	std::function<void()> updatePatchName;
 	std::string patchNameText = "";
 	std::string patchDescText = "";
+	std::string wifiUrl = "";
+	std::string wifiPath = "Card";
 
 	std::optional<int> inProgressMapParamId{};
 
@@ -124,6 +126,12 @@ struct MetaModuleHubBase : public rack::Module {
 
 			json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
 			json_object_set_new(rootJ, "DefaultKnobSet", defaultKnobSetJ);
+
+			json_t *wifiUrlJ = json_string(wifiUrl.c_str());
+			json_object_set_new(rootJ, "WifiURL", wifiUrlJ);
+
+			json_t *wifiPathJ = json_string(wifiPath.c_str());
+			json_object_set_new(rootJ, "WifiPath", wifiPathJ);
 		} else {
 			pr_err("Error: Widget has not been constructed, but dataToJson is being called\n");
 		}
@@ -146,6 +154,16 @@ struct MetaModuleHubBase : public rack::Module {
 		if (json_is_integer(defaultKnobSetJ)) {
 			unsigned idx = json_integer_value(defaultKnobSetJ);
 			mappings.changeActiveKnobSet(idx, ShouldLock::No);
+		}
+
+		auto wifiUrlJ = json_object_get(rootJ, "WifiURL");
+		if (json_is_string(wifiUrlJ)) {
+			wifiUrl = json_string_value(wifiUrlJ);
+		}
+
+		auto wifiPathJ = json_object_get(rootJ, "WifiPath");
+		if (json_is_string(wifiPathJ)) {
+			wifiPath = json_string_value(wifiPathJ);
 		}
 
 		mappings.decodeJson(rootJ);
