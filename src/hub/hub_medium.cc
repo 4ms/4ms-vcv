@@ -71,6 +71,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	enum Volume { Internal = 0, USB = 1, Card = 2 } wifiVolume;
 	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
 
+	static constexpr unsigned kMaxKnobSetNameChars = 16;
+
 	HubMediumWidget(HubMedium *module) {
 		setModule(module);
 		hubModule = module;
