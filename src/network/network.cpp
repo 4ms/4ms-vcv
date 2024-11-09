@@ -118,7 +118,7 @@ std::string requestRaw(rack::network::Method method,
 
 	if (res != CURLE_OK) {
 		WARN("Could not request %s: %s", urlS.c_str(), curl_easy_strerror(res));
-		return "";
+		return "Failed";
 	}
 
 	return resText;

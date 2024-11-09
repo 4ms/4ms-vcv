@@ -60,6 +60,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	static constexpr unsigned kMaxKnobSetNameChars = 16;
 
 	rack::Label *statusText;
+	rack::Label *wifiURLText;
 	KnobSetButtonGroup *knobSetButtons;
 	TextField *knobSetNameField;
 
@@ -67,6 +68,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	LedDisplayTextField *patchDesc;
 
 	std::string lastPatchFilePath;
+
+	std::string wifiUrl = "";
+	enum Volume { Internal = 0, USB = 1, Card = 2 } wifiVolume;
+	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
 
 	HubMediumWidget(HubMedium *module) {
 		setModule(module);
@@ -97,13 +102,12 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		patchName->cursor = 0;
 		addChild(patchName);
 
-#ifdef DEBUG_STATUS_LABEL
 		statusText = createWidget<Label>(rack::mm2px(rack::math::Vec(10, 1.5)));
+		statusText->box.size = rack::mm2px(rack::math::Vec(200, 20));
 		statusText->color = rack::color::WHITE;
 		statusText->text = "";
 		statusText->fontSize = 10;
 		addChild(statusText);
-#endif
 
 		patchDesc = createWidget<TextField>(rack::mm2px(rack::math::Vec(36.4, 18.f)));
 		if (hubModule != nullptr && hubModule->patchDescText.length() > 0)
@@ -160,9 +164,23 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		auto wifiSendButton =
 			createParamCentered<HubSaveButton>(rack::math::Vec(318.f, 38.57f), module, HubMedium::wifiSendButtonIndex);
 		wifiSendButton->click_callback = [this]() {
-			wifiSendPatchFile();
+			if (wifiUrl.length()) {
+				wifiSendPatchFile();
+			} else {
+				promptWifiUrl();
+				if (wifiUrl.length()) {
+					wifiSendPatchFile();
+				}
+			}
 		};
 		addParam(wifiSendButton);
+
+		wifiURLText = createWidget<Label>(rack::math::Vec(260, 5));
+		wifiURLText->box.size = rack::mm2px(rack::math::Vec(120, 20));
+		wifiURLText->color = rack::color::WHITE;
+		wifiURLText->text = "";
+		wifiURLText->fontSize = 9;
+		addChild(wifiURLText);
 	}
 
 	std::string cleanupPatchName(std::string patchnm) {
@@ -205,23 +223,12 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		lastPatchFilePath = rack::system::getDirectory(patchFileName);
 
-#ifdef DEBUG_STATUS_LABEL
-		statusText->text = "Creating patch...";
-#endif
-
 		patchName->text = rack::system::getStem(filename);
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		auto yml =
 			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text);
 		PatchFileWriter::writeToFile(patchFileName, yml);
-
-#ifdef DEBUG_STATUS_LABEL
-		statusText->text = "Wrote patch file";
-		statusText->text += rack::system::getFilename(patchFileName);
-
-		statusText->text = "";
-#endif
 	}
 
 	void wifiSendPatchFile() {
@@ -236,17 +243,19 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		auto yml =
 			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text);
 
-		// Encode filename: patchFileName, content: yml, volume: ?? default Internal
+		std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "USB";
 
-		auto encoded = FlatBuffers::encode_file(patchFileName, yml, "Internal");
-		// printf("Encoded (%zu):\n", encoded.size());
-		// for (auto c : encoded) {
-		// 	printf("%02x ", c);
-		// }
-		auto response =
-			network::requestRaw(rack::network::Method::METHOD_POST, "http://192.168.99.10:8080/action", encoded);
+		auto encoded = FlatBuffers::encode_file(patchFileName, yml, vol_string);
+		auto response = network::requestRaw(rack::network::Method::METHOD_POST, wifiUrl + "/action", encoded);
+		//TODO: decode response
 
-		// printf("Response: %s\n", response.c_str());
+		if (response == "Failed") {
+			statusText->text = "Failed to send patch file";
+		} else if (response.length() == 40) {
+			statusText->text = "Sent patch file";
+		} else {
+			statusText->text = "Sent patch file?";
+		}
 	}
 
 	struct HubSaveButton : rack::BefacoPush {
@@ -260,8 +269,39 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		}
 	};
 
+	void promptWifiUrl() {
+		auto addr =
+			osdialog_prompt(osdialog_message_level::OSDIALOG_INFO, "Enter the address (e.g. http://192.168.1.22)", "");
+
+		if (addr) {
+			wifiUrl = addr;
+			//TODO: ensure is just http://\d.\d.\d.\d[/]?
+			if (wifiUrl.starts_with("https://")) {
+				wifiUrl = "http://" + wifiUrl.substr(8);
+			}
+			if (!wifiUrl.starts_with("http://")) {
+				wifiUrl = "http://" + wifiUrl;
+			}
+			wifiURLText->text = wifiUrl + "\n" + volumeLabels[wifiVolume];
+			free(addr);
+		}
+	}
+
 	void appendContextMenu(rack::Menu *menu) override {
 		using namespace rack;
+		menu->addChild(new MenuSeparator());
+		menu->addChild(createMenuItem("Set Wi-Fi Expander address", "", [this]() { promptWifiUrl(); }));
+		menu->addChild(createIndexSubmenuItem(
+			"Wi-Fi sends to:",
+			volumeLabels,
+			[this]() { return wifiVolume; },
+			[this](size_t index) {
+				wifiVolume = Volume(index);
+				wifiURLText->text = wifiUrl + "\n" + volumeLabels[wifiVolume];
+			}));
+
+		// std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "USB";
+
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel<MenuLabel>("Mapped Knob Sets"));
 
