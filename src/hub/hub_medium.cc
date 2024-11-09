@@ -3,8 +3,10 @@
 #include "CoreModules/moduleFactory.hh"
 #include "comm/comm_module.hh"
 #include "flatbuffers/encode.hh"
+#include "hub/buttons.hh"
 #include "hub/hub_elements.hh"
 #include "hub/knob_set_buttons.hh"
+#include "hub/label_delay.hh"
 #include "hub_module_widget.hh"
 #include "mapping/patch_writer.hh"
 #include "network/network.hh"
@@ -57,13 +59,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 	using INFO = HubMediumInfo;
 
-	rack::Label *statusText;
+	MetaModule::LabelDelay *statusText;
 	rack::Label *wifiURLText;
 
 	KnobSetButtonGroup *knobSetButtons;
 	TextField *knobSetNameField;
 	LedDisplayTextField *patchName;
 	LedDisplayTextField *patchDesc;
+	HubWifiButton *wifiSendButton;
 
 	std::string lastPatchFilePath;
 
@@ -111,7 +114,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		patchName->cursor = 0;
 		addChild(patchName);
 
-		statusText = createWidget<Label>(rack::mm2px(rack::math::Vec(10, 1.5)));
+		statusText = createWidget<LabelDelay>(rack::mm2px(rack::math::Vec(10, 1.5)));
 		statusText->box.size = rack::mm2px(rack::math::Vec(200, 20));
 		statusText->color = rack::color::WHITE;
 		statusText->text = "";
@@ -170,8 +173,21 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		};
 		addParam(saveButton);
 
-		auto wifiSendButton =
-			createParamCentered<HubSaveButton>(rack::math::Vec(318.f, 38.57f), module, HubMedium::wifiSendButtonIndex);
+		// Wifi
+		wifiURLText = createWidget<Label>(rack::math::Vec(260, 5));
+		wifiURLText->box.size = rack::mm2px(rack::math::Vec(120, 20));
+		wifiURLText->color = rack::color::WHITE;
+		wifiURLText->text = formatWifiStatus();
+		wifiURLText->fontSize = 9;
+		addChild(wifiURLText);
+		wifiURLText->hide();
+
+		wifiSendButton = new HubWifiButton(wifiURLText);
+		wifiSendButton->box.pos = rack::math::Vec(318.f, 38.57f);
+		wifiSendButton->app::ParamWidget::module = module;
+		wifiSendButton->app::ParamWidget::paramId = HubMedium::wifiSendButtonIndex;
+		wifiSendButton->initParamQuantity();
+		wifiSendButton->box.pos = wifiSendButton->box.pos.minus(wifiSendButton->box.size.div(2));
 		wifiSendButton->click_callback = [this]() {
 			if (wifiUrl.length()) {
 				wifiSendPatchFile();
@@ -183,13 +199,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			}
 		};
 		addParam(wifiSendButton);
-
-		wifiURLText = createWidget<Label>(rack::math::Vec(260, 5));
-		wifiURLText->box.size = rack::mm2px(rack::math::Vec(120, 20));
-		wifiURLText->color = rack::color::WHITE;
-		wifiURLText->text = formatWifiStatus();
-		wifiURLText->fontSize = 9;
-		addChild(wifiURLText);
 	}
 
 	std::string cleanupPatchName(std::string patchnm) {
@@ -252,13 +261,17 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		auto yml =
 			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text);
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
+			statusText->timeToHide = 240;
 			statusText->text = "File too large for Internal: max is 256kB";
 			return;
 		}
 		if (yml.size() > 1024 * 1024) {
+			statusText->timeToHide = 240;
 			statusText->text = "File too large: max is 1MB";
 			return;
 		}
+
+		statusText->text = "Sending patch file...";
 
 		std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "Card";
 
@@ -266,29 +279,19 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		auto response = network::requestRaw(rack::network::Method::METHOD_POST, wifiUrl + "/action", encoded);
 		//TODO: decode response
 
+		statusText->timeToHide = 240;
 		if (response == "Failed") {
 			statusText->text = "Failed to send patch file";
 		} else if (response.length() == 40) {
 			statusText->text = "Sent patch file";
 		} else {
-			statusText->text = "Sent patch file?";
+			statusText->text = "Sent patch file.";
 		}
 	}
 
-	struct HubSaveButton : rack::BefacoPush {
-		std::function<void(void)> click_callback;
-
-		void onDragEnd(const rack::event::DragEnd &e) override {
-			OpaqueWidget::onDragEnd(e);
-			if (click_callback) {
-				click_callback();
-			}
-		}
-	};
-
 	void promptWifiUrl() {
-		auto addr =
-			osdialog_prompt(osdialog_message_level::OSDIALOG_INFO, "Enter the address (e.g. http://192.168.1.22)", "");
+		auto addr = osdialog_prompt(
+			osdialog_message_level::OSDIALOG_INFO, "Enter the address (e.g. http://192.168.1.22)", wifiUrl.c_str());
 
 		if (addr) {
 			wifiUrl = addr;
@@ -316,6 +319,16 @@ struct HubMediumWidget : MetaModuleHubWidget {
 				wifiVolume = Volume(index);
 				wifiURLText->text = formatWifiStatus();
 			}));
+		// menu->addChild(createCheckMenuItem(
+		// 	"Show Wi-Fi button",
+		// 	"",
+		// 	[this]() { return wifiSendButton->isVisible(); },
+		// 	[this]() {
+		// 		if (wifiSendButton->isVisible())
+		// 			wifiSendButton->hide();
+		// 		else
+		// 			wifiSendButton->show();
+		// 	}));
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel<MenuLabel>("Mapped Knob Sets"));
