@@ -6,6 +6,8 @@
 
 - Fixed Tapographic Delay CV jacks being inverted
 
+- Added Wi-Fi button on hub
+
 
 ## v2.0.8
 
