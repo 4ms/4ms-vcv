@@ -19,11 +19,10 @@ namespace MetaModule
 template<size_t NumKnobs, size_t MaxMapsPerPot, size_t MaxKnobSets>
 struct VCVPatchFileWriter {
 
-	static void writePatchFile(int64_t hubModuleId,
-							   HubKnobMappings<NumKnobs, MaxMapsPerPot, MaxKnobSets> &mappings,
-							   std::string fileName,
-							   std::string patchName,
-							   std::string patchDesc) {
+	static std::string createPatchYml(int64_t hubModuleId,
+							          HubKnobMappings<NumKnobs, MaxMapsPerPot, MaxKnobSets> &mappings,
+									  std::string patchName,
+									  std::string patchDesc) {
 
 		auto context = rack::contextGet();
 		auto engine = context->engine;
@@ -140,8 +139,8 @@ struct VCVPatchFileWriter {
 			}
 		}
 
-		std::string yml = pw.printPatchYAML();
-		writeToFile(fileName, yml);
+		return pw.printPatchYAML();
+		// writeToFile(fileName, yml);
 		// writeAsHeader(fileName + ".hh", patchName + "_patch", yml);
 	}
 

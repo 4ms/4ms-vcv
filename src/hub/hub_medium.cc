@@ -6,6 +6,7 @@
 #include "hub/knob_set_buttons.hh"
 #include "hub_module_widget.hh"
 #include "mapping/patch_writer.hh"
+#include "network/network.hh"
 #include "widgets/4ms/4ms_widgets.hh"
 #include "widgets/vcv_module_creator.hh"
 #include "widgets/vcv_widget_creator.hh"
@@ -18,7 +19,9 @@ namespace MetaModule
 struct HubMedium : MetaModuleHubBase {
 	using INFO = HubMediumInfo;
 
-	static constexpr unsigned num_extra_params = 1; //Save Button
+	static constexpr unsigned num_extra_params = 2; //Save Button, Wifi Send Button
+	static constexpr auto saveButtonIndex = ElementCount::count<INFO>().num_params;
+	static constexpr auto wifiSendButtonIndex = saveButtonIndex + 1;
 
 	HubMedium() {
 
@@ -32,8 +35,8 @@ struct HubMedium : MetaModuleHubBase {
 			std::visit([&creator](auto &el) { creator.config_element(el); }, element);
 		}
 
-		constexpr auto saveButtonIndex = ElementCount::count<INFO>().num_params;
 		configParam(saveButtonIndex, 0, 1, 0, "Save Patch");
+		configParam(wifiSendButtonIndex, 0, 1, 0, "Send Patch over Wi-Fi");
 	}
 
 	void process(const ProcessArgs &args) override {
@@ -140,17 +143,22 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		}
 
 		// Add the Save button
-		constexpr auto saveButtonIndex = ElementCount::count<INFO>().num_params;
-		auto saveButton = createParamCentered<HubSaveButton>(rack::math::Vec(358.5f, 38.57f), module, saveButtonIndex);
+		auto saveButton =
+			createParamCentered<HubSaveButton>(rack::math::Vec(358.5f, 38.57f), module, HubMedium::saveButtonIndex);
 		saveButton->click_callback = [this]() {
 			writePatchFile();
 		};
 		addParam(saveButton);
+
+		auto wifiSendButton =
+			createParamCentered<HubSaveButton>(rack::math::Vec(338.f, 38.57f), module, HubMedium::wifiSendButtonIndex);
+		wifiSendButton->click_callback = [this]() {
+			wifiSendPatchFile();
+		};
+		addParam(wifiSendButton);
 	}
 
-	void writePatchFile() {
-		std::string patchnm = patchName->text;
-
+	std::string cleanupPatchName(std::string patchnm) {
 		if (patchnm == "" || patchnm == "Enter Patch Name") {
 			patchnm = "Untitled Patch " + std::to_string(MathTools::randomNumber<unsigned int>(100, 999));
 		}
@@ -164,6 +172,12 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			.replace_all(":", "")
 			.replace_all(".", "_");
 
+		return patchStructName.str;
+	}
+
+	void writePatchFile() {
+		auto patchStructName = cleanupPatchName(patchName->text);
+
 		osdialog_filters *filters = osdialog_filters_parse("Metamodule Patch File (.yml):yml");
 		DEFER({ osdialog_filters_free(filters); });
 
@@ -171,7 +185,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		if (dir == "")
 			dir = rack::asset::userDir.c_str();
 
-		char *filename = osdialog_file(OSDIALOG_SAVE, dir.c_str(), patchStructName.str.c_str(), filters);
+		char *filename = osdialog_file(OSDIALOG_SAVE, dir.c_str(), patchStructName.c_str(), filters);
 		if (!filename)
 			return;
 
@@ -190,8 +204,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		patchName->text = rack::system::getStem(filename);
 
-		VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>::writePatchFile(
-			hubModule->id, hubModule->mappings, patchFileName, patchName->text, patchDesc->text);
+		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
+		auto yml =
+			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text);
+		PatchFileWriter::writeToFile(patchFileName, yml);
 
 #ifdef DEBUG_STATUS_LABEL
 		statusText->text = "Wrote patch file";
@@ -199,6 +215,24 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		statusText->text = "";
 #endif
+	}
+
+	void wifiSendPatchFile() {
+		auto patchFileName = cleanupPatchName(patchName->text);
+
+		patchName->text = rack::system::getStem(patchFileName);
+
+		if (rack::system::getExtension(rack::system::getFilename(patchFileName)) != ".yml") {
+			patchFileName += ".yml";
+		}
+
+		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
+		auto yml =
+			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text);
+
+		// Encode filename: patchFileName, content: yml, volume: ?? default Internal
+
+		network::requestRaw(rack::network::Method::METHOD_POST, "https://192.168.99.10:8080/action", "data 123 abc");
 	}
 
 	struct HubSaveButton : rack::BefacoPush {
