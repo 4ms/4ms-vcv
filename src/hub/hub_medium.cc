@@ -242,6 +242,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		auto yml =
 			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text);
+		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
+			statusText->text = "File too large for Internal: max is 256kB";
+			return;
+		}
+		if (yml.size() > 1024 * 1024) {
+			statusText->text = "File too large: max is 1MB";
+			return;
+		}
 
 		std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "USB";
 
