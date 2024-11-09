@@ -48,10 +48,10 @@ static CURL *createCurl() {
 	return curl;
 }
 
-static size_t writeStringCallback(char *ptr, size_t size, size_t nmemb, void *userdata) {
-	std::string *str = (std::string *)userdata;
+static size_t writeVectorCallback(char *ptr, size_t size, size_t nmemb, void *userdata) {
+	auto *str = (std::vector<uint8_t> *)userdata;
 	size_t len = size * nmemb;
-	str->append(ptr, len);
+	str->assign(ptr, ptr + len);
 	return len;
 }
 
@@ -66,10 +66,10 @@ static std::string getCookieString(const rack::network::CookieMap &cookies) {
 	return s;
 }
 
-std::string requestRaw(rack::network::Method method,
-					   const std::string &url,
-					   const std::span<uint8_t> &reqStr,
-					   const rack::network::CookieMap &cookies) {
+std::vector<uint8_t> requestRaw(rack::network::Method method,
+								const std::string &url,
+								const std::span<uint8_t> &reqStr,
+								const rack::network::CookieMap &cookies) {
 	using namespace rack::network;
 
 	std::string urlS = url;
@@ -104,9 +104,9 @@ std::string requestRaw(rack::network::Method method,
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, reqStr.size());
 	}
 
-	std::string resText;
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeStringCallback);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resText);
+	std::vector<uint8_t> resBytes;
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeVectorCallback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resBytes);
 
 	// Perform request
 	INFO("Requesting Raw %s %s", methodNames[method].c_str(), urlS.c_str());
@@ -118,10 +118,10 @@ std::string requestRaw(rack::network::Method method,
 
 	if (res != CURLE_OK) {
 		WARN("Could not request %s: %s", urlS.c_str(), curl_easy_strerror(res));
-		return "Failed";
+		return {};
 	}
 
-	return resText;
+	return resBytes;
 }
 
 } // namespace MetaModule::network
