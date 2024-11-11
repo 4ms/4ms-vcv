@@ -273,10 +273,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		statusText->timeToHide = 240;
 
 		//TODO: decode response, instead of guessing based on the length
-		if (response.length() == 0) {
+		if (response.size() == 0) {
 			statusText->text = "Failed to send patch file";
 
-		} else if (response.length() == 40) {
+		} else if (response.size() == 40) {
 			statusText->text = "Sent patch file";
 
 		} else {

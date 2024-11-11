@@ -121,6 +121,9 @@ std::vector<uint8_t> requestRaw(rack::network::Method method,
 		return {};
 	}
 
+	if (resBytes.size() == 0)
+		resBytes.push_back(0);
+
 	return resBytes;
 }
 
