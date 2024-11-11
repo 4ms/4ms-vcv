@@ -1,4 +1,4 @@
-#include <string>
+#include <vector>
 
 namespace MetaModule::FlatBuffers
 {
