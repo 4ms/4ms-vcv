@@ -18,10 +18,13 @@ struct HubSaveButton : rack::BefacoPush {
 struct HubWifiButton : rack::VCVBezel {
 	std::function<void(void)> click_callback;
 
-	rack::Label *wifiURLText;
+	rack::LedDisplayTextField *label;
+	std::string const &wifiUrlText;
+	std::string cachedText;
 
-	HubWifiButton(rack::Label *label)
-		: wifiURLText{label} {
+	HubWifiButton(rack::LedDisplayTextField *label, std::string const &wifiUrlText)
+		: label{label}
+		, wifiUrlText{wifiUrlText} {
 	}
 
 	void onDragEnd(const rack::event::DragEnd &e) override {
@@ -36,11 +39,16 @@ struct HubWifiButton : rack::VCVBezel {
 	}
 
 	void onEnter(rack::event::Enter const &) override {
-		wifiURLText->show();
+		if (wifiUrlText.length()) {
+			cachedText = label->text;
+			label->text = wifiUrlText;
+		}
 	}
 
 	void onLeave(rack::event::Leave const &) override {
-		wifiURLText->hide();
+		if (wifiUrlText.length()) {
+			label->text = cachedText;
+		}
 	}
 };
 

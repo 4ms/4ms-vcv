@@ -60,7 +60,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	using INFO = HubMediumInfo;
 
 	MetaModule::LabelDelay *statusText;
-	rack::Label *wifiURLText;
 
 	KnobSetButtonGroup *knobSetButtons;
 	TextField *knobSetNameField;
@@ -71,6 +70,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	std::string lastPatchFilePath;
 
 	std::string wifiUrl = "";
+	std::string wifiConnectionText;
 	enum Volume { Internal = 0, USB = 1, Card = 2 } wifiVolume = Volume::Card;
 	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
 
@@ -94,6 +94,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 						 hubModule->wifiPath == "Card"	   ? Volume::Card :
 						 hubModule->wifiPath == "Internal" ? Volume::Internal :
 															 Volume::Card;
+			wifiConnectionText = formatWifiStatus();
 		}
 
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/modules/HubMedium_artwork.svg")));
@@ -173,16 +174,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		};
 		addParam(saveButton);
 
-		// Wifi
-		wifiURLText = createWidget<Label>(rack::math::Vec(260, 5));
-		wifiURLText->box.size = rack::mm2px(rack::math::Vec(120, 20));
-		wifiURLText->color = rack::color::WHITE;
-		wifiURLText->text = formatWifiStatus();
-		wifiURLText->fontSize = 9;
-		addChild(wifiURLText);
-		wifiURLText->hide();
-
-		wifiSendButton = new HubWifiButton(wifiURLText);
+		wifiSendButton = new HubWifiButton(patchDesc, wifiConnectionText);
 		wifiSendButton->box.pos = rack::math::Vec(318.f, 38.57f);
 		wifiSendButton->app::ParamWidget::module = module;
 		wifiSendButton->app::ParamWidget::paramId = HubMedium::wifiSendButtonIndex;
@@ -277,13 +269,16 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		auto encoded = FlatBuffers::encode_file(patchFileName, yml, vol_string);
 		auto response = network::requestRaw(rack::network::Method::METHOD_POST, wifiUrl + "/action", encoded);
-		//TODO: decode response
 
 		statusText->timeToHide = 240;
-		if (response == "Failed") {
+
+		//TODO: decode response, instead of guessing based on the length
+		if (response.length() == 0) {
 			statusText->text = "Failed to send patch file";
+
 		} else if (response.length() == 40) {
 			statusText->text = "Sent patch file";
+
 		} else {
 			statusText->text = "Sent patch file.";
 		}
@@ -302,7 +297,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			if (!wifiUrl.starts_with("http://")) {
 				wifiUrl = "http://" + wifiUrl;
 			}
-			wifiURLText->text = formatWifiStatus();
+			wifiConnectionText = formatWifiStatus();
 			free(addr);
 		}
 	}
@@ -317,18 +312,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			[this]() { return wifiVolume; },
 			[this](size_t index) {
 				wifiVolume = Volume(index);
-				wifiURLText->text = formatWifiStatus();
+				wifiConnectionText = formatWifiStatus();
 			}));
-		// menu->addChild(createCheckMenuItem(
-		// 	"Show Wi-Fi button",
-		// 	"",
-		// 	[this]() { return wifiSendButton->isVisible(); },
-		// 	[this]() {
-		// 		if (wifiSendButton->isVisible())
-		// 			wifiSendButton->hide();
-		// 		else
-		// 			wifiSendButton->show();
-		// 	}));
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel<MenuLabel>("Mapped Knob Sets"));
@@ -355,7 +340,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	}
 
 	std::string formatWifiStatus() {
-		return wifiUrl + "\n" + (size_t(wifiVolume) < volumeLabels.size() ? volumeLabels[wifiVolume] : "");
+		return "Wi-Fi Connection:\n" + wifiUrl + "\n" +
+			   "Copy patch to: " + (size_t(wifiVolume) < volumeLabels.size() ? volumeLabels[wifiVolume] : "");
 	}
 
 	void updateKnobSetLabel() {
