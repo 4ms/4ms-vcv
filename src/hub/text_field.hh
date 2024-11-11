@@ -75,4 +75,52 @@ private:
 	}
 };
 
+class LabelOverlay : public MetaModule::TextField {
+
+public:
+	void onDragHover(const DragHoverEvent &) override {
+	}
+	void onButton(const ButtonEvent &) override {
+	}
+	void onSelectText(const SelectTextEvent &) override {
+	}
+	void onSelectKey(const SelectKeyEvent &) override {
+	}
+};
+
+// Clears text after a delay
+class LabelDelay : public LabelOverlay {
+	rack::Widget *bgWidget;
+	unsigned timeToHide = 0;
+
+public:
+	LabelDelay(rack::Widget *bgWidget)
+		: bgWidget{bgWidget} {
+	}
+
+	void showFor(unsigned tm) {
+		LabelOverlay::show();
+		timeToHide = tm;
+	}
+
+	void step() override {
+		if (this->isVisible()) {
+			if (timeToHide) {
+				if (--timeToHide == 0) {
+					this->hide();
+					bgWidget->show();
+				} else {
+					bgWidget->hide();
+				}
+			}
+			LabelOverlay::step();
+		}
+	}
+
+	void onButton(const ButtonEvent &ev) override {
+		this->hide();
+		bgWidget->show();
+	}
+};
+
 } // namespace MetaModule

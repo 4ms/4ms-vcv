@@ -1,18 +1,12 @@
 #include "CoreModules/elements/element_counter.hh"
 #include "CoreModules/hub/HubMedium_info.hh"
-#include "CoreModules/moduleFactory.hh"
-#include "comm/comm_module.hh"
 #include "flatbuffers/encode.hh"
 #include "hub/buttons.hh"
 #include "hub/hub_elements.hh"
 #include "hub/knob_set_buttons.hh"
-#include "hub/label_delay.hh"
 #include "hub_module_widget.hh"
-#include "mapping/patch_writer.hh"
 #include "network/network.hh"
-#include "widgets/4ms/4ms_widgets.hh"
 #include "widgets/vcv_module_creator.hh"
-#include "widgets/vcv_widget_creator.hh"
 
 using namespace rack;
 
@@ -59,14 +53,15 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 	using INFO = HubMediumInfo;
 
-	MetaModule::LabelDelay *statusText;
-	rack::Label *wifiURLText;
+	MetaModule::LabelDelay *wifiResponseLabel;
 
 	KnobSetButtonGroup *knobSetButtons;
 	TextField *knobSetNameField;
-	LedDisplayTextField *patchName;
-	LedDisplayTextField *patchDesc;
+	TextField *patchName;
+	TextField *patchDesc;
+
 	HubWifiButton *wifiSendButton;
+	MetaModule::LabelOverlay *wifiConnectionLabel;
 
 	std::string lastPatchFilePath;
 
@@ -113,13 +108,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		patchName->box.size = {rack::mm2px(rack::math::Vec(57.7f, 10.0f))};
 		patchName->cursor = 0;
 		addChild(patchName);
-
-		statusText = createWidget<LabelDelay>(rack::mm2px(rack::math::Vec(10, 1.5)));
-		statusText->box.size = rack::mm2px(rack::math::Vec(200, 20));
-		statusText->color = rack::color::WHITE;
-		statusText->text = "";
-		statusText->fontSize = 10;
-		addChild(statusText);
 
 		patchDesc = createWidget<TextField>(rack::mm2px(rack::math::Vec(36.4, 18.f)));
 		if (hubModule != nullptr && hubModule->patchDescText.length() > 0)
@@ -174,15 +162,22 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		addParam(saveButton);
 
 		// Wifi
-		wifiURLText = createWidget<Label>(rack::math::Vec(260, 5));
-		wifiURLText->box.size = rack::mm2px(rack::math::Vec(120, 20));
-		wifiURLText->color = rack::color::WHITE;
-		wifiURLText->text = formatWifiStatus();
-		wifiURLText->fontSize = 9;
-		addChild(wifiURLText);
-		wifiURLText->hide();
+		wifiConnectionLabel = new LabelOverlay();
+		wifiConnectionLabel->box.pos = rack::mm2px(rack::math::Vec(36.4, 18.f));
+		wifiConnectionLabel->text = formatWifiStatus();
+		wifiConnectionLabel->color = nvgRGB(0x00, 0x33, 0x66);
+		wifiConnectionLabel->box.size = {rack::mm2px(rack::math::Vec(57.7f, 31.3f))};
+		addChild(wifiConnectionLabel);
+		wifiConnectionLabel->hide();
 
-		wifiSendButton = new HubWifiButton(wifiURLText);
+		wifiResponseLabel = new LabelDelay(patchName);
+		wifiResponseLabel->box.pos = rack::mm2px(rack::math::Vec(36.1, 9.5));
+		wifiResponseLabel->box.size = rack::mm2px(rack::math::Vec(57.7f, 10.0f));
+		wifiResponseLabel->color = nvgRGB(0x00, 0x33, 0x66);
+		wifiResponseLabel->text = "";
+		addChild(wifiResponseLabel);
+
+		wifiSendButton = new HubWifiButton(wifiConnectionLabel, patchDesc);
 		wifiSendButton->box.pos = rack::math::Vec(318.f, 38.57f);
 		wifiSendButton->app::ParamWidget::module = module;
 		wifiSendButton->app::ParamWidget::paramId = HubMedium::wifiSendButtonIndex;
@@ -261,17 +256,17 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		auto yml =
 			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text);
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
-			statusText->timeToHide = 240;
-			statusText->text = "File too large for Internal: max is 256kB";
+			wifiResponseLabel->showFor(180);
+			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
 			return;
 		}
 		if (yml.size() > 1024 * 1024) {
-			statusText->timeToHide = 240;
-			statusText->text = "File too large: max is 1MB";
+			wifiResponseLabel->showFor(180);
+			wifiResponseLabel->text = "File too large: max is 1MB";
 			return;
 		}
 
-		statusText->text = "Sending patch file...";
+		wifiResponseLabel->text = "Sending patch file...";
 
 		std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "Card";
 
@@ -279,13 +274,13 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		auto response = network::requestRaw(rack::network::Method::METHOD_POST, wifiUrl + "/action", encoded);
 		//TODO: decode response
 
-		statusText->timeToHide = 240;
-		if (response == "Failed") {
-			statusText->text = "Failed to send patch file";
-		} else if (response.length() == 40) {
-			statusText->text = "Sent patch file";
+		wifiResponseLabel->showFor(120);
+		if (response.size() == 0) {
+			wifiResponseLabel->text = "Failed to send patch file";
+		} else if (response.size() == 40) {
+			wifiResponseLabel->text = "Sent patch file";
 		} else {
-			statusText->text = "Sent patch file.";
+			wifiResponseLabel->text = "Sent patch file.";
 		}
 	}
 
@@ -294,15 +289,22 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			osdialog_message_level::OSDIALOG_INFO, "Enter the address (e.g. http://192.168.1.22)", wifiUrl.c_str());
 
 		if (addr) {
-			wifiUrl = addr;
 			//TODO: ensure is just http://\d.\d.\d.\d[/]?
-			if (wifiUrl.starts_with("https://")) {
-				wifiUrl = "http://" + wifiUrl.substr(8);
+			std::string testWifiUrl = addr;
+
+			if (testWifiUrl.starts_with("https://")) {
+				testWifiUrl = "http://" + testWifiUrl.substr(8);
 			}
-			if (!wifiUrl.starts_with("http://")) {
-				wifiUrl = "http://" + wifiUrl;
+			if (!testWifiUrl.starts_with("http://")) {
+				testWifiUrl = "http://" + testWifiUrl;
 			}
-			wifiURLText->text = formatWifiStatus();
+			if (strlen(addr) >= 14) { //smallest IP: http://1.2.3.4 is 14 chars
+				wifiUrl = testWifiUrl;
+				wifiConnectionLabel->text = formatWifiStatus();
+			} else {
+				wifiResponseLabel->text = "Not a valid address";
+				wifiResponseLabel->showFor(120);
+			}
 			free(addr);
 		}
 	}
@@ -317,7 +319,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			[this]() { return wifiVolume; },
 			[this](size_t index) {
 				wifiVolume = Volume(index);
-				wifiURLText->text = formatWifiStatus();
+				wifiConnectionLabel->text = formatWifiStatus();
 			}));
 		// menu->addChild(createCheckMenuItem(
 		// 	"Show Wi-Fi button",

@@ -15,13 +15,19 @@ struct HubSaveButton : rack::BefacoPush {
 	}
 };
 
+// When hovered, shows the fg widget and hides the bg widget
+// When not hovered, shows the bg and hides the fg
 struct HubWifiButton : rack::VCVBezel {
 	std::function<void(void)> click_callback;
 
-	rack::Label *wifiURLText;
+	rack::Widget *fgLabel;
+	rack::Widget *bgLabel;
 
-	HubWifiButton(rack::Label *label)
-		: wifiURLText{label} {
+	HubWifiButton(rack::Widget *fglabel, rack::Widget *bglabel)
+		: fgLabel{fglabel}
+		, bgLabel{bglabel} {
+		fgLabel->hide();
+		bgLabel->show();
 	}
 
 	void onDragEnd(const rack::event::DragEnd &e) override {
@@ -36,11 +42,13 @@ struct HubWifiButton : rack::VCVBezel {
 	}
 
 	void onEnter(rack::event::Enter const &) override {
-		wifiURLText->show();
+		fgLabel->show();
+		bgLabel->hide();
 	}
 
 	void onLeave(rack::event::Leave const &) override {
-		wifiURLText->hide();
+		fgLabel->hide();
+		bgLabel->show();
 	}
 };
 
