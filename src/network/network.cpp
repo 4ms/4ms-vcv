@@ -109,7 +109,6 @@ std::vector<uint8_t> requestRaw(rack::network::Method method,
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resBytes);
 
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15);
 
 	// Perform request
 	INFO("Requesting Raw %s %s", methodNames[method].c_str(), urlS.c_str());
@@ -123,9 +122,6 @@ std::vector<uint8_t> requestRaw(rack::network::Method method,
 		WARN("Could not request %s: %s", urlS.c_str(), curl_easy_strerror(res));
 		return {};
 	}
-
-	if (resBytes.size() == 0)
-		resBytes.push_back(0);
 
 	return resBytes;
 }
