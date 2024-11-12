@@ -278,16 +278,18 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "Card";
 
 		auto encoded = FlatBuffers::encode_file(patchFileName, yml, vol_string);
-		auto response = network::requestRaw(rack::network::Method::METHOD_POST, wifiUrl + "/action", encoded);
+		auto response_message = network::requestRaw(rack::network::Method::METHOD_POST, wifiUrl + "/action", encoded);
+		auto [success, response] = FlatBuffers::decode_response(response_message);
 
 		wifiResponseLabel->showFor(120);
-		if (response.size() == 0) {
-			wifiResponseLabel->text = "Failed to send patch file";
-		} else if (response.size() == 40) {
+		if (success) {
 			wifiResponseLabel->text = "Sent patch file";
 		} else {
-			wifiResponseLabel->text = "Sent patch file.";
+			wifiResponseLabel->text = "Failed";
 		}
+
+		if (response.length())
+			wifiResponseLabel->text += ": " + response;
 	}
 
 	void promptWifiUrl() {
