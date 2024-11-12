@@ -20,7 +20,7 @@ template<size_t NumKnobs, size_t MaxMapsPerPot, size_t MaxKnobSets>
 struct VCVPatchFileWriter {
 
 	static std::string createPatchYml(int64_t hubModuleId,
-							          HubKnobMappings<NumKnobs, MaxMapsPerPot, MaxKnobSets> &mappings,
+									  HubKnobMappings<NumKnobs, MaxMapsPerPot, MaxKnobSets> &mappings,
 									  std::string patchName,
 									  std::string patchDesc) {
 
@@ -43,12 +43,14 @@ struct VCVPatchFileWriter {
 			if (ModuleDirectory::isRegularModule(module)) {
 				auto brand_module = ModuleDirectory::convertSlugs(module);
 				auto moduleWidget = APP->scene->rack->getModule(moduleID);
-				moduleData.push_back({moduleID,
-									  brand_module.c_str(),
-									  moduleWidget->getBox().getLeft(),
-									  moduleWidget->getBox().getTop()});
-				if (module->model->slug.size() > 31) {
-					pr_warn("Warning: module slug truncated to 31 chars\n");
+				if (moduleWidget) {
+					moduleData.push_back({moduleID,
+										  brand_module.c_str(),
+										  moduleWidget->getBox().getLeft(),
+										  moduleWidget->getBox().getTop()});
+					if (module->model->slug.size() > 31) {
+						pr_warn("Warning: module slug truncated to 31 chars\n");
+					}
 				}
 
 				if (!ModuleDirectory::isHub(module)) {
