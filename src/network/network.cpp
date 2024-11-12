@@ -43,7 +43,9 @@ static CURL *createCurl() {
 	curl_easy_setopt(curl, CURLOPT_CAINFO, caPath.c_str());
 
 	// Don't verify HTTPS certificates if verifyHttpsCerts is false
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, rack::settings::verifyHttpsCerts);
+	// curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, rack::settings::verifyHttpsCerts);
+	// Not using https:
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
 
 	return curl;
 }
