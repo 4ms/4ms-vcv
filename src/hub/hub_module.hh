@@ -4,6 +4,7 @@
 #include "hub_knob_mappings.hh"
 #include "mapping/module_directory.hh"
 #include "mapping/vcv_patch_file_writer.hh"
+#include "plugin.hh"
 #include "util/edge_detector.hh"
 #include "util/math.hh"
 #include "util/string_util.hh"
@@ -18,8 +19,11 @@ struct MetaModuleHubBase : public rack::Module {
 	std::function<void()> updatePatchName;
 	std::string patchNameText = "";
 	std::string patchDescText = "";
-	std::string wifiUrl = "";
-	std::string wifiPath = "Card";
+	std::string wifiUrl = MetaModule::wifiUrl;
+	std::string wifiPath = MetaModule::wifiVolume == MetaModule::Volume::Card	  ? "Card" :
+						   MetaModule::wifiVolume == MetaModule::Volume::USB	  ? "USB" :
+						   MetaModule::wifiVolume == MetaModule::Volume::Internal ? "Internal" :
+																					"Card";
 
 	std::optional<int> inProgressMapParamId{};
 

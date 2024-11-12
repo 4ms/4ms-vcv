@@ -1,6 +1,16 @@
 #pragma once
 #include <rack.hpp>
 
+// FIXME HACK
+namespace MetaModule
+{
+
+extern std::string wifiUrl;
+enum Volume { Internal = 0, USB = 1, Card = 2 };
+extern Volume wifiVolume;
+
+} // namespace MetaModule
+
 extern rack::Plugin *pluginInstance;
 
 //////////////// Auto generated ///////////////////////

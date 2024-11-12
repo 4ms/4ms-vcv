@@ -49,6 +49,9 @@ private:
 	}
 };
 
+std::string wifiUrl = "";
+Volume wifiVolume = Volume::Card;
+
 struct HubMediumWidget : MetaModuleHubWidget {
 
 	using INFO = HubMediumInfo;
@@ -65,10 +68,12 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 	std::string lastPatchFilePath;
 
-	std::string wifiUrl = "";
 	std::string wifiConnectionText;
-	enum Volume { Internal = 0, USB = 1, Card = 2 } wifiVolume = Volume::Card;
+
 	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
+	// enum Volume { Internal = 0, USB = 1, Card = 2 };
+	// std::string wifiUrl = "";
+	// Volume wifiVolume = Volume::Card;
 
 	static constexpr unsigned kMaxKnobSetNameChars = 16;
 
@@ -299,7 +304,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			if (!testWifiUrl.starts_with("http://")) {
 				testWifiUrl = "http://" + testWifiUrl;
 			}
-			if (strlen(addr) >= 14) { //smallest IP: http://1.2.3.4 is 14 chars
+			if (testWifiUrl.length() >= 14) { //smallest IP: http://1.2.3.4 is 14 chars
 				wifiUrl = testWifiUrl;
 				wifiConnectionLabel->text = formatWifiStatus();
 			} else {
@@ -317,7 +322,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		menu->addChild(createIndexSubmenuItem(
 			"Wi-Fi sends to:",
 			volumeLabels,
-			[this]() { return wifiVolume; },
+			[]() { return wifiVolume; },
 			[this](size_t index) {
 				wifiVolume = Volume(index);
 				wifiConnectionLabel->text = formatWifiStatus();
