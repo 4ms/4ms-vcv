@@ -1,6 +1,6 @@
 # CHANGE LOG
 
-## In progress
+## v2.0.9
 
 - Fixed default values for AltParams (e.g. Tapo Seq mode, or EnOsc Stereo Split)
 
