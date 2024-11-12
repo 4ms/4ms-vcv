@@ -108,6 +108,9 @@ std::vector<uint8_t> requestRaw(rack::network::Method method,
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeVectorCallback);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resBytes);
 
+	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15);
+
 	// Perform request
 	INFO("Requesting Raw %s %s", methodNames[method].c_str(), urlS.c_str());
 	CURLcode res = curl_easy_perform(curl);

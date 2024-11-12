@@ -90,7 +90,7 @@ public:
 
 // Clears text after a delay
 class LabelDelay : public LabelOverlay {
-	rack::Widget *bgWidget;
+	rack::Widget *bgWidget = nullptr;
 	unsigned timeToHide = 0;
 
 public:
@@ -108,9 +108,11 @@ public:
 			if (timeToHide) {
 				if (--timeToHide == 0) {
 					this->hide();
-					bgWidget->show();
+					if (bgWidget)
+						bgWidget->show();
 				} else {
-					bgWidget->hide();
+					if (bgWidget)
+						bgWidget->hide();
 				}
 			}
 			LabelOverlay::step();
@@ -119,7 +121,8 @@ public:
 
 	void onButton(const ButtonEvent &ev) override {
 		this->hide();
-		bgWidget->show();
+		if (bgWidget)
+			bgWidget->show();
 	}
 };
 

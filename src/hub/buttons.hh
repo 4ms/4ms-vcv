@@ -20,8 +20,8 @@ struct HubSaveButton : rack::BefacoPush {
 struct HubWifiButton : rack::VCVBezel {
 	std::function<void(void)> click_callback;
 
-	rack::Widget *fgLabel;
-	rack::Widget *bgLabel;
+	rack::Widget *fgLabel = nullptr;
+	rack::Widget *bgLabel = nullptr;
 
 	HubWifiButton(rack::Widget *fglabel, rack::Widget *bglabel)
 		: fgLabel{fglabel}
@@ -42,13 +42,17 @@ struct HubWifiButton : rack::VCVBezel {
 	}
 
 	void onEnter(rack::event::Enter const &) override {
-		fgLabel->show();
-		bgLabel->hide();
+		if (fgLabel)
+			fgLabel->show();
+		if (bgLabel)
+			bgLabel->hide();
 	}
 
 	void onLeave(rack::event::Leave const &) override {
-		fgLabel->hide();
-		bgLabel->show();
+		if (fgLabel)
+			fgLabel->hide();
+		if (bgLabel)
+			bgLabel->show();
 	}
 };
 

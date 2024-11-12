@@ -59,7 +59,6 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 // Hack:
 
 __attribute__((__visibility__("default"))) extern "C" json_t *settingsToJson() {
-	printf("settingsToJson: %u, %s\n", MetaModule::wifiVolume, MetaModule::wifiUrl.c_str());
 	json_t *rootJ = json_object();
 	json_object_set_new(rootJ, "wifiUrl", json_string(MetaModule::wifiUrl.c_str()));
 	json_object_set_new(rootJ, "wifiPath", json_integer((unsigned)MetaModule::wifiVolume));
@@ -67,13 +66,11 @@ __attribute__((__visibility__("default"))) extern "C" json_t *settingsToJson() {
 }
 
 __attribute__((__visibility__("default"))) extern "C" void settingsFromJson(json_t *rootJ) {
-	printf("settingsFromJson\n");
 	if (auto wifiUrlJ = json_object_get(rootJ, "wifiUrl"))
 		MetaModule::wifiUrl = json_string_value(wifiUrlJ);
 
 	if (auto wifiVolJ = json_object_get(rootJ, "wifiPath")) {
 		auto val = json_integer_value(wifiVolJ);
-		printf("set path to %d\n", val);
 
 		if (val == (unsigned)MetaModule::Volume::USB)
 			MetaModule::wifiVolume = MetaModule::Volume::USB;
