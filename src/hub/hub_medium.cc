@@ -125,7 +125,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		patchDesc->color = rack::color::BLACK;
 		patchDesc->box.size = {rack::mm2px(rack::math::Vec(57.7f, 31.3f))};
 		patchDesc->cursor = 0;
-		addChild(patchDesc);
+		// addChild(patchDesc);
 
 		auto knobSetTitle = createWidget<Label>(rack::mm2px(rack::math::Vec(36.4, 50.5)));
 		knobSetTitle->color = rack::color::BLACK;
@@ -169,22 +169,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		addParam(saveButton);
 
 		// Wifi
-		wifiConnectionLabel = new LabelOverlay();
-		wifiConnectionLabel->box.pos = rack::mm2px(rack::math::Vec(36.4, 18.f));
-		wifiConnectionLabel->text = formatWifiStatus();
-		wifiConnectionLabel->color = nvgRGB(0x00, 0x33, 0x66);
-		wifiConnectionLabel->box.size = {rack::mm2px(rack::math::Vec(57.7f, 31.3f))};
-		addChild(wifiConnectionLabel);
-		wifiConnectionLabel->hide();
-
-		wifiResponseLabel = new LabelDelay(patchName);
-		wifiResponseLabel->box.pos = rack::mm2px(rack::math::Vec(36.1, 9.5));
-		wifiResponseLabel->box.size = rack::mm2px(rack::math::Vec(57.7f, 10.0f));
-		wifiResponseLabel->color = nvgRGB(0x00, 0x33, 0x66);
-		wifiResponseLabel->text = "";
-		addChild(wifiResponseLabel);
-
-		wifiSendButton = new HubWifiButton(wifiConnectionLabel, patchDesc);
+		wifiSendButton = new HubWifiButton();
 		wifiSendButton->box.pos = rack::math::Vec(318.f, 38.57f);
 		wifiSendButton->app::ParamWidget::module = module;
 		wifiSendButton->app::ParamWidget::paramId = HubMedium::wifiSendButtonIndex;
@@ -201,6 +186,24 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			}
 		};
 		addParam(wifiSendButton);
+
+		wifiConnectionLabel = new LabelOverlay();
+		wifiConnectionLabel->box.pos = rack::mm2px(rack::math::Vec(36.4, 18.f));
+		wifiConnectionLabel->text = formatWifiStatus();
+		wifiConnectionLabel->color = nvgRGB(0x00, 0x33, 0x66);
+		wifiConnectionLabel->box.size = {rack::mm2px(rack::math::Vec(57.7f, 31.3f))};
+		wifiConnectionLabel->hide();
+
+		wifiResponseLabel = new LabelDelay(patchName);
+		wifiResponseLabel->box.pos = rack::mm2px(rack::math::Vec(36.1, 9.5));
+		wifiResponseLabel->box.size = rack::mm2px(rack::math::Vec(57.7f, 10.0f));
+		wifiResponseLabel->color = nvgRGB(0x00, 0x33, 0x66);
+		wifiResponseLabel->text = "";
+		addChild(wifiResponseLabel);
+
+		addChild(wifiConnectionLabel);
+		addChild(patchDesc);
+		wifiSendButton->setLabels(wifiConnectionLabel, patchDesc);
 	}
 
 	std::string cleanupPatchName(std::string patchnm) {

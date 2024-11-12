@@ -23,11 +23,11 @@ struct HubWifiButton : rack::VCVBezel {
 	rack::Widget *fgLabel = nullptr;
 	rack::Widget *bgLabel = nullptr;
 
-	HubWifiButton(rack::Widget *fglabel, rack::Widget *bglabel)
-		: fgLabel{fglabel}
-		, bgLabel{bglabel} {
-		fgLabel->hide();
-		bgLabel->show();
+	void setLabels(rack::Widget *fglabel, rack::Widget *bglabel) {
+		this->fgLabel = fglabel;
+		this->bgLabel = bglabel;
+		this->fgLabel->hide();
+		this->bgLabel->show();
 	}
 
 	void onDragEnd(const rack::event::DragEnd &e) override {
