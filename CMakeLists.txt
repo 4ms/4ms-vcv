@@ -39,6 +39,7 @@ target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	src/mapping/midi_modules.cc
 	src/mapping/patch_writer.cc
     src/network/network.cpp
+    src/async/async_thread.cc
 	${SOURCES}
 )
 
