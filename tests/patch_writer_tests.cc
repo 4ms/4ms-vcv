@@ -2,6 +2,8 @@
 #include "mapping/patch_writer.hh"
 
 TEST_CASE("squash_ids() works") {
+	using namespace MetaModule;
+
 	SUBCASE("y = id[x]  transforms to squashed[y] = x") {
 		std::vector<int64_t> ids = {1, 6, 25, 30, 9, 0, 2};
 		auto sq = PatchFileWriter::squash_ids(ids);
@@ -26,6 +28,7 @@ TEST_CASE("squash_ids() works") {
 }
 
 TEST_CASE("ids are re-arranged properly") {
+	using namespace MetaModule;
 
 	std::vector<BrandModule> modules;
 	int64_t hub_id = 1;
