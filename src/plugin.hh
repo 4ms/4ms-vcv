@@ -62,3 +62,4 @@ extern rack::Model *modelSlew;
 extern rack::Model *modelSource;
 extern rack::Model *modelStMix;
 extern rack::Model *modelMPEG;
+extern rack::Model *modelSTSP;

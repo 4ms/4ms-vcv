@@ -149,6 +149,12 @@
       "tags": ["Mixer"]
     },
     {
+      "slug": "STSP",
+      "name": "Stereo Triggered Sample Player",
+      "description": "Dual sample player",
+      "tags": ["Sampler", "Dual"]
+    },
+    {
       "slug": "Freeverb",
       "name": "Freeverb",
       "description": "Freeverb",
