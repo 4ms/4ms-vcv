@@ -28,7 +28,8 @@ AsyncThread::AsyncThread(Callback &&new_action)
 
 AsyncThread::~AsyncThread() {
 	internal->enabled = false;
-	internal->thread.join();
+	if (internal->thread.joinable())
+		internal->thread.join();
 }
 
 void AsyncThread::start(unsigned module_id) {
