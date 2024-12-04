@@ -24,6 +24,7 @@ endif()
 target_include_directories(${RACK_PLUGIN_LIB} PRIVATE 
 	src
 	lib
+    src/fs
 )
 
 file(GLOB SOURCES 
@@ -40,6 +41,8 @@ target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	src/mapping/patch_writer.cc
     src/network/network.cpp
     src/async/async_thread.cc
+    src/fs/fatfs_adaptor.cc
+    src/fs/fs_proxy.cc
 	${SOURCES}
 )
 
@@ -50,6 +53,10 @@ add_subdirectory(lib/CoreModules/4ms)
 add_subdirectory(lib/metamodule-core-interface)
 add_subdirectory(lib/patch-serial)
 add_subdirectory(lib/cpputil)
+
+target_include_directories(metamodule-core-interface INTERFACE 
+    src/fs
+)
 
 target_link_libraries(${RACK_PLUGIN_LIB} PRIVATE 
 	CoreModules
