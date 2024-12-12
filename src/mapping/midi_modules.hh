@@ -42,14 +42,14 @@ enum CoreMidiJacks {
 };
 
 struct MidiGateSettings {
-	std::array<int8_t, 16> notes{};
+	std::array<int8_t, 128> notes{};
 	bool velocity_mode = false;
 	bool mpe_mode = false;
 };
 
 struct MidiCCCVSettings {
-	std::array<int8_t, 16> CCnums{};
-	std::array<int8_t, 16> values{};
+	std::array<int8_t, 128> CCnums{};
+	std::array<int8_t, 128> values{};
 	bool smooth = false;
 	bool mpe_mode = false;
 	bool lsb_mode = false;
@@ -62,7 +62,7 @@ struct CCKnobMap {
 };
 
 struct MidiCCKnobSettings {
-	std::array<CCKnobMap, 16> ccs{};
+	std::array<CCKnobMap, 128> ccs{};
 	bool smooth = false;
 };
 
