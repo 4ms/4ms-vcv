@@ -27,6 +27,14 @@ target_include_directories(${RACK_PLUGIN_LIB} PRIVATE
 )
 
 file(GLOB SOURCES 
+	src/plugin.cc
+	src/expanders/audio_expander.cc
+	src/hub/hub_map_button.cc
+	src/hub/hub_medium.cc
+	src/hub/mm_blendish.cc
+	src/comm/comm_module.cc
+	src/mapping/midi_modules.cc
+	src/mapping/patch_writer.cc
 	src/models/*.cc
 )
 

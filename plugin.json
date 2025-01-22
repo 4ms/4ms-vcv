@@ -327,6 +327,14 @@
       "name": "Atvert2",
       "description": "Two-channel attenuverter",
       "tags": ["Attenuator", "Dual", "Utility"]
+    },
+    {
+      "slug": "MMAudioExpander",
+      "name": "MetaModule Audio Expander (MM AIO)",
+      "description": "Expander that adds 6 audio/cv inputs and 8 audio/cv outputs to the MetaModule",
+      "modularGridUrl": "https://modulargrid.net/e/4ms-company-metamodule",
+      "manualUrl": "https://metamodule.4ms.info",
+      "tags": ["Expander", "External"]
     }
   ]
 }
