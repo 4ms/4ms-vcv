@@ -1,6 +1,6 @@
 CompileFlags:
     Add: [
-      "-std=c++2a", 
+      "-std=c++23", 
     ] 
     Remove: [
       "-march=nocona",
