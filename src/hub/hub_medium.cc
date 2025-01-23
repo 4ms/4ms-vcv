@@ -177,6 +177,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		wifiSendButton->app::ParamWidget::paramId = HubMedium::wifiSendButtonIndex;
 		wifiSendButton->initParamQuantity();
 		wifiSendButton->box.pos = wifiSendButton->box.pos.minus(wifiSendButton->box.size.div(2));
+		wifiSendButton->getLight()->setBrightnesses({0.5f});
 		wifiSendButton->click_callback = [this]() {
 			if (wifiUrl.length()) {
 				wifiSendPatchFile();
@@ -376,6 +377,13 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		}
 
 		knobSetButtons->active_idx = activeKnobSetIdx;
+	}
+
+	void step() override {
+		if (wifiUrl.length() > 13)
+			wifiSendButton->getLight()->setBrightnesses({0.50f});
+		else
+			wifiSendButton->getLight()->setBrightnesses({0.f});
 	}
 };
 

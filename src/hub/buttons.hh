@@ -17,7 +17,7 @@ struct HubSaveButton : rack::BefacoPush {
 
 // When hovered, shows the fg widget and hides the bg widget
 // When not hovered, shows the bg and hides the fg
-struct HubWifiButton : rack::VCVBezel {
+struct HubWifiButton : rack::VCVLightBezel<rack::BlueLight> {
 	std::function<void(void)> click_callback;
 
 	rack::Widget *fgLabel = nullptr;
