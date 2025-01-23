@@ -1,5 +1,15 @@
 # CHANGE LOG
 
+## v2.0.10
+
+- Add MetaAIO audio/CV expander hub
+
+- Fix DLD clock issues
+
+- Fix CLKD occasionally getting stuck high
+
+- Make Wifi button glow a little if a Wifi expander address is set
+
 ## v2.0.9
 
 - Fixed default values for AltParams (e.g. Tapo Seq mode, or EnOsc Stereo Split)
