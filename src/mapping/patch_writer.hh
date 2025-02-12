@@ -2,6 +2,7 @@
 #include "JackMap.hh"
 #include "ModuleID.h"
 #include "ParamMap.hh"
+#include "hub/jack_alias.hh"
 #include "mapping/expanders.hh"
 #include "mapping/mapping.hh"
 #include "mapping/midi_modules.hh"
@@ -22,6 +23,7 @@ public:
 	void setPatchName(std::string patchName);
 	void setPatchDesc(std::string patchDesc);
 	void setCableList(std::vector<CableMap> &cables);
+	void setJackAliases(JackAlias &aliases);
 	void setParamList(std::vector<ParamMap> &params);
 	void setMidiSettings(MIDI::Settings const &settings);
 	void setExpanders(ExpanderMappings const &exp);

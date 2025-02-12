@@ -1,5 +1,6 @@
 #include "patch_writer.hh"
 #include "console/pr_dbg.hh"
+#include "hub/jack_alias.hh"
 #include "mapping/midi_modules.hh"
 #include "mapping/module_directory.hh"
 #include "patch-serial/patch_to_yaml.hh"
@@ -206,6 +207,20 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 				}},
 				.color = cable.lv_color_full,
 			});
+		}
+	}
+}
+
+void PatchFileWriter::setJackAliases(JackAlias &aliases) {
+	for (auto &i : pd.mapped_ins) {
+		if (i.panel_jack_id < aliases.in.size()) {
+			i.alias_name = aliases.in[i.panel_jack_id].c_str();
+		}
+	}
+
+	for (auto &i : pd.mapped_outs) {
+		if (i.panel_jack_id < aliases.out.size()) {
+			i.alias_name = aliases.out[i.panel_jack_id].c_str();
 		}
 	}
 }

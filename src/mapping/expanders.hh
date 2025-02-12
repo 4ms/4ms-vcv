@@ -30,6 +30,10 @@ public:
 		}
 	}
 
+	int64_t getAudioExpanderId() const {
+		return audio_exp.module_id;
+	}
+
 	bool hasAudioExpander() {
 		return audio_exp.module_id > -1;
 	}
