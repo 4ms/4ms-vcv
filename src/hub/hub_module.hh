@@ -32,7 +32,7 @@ struct MetaModuleHubBase : public rack::Module {
 	static constexpr uint32_t MaxKnobSets = 8;
 	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings{NumPots};
 
-	JackAlias jack_alias;
+	JackAlias jack_alias{};
 
 	std::array<float, NumPots> last_knob_val{};
 
@@ -120,6 +120,9 @@ struct MetaModuleHubBase : public rack::Module {
 	json_t *dataToJson() override {
 		json_t *rootJ = mappings.encodeJson();
 
+		json_t *aliasJ = jack_alias.encodeJson();
+		json_object_set_new(rootJ, "Alias", aliasJ);
+
 		if (updatePatchName) {
 			updatePatchName();
 			json_t *patchNameJ = json_string(patchNameText.c_str());
@@ -136,6 +139,7 @@ struct MetaModuleHubBase : public rack::Module {
 
 			json_t *wifiPathJ = json_string(wifiPath.c_str());
 			json_object_set_new(rootJ, "WifiPath", wifiPathJ);
+
 		} else {
 			pr_err("Error: Widget has not been constructed, but dataToJson is being called\n");
 		}
@@ -169,6 +173,9 @@ struct MetaModuleHubBase : public rack::Module {
 		if (json_is_string(wifiPathJ)) {
 			wifiPath = json_string_value(wifiPathJ);
 		}
+
+		auto aliasJ = json_object_get(rootJ, "Alias");
+		jack_alias.decodeJson(aliasJ);
 
 		mappings.decodeJson(rootJ);
 	}
