@@ -1,9 +1,9 @@
 #pragma once
 #include "comm/comm_module.hh"
 #include "hub/hub_module.hh"
+#include "hub/jack_alias.hh"
 #include "hub_knob_mappings.hh"
 #include "mapping/module_directory.hh"
-#include "mapping/vcv_patch_file_writer.hh"
 #include "plugin.hh"
 #include "util/edge_detector.hh"
 #include "util/math.hh"
@@ -30,6 +30,8 @@ struct MetaModuleHubBase : public rack::Module {
 	static constexpr uint32_t MaxMapsPerPot = 8;
 	static constexpr uint32_t MaxKnobSets = 8;
 	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings{NumPots};
+
+	JackAlias jack_alias;
 
 	std::array<float, NumPots> last_knob_val{};
 

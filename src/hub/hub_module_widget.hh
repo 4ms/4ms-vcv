@@ -1,4 +1,5 @@
 #pragma once
+#include "hub/jack_alias_menu.hh"
 #include "hub/knob_set_buttons.hh"
 #include "hub/knob_set_menu.hh"
 #include "hub/text_field.hh"
@@ -15,6 +16,7 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 	MetaModuleHubBase *hubModule;
 
 	static constexpr float kKnobSpacingX = 18;
+	static constexpr unsigned kMaxJackAliasChars = 16;
 
 	template<typename KnobType>
 	void addLabeledKnobPx(std::string_view labelText,
@@ -45,6 +47,30 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 			button->setParamQuantity(pq);
 		}
 		addParam(p);
+	}
+
+protected:
+	static rack::ui::MenuItem *createAliasSubmenu(std::span<std::tuple<std::span<std::string>, const char *>> jacks_) {
+		using namespace rack;
+
+		std::vector<std::remove_reference_t<decltype(jacks_[0])>> jacks;
+		jacks.insert(jacks.begin(), jacks_.begin(), jacks_.end());
+
+		return createSubmenuItem("Jack Aliases", "", [jacks](Menu *menu) {
+			for (auto &j : jacks) {
+				menu->addChild(new MenuSeparator());
+				menu->addChild(createMenuLabel<MenuLabel>(std::get<1>(j)));
+				for (auto jack_idx = 0u; jack_idx < std::get<0>(j).size(); jack_idx++) {
+					menu->addChild(new MenuSeparator());
+					menu->addChild(
+						new JackNameMenuItem{[j](unsigned idx, std::string const &text) { std::get<0>(j)[idx] = text; },
+											 jack_idx,
+											 std::get<1>(j) + std::to_string(jack_idx + 1),
+											 std::get<0>(j)[jack_idx],
+											 kMaxJackAliasChars});
+				}
+			}
+		});
 	}
 };
 
