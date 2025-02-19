@@ -46,13 +46,17 @@ struct HubPort : rack::PJ301MPort {
 
 inline void do_create(JackInput el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
 	auto p = rack::createInputCentered<HubPort>(rack::mm2px({el.x_mm, el.y_mm}), ctx.module, idx.input_idx);
-	p->alias = &ctx.module_widget->hubModule->jack_alias.out[idx.input_idx];
+	if (ctx.module_widget->hubModule) {
+		p->alias = &ctx.module_widget->hubModule->jack_alias.out[idx.input_idx];
+	}
 	ctx.module_widget->addInput(p);
 }
 
 inline void do_create(JackOutput el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
 	auto p = rack::createOutputCentered<HubPort>(rack::mm2px({el.x_mm, el.y_mm}), ctx.module, idx.output_idx);
-	p->alias = &ctx.module_widget->hubModule->jack_alias.in[idx.output_idx];
+	if (ctx.module_widget->hubModule) {
+		p->alias = &ctx.module_widget->hubModule->jack_alias.in[idx.output_idx];
+	}
 	ctx.module_widget->addOutput(p);
 }
 
