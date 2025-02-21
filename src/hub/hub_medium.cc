@@ -384,6 +384,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			wifiSendButton->getLight()->setBrightnesses({0.50f});
 		else
 			wifiSendButton->getLight()->setBrightnesses({0.f});
+
+		MetaModuleHubWidget::step();
 	}
 };
 
