@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## v2.0.11 (in progress)
+
+- Fix patch name and wifi result text displaying badly when sending a patch via wifi
+
 ## v2.0.10
 
 - Add MetaAIO audio/CV expander hub
