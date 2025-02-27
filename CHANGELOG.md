@@ -1,6 +1,6 @@
 # CHANGE LOG
 
-## v2.0.11 (in progress)
+## v2.0.11
 
 - Fix patch name and wifi result text displaying badly when sending a patch via wifi
 
