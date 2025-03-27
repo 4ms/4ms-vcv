@@ -35,6 +35,12 @@ std::pair<bool, std::string> decode_response(std::vector<uint8_t> rawmsg) {
 				return {result->success(), std::string(result_msg)};
 			}
 		}
+	} else {
+		std::string_view strmsg = std::string_view{(const char *)rawmsg.data(), rawmsg.size()};
+
+		if (strmsg == "Request timed out") {
+			return {false, "Timed out"};
+		}
 	}
 
 	return {false, "No response"};
