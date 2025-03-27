@@ -1,5 +1,13 @@
 # CHANGE LOG
 
+## v2.0.12 (in progress)
+
+- When all maps are removed from a panel knob, the alias name is cleared
+
+- It's possible to use other modules to "remote control" the Wifi and Save buttons on the Hub.
+
+- Wifi timeout response is explicitly reported (instead of just "Failed")
+
 ## v2.0.11
 
 - Fix patch name and wifi result text displaying badly when sending a patch via wifi
