@@ -287,7 +287,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "Card";
 
 		auto encoded = FlatBuffers::encode_file(patchFileName, yml, vol_string);
-		printf("Making network requesting...\n");
 		auto response_message = network::requestRaw(rack::network::Method::METHOD_POST, wifiUrl + "/action", encoded);
 		auto [success, response] = FlatBuffers::decode_response(response_message);
 
