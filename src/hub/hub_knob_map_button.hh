@@ -79,8 +79,8 @@ public:
 			menu->addChild(aliasItem);
 
 			auto &knob_sets = hub->mappings.getAllMappings(hubParamObj.objID);
-			for (auto const &knob : knob_sets) {
-				auto &ph = knob.paramHandle;
+			for (auto const &mapset : knob_sets) {
+				auto &ph = mapset.paramHandle;
 				if (!ph.module)
 					continue;
 				if (ph.module->id < 0)
@@ -104,6 +104,10 @@ public:
 				ParamUnmapItem *unmapItem = new ParamUnmapItem;
 				unmapItem->text = "Unmap";
 				unmapItem->paramQuantity = ph.module->paramQuantities[paramId];
+				unmapItem->unmapAction = [this] {
+					if (hub->mappings.getNumActiveMappings(hubParamObj.objID) == 0)
+						hub->mappings.setMapAliasName(hubParamObj, "");
+				};
 				menu->addChild(unmapItem);
 
 				MappableObj paramObj{MappableObj::Type::Knob, paramId, moduleId};
@@ -132,13 +136,20 @@ public:
 	}
 
 	struct ParamUnmapItem : rack::ui::MenuItem {
-		rack::ParamQuantity *paramQuantity;
+		rack::ParamQuantity *paramQuantity = nullptr;
+		std::function<void(void)> unmapAction;
 
 		void onAction(const rack::event::Action &e) override {
-			rack::ParamHandle *paramHandle =
-				APP->engine->getParamHandle(paramQuantity->module->id, paramQuantity->paramId);
-			if (paramHandle) {
-				APP->engine->updateParamHandle(paramHandle, -1, 0);
+			if (paramQuantity && paramQuantity->module) {
+				auto *paramHandle = APP->engine->getParamHandle(paramQuantity->module->id, paramQuantity->paramId);
+
+				if (paramHandle) {
+					APP->engine->updateParamHandle(paramHandle, -1, 0);
+				}
+			}
+
+			if (unmapAction) {
+				unmapAction();
 			}
 		}
 	};
