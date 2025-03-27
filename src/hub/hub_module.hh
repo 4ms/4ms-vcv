@@ -25,6 +25,9 @@ struct MetaModuleHubBase : public rack::Module {
 						   MetaModule::wifiVolume == MetaModule::Volume::Internal ? "Internal" :
 																					"Card";
 
+	bool should_save = false;
+	bool should_send_wifi = false;
+
 	std::optional<int> inProgressMapParamId{};
 
 	static constexpr uint32_t NumPots = 12;

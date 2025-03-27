@@ -4,8 +4,7 @@
 #include "hub/text_field.hh"
 #include "hub_knob.hh"
 #include "hub_module.hh"
-#include <functional>
-#include <string>
+#include <string_view>
 
 namespace MetaModule
 {

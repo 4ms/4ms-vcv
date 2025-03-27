@@ -16,6 +16,9 @@ namespace MetaModule
 struct HubMedium : MetaModuleHubBase {
 	using INFO = HubMediumInfo;
 
+	rack::dsp::BooleanTrigger wifibut_trig;
+	rack::dsp::BooleanTrigger savebut_trig;
+
 	static constexpr unsigned num_extra_params = 2; //Save Button, Wifi Send Button
 	static constexpr auto saveButtonIndex = ElementCount::count<INFO>().num_params;
 	static constexpr auto wifiSendButtonIndex = saveButtonIndex + 1;
@@ -38,6 +41,14 @@ struct HubMedium : MetaModuleHubBase {
 
 	void process(const ProcessArgs &args) override {
 		processMaps();
+
+		if (savebut_trig.process(params[saveButtonIndex].getValue() > 0.5f)) {
+			should_save = true;
+		}
+
+		if (wifibut_trig.process(params[wifiSendButtonIndex].getValue() > 0.5f)) {
+			should_send_wifi = true;
+		}
 	}
 
 private:
@@ -69,6 +80,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 	HubWifiButton *wifiSendButton;
 	MetaModule::LabelOverlay *wifiConnectionLabel;
+
+	HubSaveButton *saveButton;
 
 	std::string lastPatchFilePath;
 
@@ -163,7 +176,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		}
 
 		// Add the Save button
-		auto saveButton =
+		saveButton =
 			createParamCentered<HubSaveButton>(rack::math::Vec(358.5f, 38.57f), module, HubMedium::saveButtonIndex);
 		saveButton->click_callback = [this]() {
 			writePatchFile();
@@ -284,6 +297,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "Card";
 
 		auto encoded = FlatBuffers::encode_file(patchFileName, yml, vol_string);
+		printf("Making network requesting...\n");
 		auto response_message = network::requestRaw(rack::network::Method::METHOD_POST, wifiUrl + "/action", encoded);
 		auto [success, response] = FlatBuffers::decode_response(response_message);
 
@@ -385,6 +399,17 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		else
 			wifiSendButton->getLight()->setBrightnesses({0.f});
 
+		if (hubModule) {
+			if (hubModule->should_save) {
+				saveButton->click_callback();
+				hubModule->should_save = false;
+			}
+
+			if (hubModule->should_send_wifi) {
+				wifiSendButton->click_callback();
+				hubModule->should_send_wifi = false;
+			}
+		}
 		MetaModuleHubWidget::step();
 	}
 };
