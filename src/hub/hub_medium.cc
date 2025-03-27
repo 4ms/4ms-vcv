@@ -35,8 +35,11 @@ struct HubMedium : MetaModuleHubBase {
 			std::visit([&creator](auto &el) { creator.config_element(el); }, element);
 		}
 
-		configParam(saveButtonIndex, 0, 1, 0, "Save Patch");
-		configParam(wifiSendButtonIndex, 0, 1, 0, "Send Patch over Wi-Fi");
+		savebut_trig.reset();
+		wifibut_trig.reset();
+
+		configButton(saveButtonIndex, "Save Patch");
+		configButton(wifiSendButtonIndex, "Send Patch over Wi-Fi");
 	}
 
 	void process(const ProcessArgs &args) override {
@@ -178,9 +181,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		// Add the Save button
 		saveButton =
 			createParamCentered<HubSaveButton>(rack::math::Vec(358.5f, 38.57f), module, HubMedium::saveButtonIndex);
-		saveButton->click_callback = [this]() {
-			writePatchFile();
-		};
 		addParam(saveButton);
 
 		// Wifi
@@ -191,16 +191,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		wifiSendButton->initParamQuantity();
 		wifiSendButton->box.pos = wifiSendButton->box.pos.minus(wifiSendButton->box.size.div(2));
 		wifiSendButton->getLight()->setBrightnesses({0.5f});
-		wifiSendButton->click_callback = [this]() {
-			if (wifiUrl.length()) {
-				wifiSendPatchFile();
-			} else {
-				promptWifiUrl();
-				if (wifiUrl.length()) {
-					wifiSendPatchFile();
-				}
-			}
-		};
 		addParam(wifiSendButton);
 
 		wifiConnectionLabel = new LabelOverlay();
@@ -401,13 +391,20 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		if (hubModule) {
 			if (hubModule->should_save) {
-				saveButton->click_callback();
 				hubModule->should_save = false;
+				writePatchFile();
 			}
 
 			if (hubModule->should_send_wifi) {
-				wifiSendButton->click_callback();
 				hubModule->should_send_wifi = false;
+				if (wifiUrl.length()) {
+					wifiSendPatchFile();
+				} else {
+					promptWifiUrl();
+					if (wifiUrl.length()) {
+						wifiSendPatchFile();
+					}
+				}
 			}
 		}
 		MetaModuleHubWidget::step();

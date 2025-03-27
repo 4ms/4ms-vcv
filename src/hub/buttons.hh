@@ -4,22 +4,11 @@
 
 namespace MetaModule
 {
-struct HubSaveButton : rack::BefacoPush {
-	std::function<void(void)> click_callback;
-
-	void onDragEnd(const rack::event::DragEnd &e) override {
-		OpaqueWidget::onDragEnd(e);
-		if (click_callback) {
-			click_callback();
-		}
-	}
-};
+struct HubSaveButton : rack::BefacoPush {};
 
 // When hovered, shows the fg widget and hides the bg widget
 // When not hovered, shows the bg and hides the fg
 struct HubWifiButton : rack::VCVLightBezel<rack::BlueLight> {
-	std::function<void(void)> click_callback;
-
 	rack::Widget *fgLabel = nullptr;
 	rack::Widget *bgLabel = nullptr;
 
@@ -28,13 +17,6 @@ struct HubWifiButton : rack::VCVLightBezel<rack::BlueLight> {
 		this->bgLabel = bglabel;
 		this->fgLabel->hide();
 		this->bgLabel->show();
-	}
-
-	void onDragEnd(const rack::event::DragEnd &e) override {
-		OpaqueWidget::onDragEnd(e);
-		if (click_callback) {
-			click_callback();
-		}
 	}
 
 	void onHover(rack::event::Hover const &e) override {
