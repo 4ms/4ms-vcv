@@ -16,9 +16,7 @@ struct ModuleDirectory {
 		if (isHubOrExpander(module))
 			return false;
 
-		std::array blacklist = {"Scope",
-								"Oscilloscope",
-								"AudioInterface2",
+		std::array blacklist = {"AudioInterface2",
 								"AudioInterface",
 								"AudioInterface16",
 								"Bogaudio-Analyzer",

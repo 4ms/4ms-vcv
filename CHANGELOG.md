@@ -8,6 +8,8 @@
 
 - Wifi timeout response is explicitly reported (instead of just "Failed")
 
+- Allow Scope and Oscilloscope modules in patch files
+
 ## v2.0.11
 
 - Fix patch name and wifi result text displaying badly when sending a patch via wifi
