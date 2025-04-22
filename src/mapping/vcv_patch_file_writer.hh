@@ -173,9 +173,12 @@ struct VCVPatchFileWriter {
 		//combine hub aliases and expander aliases
 		JackAlias aliases{jack_aliases};
 		if (expanders.hasAudioExpander()) {
-			auto &e = dynamic_cast<MetaModuleHubBase *>(engine->getModule(expanders.getAudioExpanderId()))->jack_alias;
-			aliases.in.insert(aliases.in.end(), e.in.begin(), e.in.end());
-			aliases.out.insert(aliases.out.end(), e.out.begin(), e.out.end());
+			auto hub_base = dynamic_cast<MetaModuleHubBase *>(engine->getModule(expanders.getAudioExpanderId()));
+			if (hub_base) {
+				auto &e = hub_base->jack_alias;
+				aliases.in.insert(aliases.in.end(), e.in.begin(), e.in.end());
+				aliases.out.insert(aliases.out.end(), e.out.begin(), e.out.end());
+			}
 		}
 		pw.setJackAliases(aliases);
 
