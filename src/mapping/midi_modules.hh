@@ -15,6 +15,7 @@ struct ModuleIds {
 struct MidiCVSettings {
 	float pwRange = 0; //TODO: not used yet
 	unsigned channels = 0;
+	unsigned midi_chan = 0;
 	unsigned clockDivJack = 0;
 	enum PolyMode { ROTATE_MODE, REUSE_MODE, RESET_MODE, MPE_MODE };
 	PolyMode polyMode = ROTATE_MODE; //TOOD: not used yet
@@ -45,6 +46,7 @@ struct MidiGateSettings {
 	std::array<int8_t, 128> notes{};
 	bool velocity_mode = false;
 	bool mpe_mode = false;
+	unsigned midi_chan = 0;
 };
 
 struct MidiCCCVSettings {
@@ -53,6 +55,7 @@ struct MidiCCCVSettings {
 	bool smooth = false;
 	bool mpe_mode = false;
 	bool lsb_mode = false;
+	unsigned midi_chan = 0;
 };
 
 struct CCKnobMap {
@@ -64,6 +67,7 @@ struct CCKnobMap {
 struct MidiCCKnobSettings {
 	std::array<CCKnobMap, 128> ccs{};
 	bool smooth = false;
+	uint8_t midi_chan = 0;
 };
 
 struct Settings {

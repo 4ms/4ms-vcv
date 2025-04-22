@@ -39,10 +39,10 @@ private:
 	void mapInputJack(CableMap &map);
 	void mapOutputJack(CableMap &map);
 	void mapMidiCVJack(CableMap &map);
-	void mapMidiGateJack(CableMap &map);
-	void mapMidiCCJack(CableMap &cable);
+	void mapMidiGateJack(CableMap &map, unsigned midi_chan);
+	void mapMidiCCJack(CableMap &cable, unsigned midi_chan);
 
-	void mapMidiCVPolySplitJack(CableMap &cable, unsigned monoJackId);
+	void mapMidiCVPolySplitJack(CableMap &cable, unsigned monoJackId, unsigned midi_chan);
 
 	void setModuleList(std::vector<BrandModule> &modules);
 

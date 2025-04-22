@@ -83,6 +83,16 @@ unsigned clockDivToMidiClockJack(unsigned clockDiv) {
 							MidiClockDiv96Jack;
 }
 
+unsigned readMidiChannelJson(json_t *rootJ) {
+	unsigned midi_chan = 0; //omni
+	if (json_t *midiJ = json_object_get(rootJ, "midi")) {
+		if (json_t *midiChannelJ = json_object_get(midiJ, "channel")) {
+			midi_chan = json_integer_value(midiChannelJ) + 1;
+		}
+	}
+	return midi_chan;
+}
+
 std::optional<MidiCVSettings> readMidiCVModule(int64_t module_id) {
 	auto context = rack::contextGet();
 	auto engine = context->engine;
@@ -110,6 +120,8 @@ std::optional<MidiCVSettings> readMidiCVModule(int64_t module_id) {
 		settings.polyMode = static_cast<MidiCVSettings::PolyMode>(polyMode);
 	else
 		settings.polyMode = MidiCVSettings::ROTATE_MODE;
+
+	settings.midi_chan = readMidiChannelJson(rootJ);
 
 	json_decref(rootJ);
 	return settings;
@@ -144,6 +156,8 @@ std::optional<MidiGateSettings> readMidiGateModule(int64_t module_id) {
 	}
 	settings.velocity_mode = velocityJ ? json_boolean_value(velocityJ) : false;
 	settings.mpe_mode = mpeModeJ ? json_boolean_value(mpeModeJ) : false;
+
+	settings.midi_chan = readMidiChannelJson(rootJ);
 
 	json_decref(rootJ);
 
@@ -184,6 +198,8 @@ std::optional<MidiCCCVSettings> readMidiCCCVModule(int64_t module_id) {
 	settings.smooth = smoothJ ? json_boolean_value(smoothJ) : false;
 	settings.mpe_mode = mpeModeJ ? json_boolean_value(mpeModeJ) : false;
 	settings.lsb_mode = lsbModeJ ? json_boolean_value(lsbModeJ) : false;
+
+	settings.midi_chan = readMidiChannelJson(rootJ);
 
 	json_decref(rootJ);
 
@@ -227,6 +243,8 @@ std::optional<MidiCCKnobSettings> readMidiMapModule(int64_t module_id) {
 	}
 
 	settings.smooth = smoothJ ? json_boolean_value(smoothJ) : false;
+
+	settings.midi_chan = readMidiChannelJson(rootJ);
 
 	json_decref(rootJ);
 
