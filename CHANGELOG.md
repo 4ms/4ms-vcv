@@ -10,6 +10,8 @@
 
 - Allow Scope and Oscilloscope modules in patch files
 
+- Save MIDI channel, poly mode, and pitchwheel range in patch file
+
 ## v2.0.11
 
 - Fix patch name and wifi result text displaying badly when sending a patch via wifi
