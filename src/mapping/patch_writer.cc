@@ -50,11 +50,12 @@ void PatchFileWriter::setMidiSettings(MIDI::ModuleIds &ids, MIDI::Settings const
 		pd.midi_maps.name = "MIDI";
 
 	pd.midi_poly_num = std::min<uint32_t>(midiSettings.CV.channels, 8U);
+	pd.midi_poly_mode = midiSettings.CV.polyMode;
+	pd.midi_pitchwheel_range = midiSettings.CV.pitchwheelRange;
 }
 
 void PatchFileWriter::setExpanders(ExpanderMappings const &exp) {
 	expanders = exp;
-	// pd.uses_audio_expander = expanders.hasAudioExpander();
 }
 
 void PatchFileWriter::setModuleList(std::vector<BrandModule> &modules) {

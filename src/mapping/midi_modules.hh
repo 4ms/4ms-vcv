@@ -1,4 +1,5 @@
 #pragma once
+#include "patch/patch.hh"
 #include <array>
 #include <rack.hpp>
 
@@ -13,12 +14,11 @@ struct ModuleIds {
 };
 
 struct MidiCVSettings {
-	float pwRange = 0; //TODO: not used yet
+	float pitchwheelRange = 1;
 	unsigned channels = 0;
 	unsigned midi_chan = 0;
 	unsigned clockDivJack = 0;
-	enum PolyMode { ROTATE_MODE, REUSE_MODE, RESET_MODE, MPE_MODE };
-	PolyMode polyMode = ROTATE_MODE; //TOOD: not used yet
+	PolyMode polyMode = PolyMode::Rotate;
 
 	int64_t voctSplitModuleId = -1;
 	int64_t gateSplitModuleId = -1;
