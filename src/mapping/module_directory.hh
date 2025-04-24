@@ -60,18 +60,6 @@ struct ModuleDirectory {
 			json_decref(json);
 		}
 
-		// Fix capitalization error in early firmware
-		else if (brand == "HetrickCV")
-		{
-			brand = "hetrickcv";
-		}
-
-		// Fix capitalization error in early firmware
-		else if (brand == "NonlinearCircuits")
-		{
-			brand = "nonlinearcircuits";
-		}
-
 		return brand + ":" + module_slug;
 	}
 
