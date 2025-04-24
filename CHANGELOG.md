@@ -4,13 +4,15 @@
 
 - When all maps are removed from a panel knob, the alias name is cleared
 
-- It's possible to use other modules to "remote control" the Wifi and Save buttons on the Hub.
+- It's possible to use other modules to "remote control" the Wifi and Save buttons on the Hub
 
 - Wifi timeout response is explicitly reported (instead of just "Failed")
 
 - Allow Scope and Oscilloscope modules in patch files
 
 - Save MIDI channel, poly mode, and pitchwheel range in patch file
+
+- Don't change case of brand slugs HetrickCV and NonlinearCircuits when saving a patch file
 
 ## v2.0.11
 
