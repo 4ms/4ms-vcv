@@ -1,6 +1,12 @@
 # CHANGE LOG
 
-## v2.0.12 (in progress)
+## v2.0.12
+
+- Fix and improve some 4ms modules:
+  - MultiLFO: add Fast/Slow switch and tempo LED
+  - QCD: save and restore tempo in patch file. Defaults to running when adding a new module
+  - EnOsc: fix Alt Params not being saved or loaded from patch files on hardware
+  - KPLS: fix pitch jack holding voltage after cable is unplugged
 
 - When all maps are removed from a panel knob, the alias name is cleared
 
