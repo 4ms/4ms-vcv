@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## v2.0.13
+
+- Removed debug output to console
+
 ## v2.0.12
 
 - Fix and improve some 4ms modules:
