@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## v2.0.14
+
+- Knob alias name is removed if knob no longer has any mappings
+
 ## v2.0.13
 
 - Removed debug output to console
