@@ -22,6 +22,10 @@ public:
 
 		auto numMaps = std::min(hub->mappings.getNumActiveMappings(mapBut.hubParamObj.objID), 16U);
 
+		if (numMaps == 0) {
+			hub->mappings.setMapAliasName(mapBut.hubParamObj, "");
+		}
+
 		const float spacing = 8;
 		const NVGcolor color = PaletteHub::color(mapBut.hubParamObj.objID);
 		auto _box = this->box;
