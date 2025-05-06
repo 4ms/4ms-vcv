@@ -7,7 +7,10 @@ namespace MetaModule
 
 extern std::string wifiUrl;
 enum Volume { Internal = 0, USB = 1, Card = 2 };
+enum MappingMode { ALL = 0, LEFTRIGHT = 1, RIGHT = 2, LEFT = 3 };
+
 extern Volume wifiVolume;
+extern MappingMode hubMappingMode;
 
 } // namespace MetaModule
 

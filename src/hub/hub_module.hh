@@ -24,6 +24,12 @@ struct MetaModuleHubBase : public rack::Module {
 						   MetaModule::wifiVolume == MetaModule::Volume::USB	  ? "USB" :
 						   MetaModule::wifiVolume == MetaModule::Volume::Internal ? "Internal" :
 																					"Card";
+	std::string mappingMode = MetaModule::hubMappingMode == MetaModule::MappingMode::ALL       ? "ALL" :
+							  MetaModule::hubMappingMode == MetaModule::MappingMode::LEFTRIGHT ? "LEFTRIGHT" :
+							  MetaModule::hubMappingMode == MetaModule::MappingMode::RIGHT     ? "RIGHT" :		
+							  MetaModule::hubMappingMode == MetaModule::MappingMode::LEFT      ? "LEFT" :	
+							  																	 "ALL";
+
 
 	bool should_save = false;
 	bool should_send_wifi = false;

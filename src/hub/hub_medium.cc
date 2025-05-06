@@ -65,6 +65,7 @@ private:
 
 std::string wifiUrl = "";
 Volume wifiVolume = Volume::Card;
+MappingMode hubMappingMode = MappingMode::ALL;
 
 struct HubMediumWidget : MetaModuleHubWidget {
 
@@ -91,6 +92,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	std::string wifiConnectionText;
 
 	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
+	const std::vector<std::string> mappingModeLabels = {"All", "Left&RightOnly", "RightOnly", "LeftOnly"};
+
 	// enum Volume { Internal = 0, USB = 1, Card = 2 };
 	// std::string wifiUrl = "";
 	// Volume wifiVolume = Volume::Card;
@@ -112,8 +115,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			wifiVolume = hubModule->wifiPath == "USB"	   ? Volume::USB :
 						 hubModule->wifiPath == "Card"	   ? Volume::Card :
 						 hubModule->wifiPath == "Internal" ? Volume::Internal :
-															 Volume::Card;
+														 Volume::Card;
 			wifiConnectionText = formatWifiStatus();
+			hubMappingMode = hubModule->mappingMode == "ALL"       ? MappingMode::ALL :
+							 hubModule->mappingMode == "LEFTRIGHT" ? MappingMode::LEFTRIGHT :
+							 hubModule->mappingMode == "RIGHT"     ? MappingMode::RIGHT :
+							 hubModule->mappingMode == "LEFT"      ? MappingMode::LEFT :
+							 										 MappingMode::ALL;
+
 		}
 
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/modules/HubMedium_artwork.svg")));
@@ -256,7 +265,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		auto yml =
-			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text);
+			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubMappingMode);
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -270,7 +279,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		auto yml =
-			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text);
+			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubMappingMode);
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -328,6 +337,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 	void appendContextMenu(rack::Menu *menu) override {
 		using namespace rack;
+		menu->addChild(new MenuSeparator());
+		menu->addChild(createIndexSubmenuItem(
+			"Map modules from:",
+			mappingModeLabels,
+			[]() { return hubMappingMode; },
+			[](size_t index) {
+				hubMappingMode = MappingMode(index);
+			}));
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuItem("Set Wi-Fi Expander address", "", [this]() { promptWifiUrl(); }));
 		menu->addChild(createIndexSubmenuItem(
