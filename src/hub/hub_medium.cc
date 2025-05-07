@@ -65,7 +65,6 @@ private:
 
 std::string wifiUrl = "";
 Volume wifiVolume = Volume::Card;
-MappingMode hubMappingMode = MappingMode::ALL;
 
 struct HubMediumWidget : MetaModuleHubWidget {
 
@@ -117,12 +116,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 						 hubModule->wifiPath == "Internal" ? Volume::Internal :
 														 Volume::Card;
 			wifiConnectionText = formatWifiStatus();
-			hubMappingMode = hubModule->mappingMode == "ALL"       ? MappingMode::ALL :
-							 hubModule->mappingMode == "LEFTRIGHT" ? MappingMode::LEFTRIGHT :
-							 hubModule->mappingMode == "RIGHT"     ? MappingMode::RIGHT :
-							 hubModule->mappingMode == "LEFT"      ? MappingMode::LEFT :
-							 										 MappingMode::ALL;
-
 		}
 
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/modules/HubMedium_artwork.svg")));
@@ -265,7 +258,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		auto yml =
-			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubMappingMode);
+			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubModule->mappingMode);
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -279,7 +272,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		auto yml =
-			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubMappingMode);
+			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubModule->mappingMode);
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -341,9 +334,9 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		menu->addChild(createIndexSubmenuItem(
 			"Map modules from:",
 			mappingModeLabels,
-			[]() { return hubMappingMode; },
-			[](size_t index) {
-				hubMappingMode = MappingMode(index);
+			[this]() { return hubModule->mappingMode; },
+			[this](size_t index) {
+				hubModule->setMappingMode(index);
 			}));
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuItem("Set Wi-Fi Expander address", "", [this]() { promptWifiUrl(); }));
