@@ -42,19 +42,7 @@ struct VCVPatchFileWriter {
 		// First, find the hub module and it to the lists
 		auto *hubModule = engine->getModule(hubModuleId);
 		if (ModuleDirectory::isHub(hubModule)) {
-			auto brand_module = ModuleDirectory::convertSlugs(hubModule);
-			auto moduleWidget = APP->scene->rack->getModule(hubModuleId);
-			if (moduleWidget) {
-				moduleData.push_back({hubModuleId,
-									  brand_module.c_str(),
-									  moduleWidget->getBox().getLeft(),
-									  moduleWidget->getBox().getTop()});
-				if (hubModule->model->slug.size() > 31) {
-					pr_warn("Warning: module slug truncated to 31 chars\n");
-				}
-			}
-			midimodules.addMidiModule(hubModule);
-			expanders.addModule(hubModule);
+			addHubModuleToMapping(hubModule, moduleData);
 		}
 
 		if (mappingMode == MappingMode::ALL) {
@@ -63,28 +51,7 @@ struct VCVPatchFileWriter {
 
 				auto *module = engine->getModule(moduleID);
 
-				if (ModuleDirectory::isRegularModule(module)) {
-					auto brand_module = ModuleDirectory::convertSlugs(module);
-					auto moduleWidget = APP->scene->rack->getModule(moduleID);
-					if (moduleWidget) {
-						moduleData.push_back({moduleID,
-											  brand_module.c_str(),
-											  moduleWidget->getBox().getLeft(),
-											  moduleWidget->getBox().getTop()});
-						if (module->model->slug.size() > 31) {
-							pr_warn("Warning: module slug truncated to 31 chars\n");
-						}
-					}
-
-					if (!ModuleDirectory::isHubOrExpander(module)) {
-						for (size_t i = 0; i < module->paramQuantities.size(); i++) {
-							float val = module->getParamQuantity(i)->getScaledValue();
-							paramData.push_back({.value = val, .paramID = (int)i, .moduleID = moduleID});
-						}
-					}
-					midimodules.addMidiModule(module);
-					expanders.addModule(module);
-				}
+				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
 
 			}
 		}
@@ -95,30 +62,7 @@ struct VCVPatchFileWriter {
 			auto* module = engine->getModule(hubModuleId);
 			while (true) {
 				if (!module) break;
-
-				if (ModuleDirectory::isRegularModule(module)) {
-					int64_t moduleID = module->getId();
-					auto brand_module = ModuleDirectory::convertSlugs(module);
-					auto moduleWidget = APP->scene->rack->getModule(moduleID);
-					if (moduleWidget) {
-						moduleData.push_back({moduleID,
-											  brand_module.c_str(),
-											  moduleWidget->getBox().getLeft(),
-											  moduleWidget->getBox().getTop()});
-						if (module->model->slug.size() > 31) {
-							pr_warn("Warning: module slug truncated to 31 chars\n");
-						}
-					}
-
-					if (!ModuleDirectory::isHubOrExpander(module)) {
-						for (size_t i = 0; i < module->paramQuantities.size(); i++) {
-							float val = module->getParamQuantity(i)->getScaledValue();
-							paramData.push_back({.value = val, .paramID = (int)i, .moduleID = moduleID});
-						}
-					}
-					midimodules.addMidiModule(module);
-					expanders.addModule(module);
-				}
+				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
 
 				if (module->leftExpander.moduleId < 0) break;
 				if (!module->leftExpander.module) break;
@@ -132,30 +76,7 @@ struct VCVPatchFileWriter {
 			auto* module = engine->getModule(hubModuleId);
 			while (true) {
 				if (!module) break;
-
-				if (ModuleDirectory::isRegularModule(module)) {
-					int64_t moduleID = module->getId();
-					auto brand_module = ModuleDirectory::convertSlugs(module);
-					auto moduleWidget = APP->scene->rack->getModule(moduleID);
-					if (moduleWidget) {
-						moduleData.push_back({moduleID,
-											  brand_module.c_str(),
-											  moduleWidget->getBox().getLeft(),
-											  moduleWidget->getBox().getTop()});
-						if (module->model->slug.size() > 31) {
-							pr_warn("Warning: module slug truncated to 31 chars\n");
-						}
-					}
-
-					if (!ModuleDirectory::isHubOrExpander(module)) {
-						for (size_t i = 0; i < module->paramQuantities.size(); i++) {
-							float val = module->getParamQuantity(i)->getScaledValue();
-							paramData.push_back({.value = val, .paramID = (int)i, .moduleID = moduleID});
-						}
-					}
-					midimodules.addMidiModule(module);
-					expanders.addModule(module);
-				}
+				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
 
 				if (module->rightExpander.moduleId < 0) break;
 				if (!module->rightExpander.module) break;
@@ -249,6 +170,53 @@ struct VCVPatchFileWriter {
 		return pw.printPatchYAML();
 		// writeToFile(fileName, yml);
 		// writeAsHeader(fileName + ".hh", patchName + "_patch", yml);
+	}
+
+	static void addHubModuleToMapping(auto* module,
+									  std::vector<BrandModule> &moduleData) {
+		int64_t moduleID = module->getId();
+		auto brand_module = ModuleDirectory::convertSlugs(module);
+		auto moduleWidget = APP->scene->rack->getModule(moduleID);
+		if (moduleWidget) {
+			moduleData.push_back({moduleID,
+								  brand_module.c_str(),
+								  moduleWidget->getBox().getLeft(),
+								  moduleWidget->getBox().getTop()});
+			if (module->model->slug.size() > 31) {
+				pr_warn("Warning: module slug truncated to 31 chars\n");
+			}
+		}
+	}
+
+	static void addModuleToMapping(auto* module,
+								   std::vector<BrandModule> &moduleData,
+								   std::vector<ParamMap> &paramData,
+								   MIDI::Modules &midimodules,
+								   ExpanderMappings &expanders ) {
+
+		if (ModuleDirectory::isRegularModule(module)) {
+			int64_t moduleID = module->getId();
+			auto brand_module = ModuleDirectory::convertSlugs(module);
+			auto moduleWidget = APP->scene->rack->getModule(moduleID);
+			if (moduleWidget) {
+				moduleData.push_back({moduleID,
+									  brand_module.c_str(),
+									  moduleWidget->getBox().getLeft(),
+									  moduleWidget->getBox().getTop()});
+				if (module->model->slug.size() > 31) {
+					pr_warn("Warning: module slug truncated to 31 chars\n");
+				}
+			}
+
+			if (!ModuleDirectory::isHubOrExpander(module)) {
+				for (size_t i = 0; i < module->paramQuantities.size(); i++) {
+					float val = module->getParamQuantity(i)->getScaledValue();
+					paramData.push_back({.value = val, .paramID = (int)i, .moduleID = moduleID});
+				}
+			}
+		}
+		midimodules.addMidiModule(module);
+		expanders.addModule(module);
 	}
 
 	static void writeToFile(const std::string &fileName, std::string textToWrite) {
