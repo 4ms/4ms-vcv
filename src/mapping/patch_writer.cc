@@ -33,7 +33,7 @@ void PatchFileWriter::setMidiSettings(MIDI::ModuleIds &ids, MIDI::Settings const
 	// Handle MIDI CC->Knob maps
 
 	for (auto cc : midiSettings.CCKnob.ccs) {
-		if (cc.CCnum > 0) {
+		if (cc.CCnum > 0 && idMap.contains(cc.module_id)) {
 			pd.midi_maps.set.emplace_back(MappedKnob{
 				.panel_knob_id = (uint16_t)(cc.CCnum + MidiCC0),
 				.module_id = idMap[cc.module_id],
@@ -192,11 +192,13 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 void PatchFileWriter::setParamList(std::vector<ParamMap> &params) {
 	pd.static_knobs.clear();
 	for (auto &param : params) {
-		pd.static_knobs.push_back({
-			.module_id = idMap[param.moduleID],
-			.param_id = static_cast<uint16_t>(param.paramID),
-			.value = param.value,
-		});
+		if (idMap.contains(param.moduleID)) {
+			pd.static_knobs.push_back({
+				.module_id = idMap[param.moduleID],
+				.param_id = static_cast<uint16_t>(param.paramID),
+				.value = param.value,
+			});
+		}
 	}
 }
 
@@ -262,29 +264,31 @@ void PatchFileWriter::mapInputJack(CableMap &map) {
 	if (expanders.isKnownJackExpander(map.receivedModuleId))
 		expanders.setExpanderOutputJackId(&map);
 
-	// Look for an existing entry to this panel input jack
-	auto found = std::find_if(pd.mapped_ins.begin(), pd.mapped_ins.end(), [=](const auto &x) {
-		return x.panel_jack_id == (uint32_t)map.sendingJackId;
-	});
+	if (idMap.contains(map.receivedModuleId)) {
+		// Look for an existing entry to this panel input jack
+		auto found = std::find_if(pd.mapped_ins.begin(), pd.mapped_ins.end(), [=](const auto &x) {
+			return x.panel_jack_id == (uint32_t)map.sendingJackId;
+		});
 
-	if (found != pd.mapped_ins.end()) {
-		// If we already have an entry for this panel jack, append a new module input jack to the ins vector
-		found->ins.push_back({
-			.module_id = static_cast<uint16_t>(idMap[map.receivedModuleId]),
-			.jack_id = static_cast<uint16_t>(map.receivedJackId),
-		});
-	} else {
-		// Make a new entry:
-		pd.mapped_ins.push_back({
-			.panel_jack_id = static_cast<uint32_t>(map.sendingJackId),
-			.ins = {{
-				{
-					.module_id = static_cast<uint16_t>(idMap[map.receivedModuleId]),
-					.jack_id = static_cast<uint16_t>(map.receivedJackId),
-				},
-			}},
-			.alias_name = "",
-		});
+		if (found != pd.mapped_ins.end()) {
+			// If we already have an entry for this panel jack, append a new module input jack to the ins vector
+			found->ins.push_back({
+				.module_id = static_cast<uint16_t>(idMap[map.receivedModuleId]),
+				.jack_id = static_cast<uint16_t>(map.receivedJackId),
+			});
+		} else {
+			// Make a new entry:
+			pd.mapped_ins.push_back({
+				.panel_jack_id = static_cast<uint32_t>(map.sendingJackId),
+				.ins = {{
+					{
+						.module_id = static_cast<uint16_t>(idMap[map.receivedModuleId]),
+						.jack_id = static_cast<uint16_t>(map.receivedJackId),
+					},
+				}},
+				.alias_name = "",
+			});
+		}
 	}
 }
 
@@ -302,26 +306,28 @@ void PatchFileWriter::mapOutputJack(CableMap &map) {
 	// an error, since we can't have multiple outs assigned to a net, but we're going to roll with it).
 	// otherwise push it to the vector
 
-	// Look for an existing entry:
-	auto found = std::find_if(pd.mapped_outs.begin(), pd.mapped_outs.end(), [=](const auto &x) {
-		return x.panel_jack_id == (uint32_t)map.receivedJackId;
-	});
-
-	if (found != pd.mapped_outs.end()) {
-		found->out.module_id = static_cast<uint16_t>(idMap[map.sendingModuleId]);
-		found->out.jack_id = static_cast<uint16_t>(map.sendingJackId);
-		// Todo: Log error: multiple module outputs mapped to same panel output jack
-	} else {
-		// Make a new entry:
-		pd.mapped_outs.push_back({
-			.panel_jack_id = static_cast<uint32_t>(map.receivedJackId),
-			.out =
-				{
-					.module_id = static_cast<uint16_t>(idMap[map.sendingModuleId]),
-					.jack_id = static_cast<uint16_t>(map.sendingJackId),
-				},
-			.alias_name = "",
+	if (idMap.contains(map.sendingModuleId)) {
+		// Look for an existing entry:
+		auto found = std::find_if(pd.mapped_outs.begin(), pd.mapped_outs.end(), [=](const auto &x) {
+			return x.panel_jack_id == (uint32_t)map.receivedJackId;
 		});
+
+		if (found != pd.mapped_outs.end()) {
+			found->out.module_id = static_cast<uint16_t>(idMap[map.sendingModuleId]);
+			found->out.jack_id = static_cast<uint16_t>(map.sendingJackId);
+			// Todo: Log error: multiple module outputs mapped to same panel output jack
+		} else {
+			// Make a new entry:
+			pd.mapped_outs.push_back({
+				.panel_jack_id = static_cast<uint32_t>(map.receivedJackId),
+				.out =
+					{
+						.module_id = static_cast<uint16_t>(idMap[map.sendingModuleId]),
+						.jack_id = static_cast<uint16_t>(map.sendingJackId),
+					},
+				.alias_name = "",
+			});
+		}
 	}
 }
 

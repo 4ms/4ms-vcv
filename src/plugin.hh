@@ -1,7 +1,6 @@
 #pragma once
 #include <rack.hpp>
 
-// FIXME HACK
 namespace MetaModule
 {
 

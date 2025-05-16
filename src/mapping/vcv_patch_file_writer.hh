@@ -32,14 +32,13 @@ struct VCVPatchFileWriter {
 
 		// Find all compatible modules in this patch
 		// TODO: only add modules that are mapped to this hub
-		// Find all knobs on those modules (static knobs)
 		std::vector<BrandModule> moduleData;
 		std::vector<ParamMap> paramData;
 		std::vector<int64_t> splitModuleIds;
 		MIDI::Modules midimodules;
 		ExpanderMappings expanders;
 
-		// First, find the hub module and it to the lists
+		// First, find the hub module and add it to the lists
 		auto *hubModule = engine->getModule(hubModuleId);
 		if (ModuleDirectory::isHub(hubModule)) {
 			addHubModuleToMapping(hubModule, moduleData);
@@ -52,20 +51,22 @@ struct VCVPatchFileWriter {
 				auto *module = engine->getModule(moduleID);
 
 				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
-
 			}
 		}
-		
+
 		if (mappingMode == MappingMode::LEFTRIGHT || mappingMode == MappingMode::LEFT) {
 
 			// Add modules joined to the left of the hub module
-			auto* module = engine->getModule(hubModuleId);
+			auto *module = engine->getModule(hubModuleId);
 			while (true) {
-				if (!module) break;
+				if (!module)
+					break;
 				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
 
-				if (module->leftExpander.moduleId < 0) break;
-				if (!module->leftExpander.module) break;
+				if (module->leftExpander.moduleId < 0)
+					break;
+				if (!module->leftExpander.module)
+					break;
 				module = module->leftExpander.module;
 			}
 		}
@@ -73,13 +74,16 @@ struct VCVPatchFileWriter {
 		if (mappingMode == MappingMode::LEFTRIGHT || mappingMode == MappingMode::RIGHT) {
 
 			// Add modules joined to the right of the hub module
-			auto* module = engine->getModule(hubModuleId);
+			auto *module = engine->getModule(hubModuleId);
 			while (true) {
-				if (!module) break;
+				if (!module)
+					break;
 				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
 
-				if (module->rightExpander.moduleId < 0) break;
-				if (!module->rightExpander.module) break;
+				if (module->rightExpander.moduleId < 0)
+					break;
+				if (!module->rightExpander.module)
+					break;
 				module = module->rightExpander.module;
 			}
 		}
@@ -172,27 +176,24 @@ struct VCVPatchFileWriter {
 		// writeAsHeader(fileName + ".hh", patchName + "_patch", yml);
 	}
 
-	static void addHubModuleToMapping(auto* module,
-									  std::vector<BrandModule> &moduleData) {
+	static void addHubModuleToMapping(auto *module, std::vector<BrandModule> &moduleData) {
 		int64_t moduleID = module->getId();
 		auto brand_module = ModuleDirectory::convertSlugs(module);
 		auto moduleWidget = APP->scene->rack->getModule(moduleID);
 		if (moduleWidget) {
-			moduleData.push_back({moduleID,
-								  brand_module.c_str(),
-								  moduleWidget->getBox().getLeft(),
-								  moduleWidget->getBox().getTop()});
+			moduleData.push_back(
+				{moduleID, brand_module.c_str(), moduleWidget->getBox().getLeft(), moduleWidget->getBox().getTop()});
 			if (module->model->slug.size() > 31) {
 				pr_warn("Warning: module slug truncated to 31 chars\n");
 			}
 		}
 	}
 
-	static void addModuleToMapping(auto* module,
+	static void addModuleToMapping(auto *module,
 								   std::vector<BrandModule> &moduleData,
 								   std::vector<ParamMap> &paramData,
 								   MIDI::Modules &midimodules,
-								   ExpanderMappings &expanders ) {
+								   ExpanderMappings &expanders) {
 
 		if (ModuleDirectory::isRegularModule(module)) {
 			int64_t moduleID = module->getId();

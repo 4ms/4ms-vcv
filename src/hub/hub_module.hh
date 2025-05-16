@@ -39,14 +39,6 @@ struct MetaModuleHubBase : public rack::Module {
 		inProgressMapParamId = hubParamId;
 	}
 
-	std::string mappingModeToString(MetaModule::MappingMode mappingMode) {
-		return mappingMode == MetaModule::MappingMode::ALL       ? "ALL" :
-			   mappingMode == MetaModule::MappingMode::LEFTRIGHT ? "LEFTRIGHT" :
-			   mappingMode == MetaModule::MappingMode::RIGHT     ? "RIGHT" :		
-			   mappingMode == MetaModule::MappingMode::LEFT      ? "LEFT" :	
-							  									   "ALL";
-	}
-
 	void setMappingMode(int index) {
 		mappingMode = MappingMode(index);
 	}
@@ -171,7 +163,7 @@ struct MetaModuleHubBase : public rack::Module {
 			mappingMode = MappingMode(json_integer_value(mappingModeJ));
 		}
 
-    mappings.decodeJson(rootJ);
+		mappings.decodeJson(rootJ);
 	}
 
 	void onReset(const ResetEvent &e) override {
