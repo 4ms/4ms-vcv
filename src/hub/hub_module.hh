@@ -19,6 +19,7 @@ struct MetaModuleHubBase : public rack::Module {
 	std::function<void()> updatePatchName;
 	std::string patchNameText = "";
 	std::string patchDescText = "";
+	MappingMode mappingMode = MetaModule::MappingMode::ALL;
 
 	bool should_save = false;
 	bool should_send_wifi = false;
@@ -36,6 +37,18 @@ struct MetaModuleHubBase : public rack::Module {
 
 	void startMappingFrom(int hubParamId) {
 		inProgressMapParamId = hubParamId;
+	}
+
+	std::string mappingModeToString(MetaModule::MappingMode mappingMode) {
+		return mappingMode == MetaModule::MappingMode::ALL       ? "ALL" :
+			   mappingMode == MetaModule::MappingMode::LEFTRIGHT ? "LEFTRIGHT" :
+			   mappingMode == MetaModule::MappingMode::RIGHT     ? "RIGHT" :		
+			   mappingMode == MetaModule::MappingMode::LEFT      ? "LEFT" :	
+							  									   "ALL";
+	}
+
+	void setMappingMode(int index) {
+		mappingMode = MappingMode(index);
 	}
 
 	void endMapping() {
@@ -127,6 +140,8 @@ struct MetaModuleHubBase : public rack::Module {
 			json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
 			json_object_set_new(rootJ, "DefaultKnobSet", defaultKnobSetJ);
 
+			json_t *mappingModeJ = json_integer(this->mappingMode);
+			json_object_set_new(rootJ, "MappingMode", mappingModeJ);
 		} else {
 			pr_err("Error: Widget has not been constructed, but dataToJson is being called\n");
 		}
@@ -151,13 +166,19 @@ struct MetaModuleHubBase : public rack::Module {
 			mappings.changeActiveKnobSet(idx, ShouldLock::No);
 		}
 
-		mappings.decodeJson(rootJ);
+		auto mappingModeJ = json_object_get(rootJ, "MappingMode");
+		if (json_is_integer(mappingModeJ)) {
+			mappingMode = MappingMode(json_integer_value(mappingModeJ));
+		}
+
+    mappings.decodeJson(rootJ);
 	}
 
 	void onReset(const ResetEvent &e) override {
 		Module::onReset(e);
 		patchNameText = "";
 		patchDescText = "";
+		mappingMode = MetaModule::MappingMode::ALL;
 		mappings.clear_all(ShouldLock::No);
 		mappings.setActiveKnobSetIdx(0);
 		mappings.refreshParamHandles(ShouldLock::No);

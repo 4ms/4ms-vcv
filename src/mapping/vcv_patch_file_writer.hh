@@ -10,20 +10,22 @@
 #include "mapping/module_directory.hh"
 #include "mapping/patch_writer.hh"
 #include "patch/midi_def.hh"
+#include "plugin.hh"
 #include <fstream>
 #include <rack.hpp>
 
 namespace MetaModule
 {
 
-// Adpats VCVRack-format of patch data to a format PatchFileWriter can use
+// Adapts VCVRack-format of patch data to a format PatchFileWriter can use
 template<size_t NumKnobs, size_t MaxMapsPerPot, size_t MaxKnobSets>
 struct VCVPatchFileWriter {
 
 	static std::string createPatchYml(int64_t hubModuleId,
 									  HubKnobMappings<MaxMapsPerPot, MaxKnobSets> &mappings,
 									  std::string patchName,
-									  std::string patchDesc) {
+									  std::string patchDesc,
+									  MappingMode mappingMode) {
 
 		auto context = rack::contextGet();
 		auto engine = context->engine;
@@ -37,33 +39,49 @@ struct VCVPatchFileWriter {
 		MIDI::Modules midimodules;
 		ExpanderMappings expanders;
 
-		auto moduleIDs = engine->getModuleIds();
-		for (auto moduleID : moduleIDs) {
+		// First, find the hub module and it to the lists
+		auto *hubModule = engine->getModule(hubModuleId);
+		if (ModuleDirectory::isHub(hubModule)) {
+			addHubModuleToMapping(hubModule, moduleData);
+		}
 
-			auto *module = engine->getModule(moduleID);
+		if (mappingMode == MappingMode::ALL) {
+			auto moduleIDs = engine->getModuleIds();
+			for (auto moduleID : moduleIDs) {
 
-			if (ModuleDirectory::isRegularModule(module) || ModuleDirectory::isHub(module)) {
-				auto brand_module = ModuleDirectory::convertSlugs(module);
-				auto moduleWidget = APP->scene->rack->getModule(moduleID);
-				if (moduleWidget) {
-					moduleData.push_back({moduleID,
-										  brand_module.c_str(),
-										  moduleWidget->getBox().getLeft(),
-										  moduleWidget->getBox().getTop()});
-					if (module->model->slug.size() > 31) {
-						pr_warn("Warning: module slug truncated to 31 chars\n");
-					}
-				}
+				auto *module = engine->getModule(moduleID);
 
-				if (!ModuleDirectory::isHubOrExpander(module)) {
-					for (size_t i = 0; i < module->paramQuantities.size(); i++) {
-						float val = module->getParamQuantity(i)->getScaledValue();
-						paramData.push_back({.value = val, .paramID = (int)i, .moduleID = moduleID});
-					}
-				}
+				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
+
 			}
-			midimodules.addMidiModule(module);
-			expanders.addModule(module);
+		}
+		
+		if (mappingMode == MappingMode::LEFTRIGHT || mappingMode == MappingMode::LEFT) {
+
+			// Add modules joined to the left of the hub module
+			auto* module = engine->getModule(hubModuleId);
+			while (true) {
+				if (!module) break;
+				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
+
+				if (module->leftExpander.moduleId < 0) break;
+				if (!module->leftExpander.module) break;
+				module = module->leftExpander.module;
+			}
+		}
+
+		if (mappingMode == MappingMode::LEFTRIGHT || mappingMode == MappingMode::RIGHT) {
+
+			// Add modules joined to the right of the hub module
+			auto* module = engine->getModule(hubModuleId);
+			while (true) {
+				if (!module) break;
+				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
+
+				if (module->rightExpander.moduleId < 0) break;
+				if (!module->rightExpander.module) break;
+				module = module->rightExpander.module;
+			}
 		}
 
 		// Scan cables for MIDICV -> Split connections
@@ -152,6 +170,53 @@ struct VCVPatchFileWriter {
 		return pw.printPatchYAML();
 		// writeToFile(fileName, yml);
 		// writeAsHeader(fileName + ".hh", patchName + "_patch", yml);
+	}
+
+	static void addHubModuleToMapping(auto* module,
+									  std::vector<BrandModule> &moduleData) {
+		int64_t moduleID = module->getId();
+		auto brand_module = ModuleDirectory::convertSlugs(module);
+		auto moduleWidget = APP->scene->rack->getModule(moduleID);
+		if (moduleWidget) {
+			moduleData.push_back({moduleID,
+								  brand_module.c_str(),
+								  moduleWidget->getBox().getLeft(),
+								  moduleWidget->getBox().getTop()});
+			if (module->model->slug.size() > 31) {
+				pr_warn("Warning: module slug truncated to 31 chars\n");
+			}
+		}
+	}
+
+	static void addModuleToMapping(auto* module,
+								   std::vector<BrandModule> &moduleData,
+								   std::vector<ParamMap> &paramData,
+								   MIDI::Modules &midimodules,
+								   ExpanderMappings &expanders ) {
+
+		if (ModuleDirectory::isRegularModule(module)) {
+			int64_t moduleID = module->getId();
+			auto brand_module = ModuleDirectory::convertSlugs(module);
+			auto moduleWidget = APP->scene->rack->getModule(moduleID);
+			if (moduleWidget) {
+				moduleData.push_back({moduleID,
+									  brand_module.c_str(),
+									  moduleWidget->getBox().getLeft(),
+									  moduleWidget->getBox().getTop()});
+				if (module->model->slug.size() > 31) {
+					pr_warn("Warning: module slug truncated to 31 chars\n");
+				}
+			}
+
+			if (!ModuleDirectory::isHubOrExpander(module)) {
+				for (size_t i = 0; i < module->paramQuantities.size(); i++) {
+					float val = module->getParamQuantity(i)->getScaledValue();
+					paramData.push_back({.value = val, .paramID = (int)i, .moduleID = moduleID});
+				}
+			}
+		}
+		midimodules.addMidiModule(module);
+		expanders.addModule(module);
 	}
 
 	static void writeToFile(const std::string &fileName, std::string textToWrite) {
