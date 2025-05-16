@@ -91,7 +91,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	std::string wifiConnectionText;
 
 	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
-	const std::vector<std::string> mappingModeLabels = {"All", "Left & Right Only", "Right Only", "Left Only"};
+	const std::vector<std::string> mappingModeLabels = {
+		"All", "Left & Right Only", "Right Only", "Left Only", "Connected"};
 
 	HubMediumWidget(HubMedium *module) {
 		setModule(module);
@@ -321,7 +322,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		using namespace rack;
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createIndexSubmenuItem(
-			"Map modules from:",
+			"Include modules from:",
 			mappingModeLabels,
 			[this]() { return hubModule->mappingMode; },
 			[this](size_t index) { hubModule->setMappingMode(index); }));
