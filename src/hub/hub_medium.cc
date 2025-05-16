@@ -91,7 +91,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	std::string wifiConnectionText;
 
 	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
-	const std::vector<std::string> mappingModeLabels = {"All", "Left&RightOnly", "RightOnly", "LeftOnly"};
+	const std::vector<std::string> mappingModeLabels = {"All", "Left & Right Only", "Right Only", "Left Only"};
 
 	HubMediumWidget(HubMedium *module) {
 		setModule(module);
@@ -246,8 +246,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		patchName->text = rack::system::getStem(filename);
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
-		auto yml =
-			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubModule->mappingMode);
+		auto yml = PatchFileWriter::createPatchYml(
+			hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubModule->mappingMode);
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -260,8 +260,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		}
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
-		auto yml =
-			PatchFileWriter::createPatchYml(hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubModule->mappingMode);
+		auto yml = PatchFileWriter::createPatchYml(
+			hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubModule->mappingMode);
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -324,9 +324,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			"Map modules from:",
 			mappingModeLabels,
 			[this]() { return hubModule->mappingMode; },
-			[this](size_t index) {
-				hubModule->setMappingMode(index);
-			}));
+			[this](size_t index) { hubModule->setMappingMode(index); }));
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuItem("Set Wi-Fi Expander address", "", [this]() { promptWifiUrl(); }));
 		menu->addChild(createIndexSubmenuItem(

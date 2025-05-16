@@ -57,8 +57,6 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelMMAudioExpander);
 }
 
-// Hack:
-
 __attribute__((__visibility__("default"))) extern "C" json_t *settingsToJson() {
 	json_t *rootJ = json_object();
 	json_object_set_new(rootJ, "wifiUrl", json_string(MetaModule::wifiUrl.c_str()));
