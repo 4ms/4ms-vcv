@@ -93,10 +93,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
 	const std::vector<std::string> mappingModeLabels = {"All", "Left&RightOnly", "RightOnly", "LeftOnly"};
 
-	// enum Volume { Internal = 0, USB = 1, Card = 2 };
-	// std::string wifiUrl = "";
-	// Volume wifiVolume = Volume::Card;
-
 	HubMediumWidget(HubMedium *module) {
 		setModule(module);
 		hubModule = module;
@@ -106,15 +102,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			hubModule->updatePatchName = [this] {
 				hubModule->patchNameText = patchName->text;
 				hubModule->patchDescText = patchDesc->text;
-				hubModule->wifiUrl = wifiUrl;
-				hubModule->wifiPath = size_t(wifiVolume) < volumeLabels.size() ? volumeLabels[wifiVolume] : "Card";
 			};
 
-			wifiUrl = hubModule->wifiUrl;
-			wifiVolume = hubModule->wifiPath == "USB"	   ? Volume::USB :
-						 hubModule->wifiPath == "Card"	   ? Volume::Card :
-						 hubModule->wifiPath == "Internal" ? Volume::Internal :
-														 Volume::Card;
 			wifiConnectionText = formatWifiStatus();
 		}
 

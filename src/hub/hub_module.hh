@@ -19,11 +19,6 @@ struct MetaModuleHubBase : public rack::Module {
 	std::function<void()> updatePatchName;
 	std::string patchNameText = "";
 	std::string patchDescText = "";
-	std::string wifiUrl = MetaModule::wifiUrl;
-	std::string wifiPath = MetaModule::wifiVolume == MetaModule::Volume::Card	  ? "Card" :
-						   MetaModule::wifiVolume == MetaModule::Volume::USB	  ? "USB" :
-						   MetaModule::wifiVolume == MetaModule::Volume::Internal ? "Internal" :
-																					"Card";
 	MappingMode mappingMode = MetaModule::MappingMode::ALL;
 
 	bool should_save = false;
@@ -145,12 +140,6 @@ struct MetaModuleHubBase : public rack::Module {
 			json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
 			json_object_set_new(rootJ, "DefaultKnobSet", defaultKnobSetJ);
 
-			json_t *wifiUrlJ = json_string(wifiUrl.c_str());
-			json_object_set_new(rootJ, "WifiURL", wifiUrlJ);
-
-			json_t *wifiPathJ = json_string(wifiPath.c_str());
-			json_object_set_new(rootJ, "WifiPath", wifiPathJ);
-
 			json_t *mappingModeJ = json_integer(this->mappingMode);
 			json_object_set_new(rootJ, "MappingMode", mappingModeJ);
 		} else {
@@ -177,21 +166,12 @@ struct MetaModuleHubBase : public rack::Module {
 			mappings.changeActiveKnobSet(idx, ShouldLock::No);
 		}
 
-		auto wifiUrlJ = json_object_get(rootJ, "WifiURL");
-		if (json_is_string(wifiUrlJ)) {
-			wifiUrl = json_string_value(wifiUrlJ);
-		}
-
-		auto wifiPathJ = json_object_get(rootJ, "WifiPath");
-		if (json_is_string(wifiPathJ)) {
-			wifiPath = json_string_value(wifiPathJ);
-		}
 		auto mappingModeJ = json_object_get(rootJ, "MappingMode");
 		if (json_is_integer(mappingModeJ)) {
 			mappingMode = MappingMode(json_integer_value(mappingModeJ));
 		}
 
-		mappings.decodeJson(rootJ);
+    mappings.decodeJson(rootJ);
 	}
 
 	void onReset(const ResetEvent &e) override {
