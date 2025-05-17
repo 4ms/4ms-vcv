@@ -92,15 +92,12 @@ struct VCVPatchFileWriter {
 
 			// Add modules joined to the left of the hub module
 			auto *module = engine->getModule(hubModuleId);
-			while (true) {
-				if (!module)
-					break;
+			while (module) {
 				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
 
 				if (module->leftExpander.moduleId < 0)
 					break;
-				if (!module->leftExpander.module)
-					break;
+
 				module = module->leftExpander.module;
 			}
 		}
@@ -109,15 +106,12 @@ struct VCVPatchFileWriter {
 
 			// Add modules joined to the right of the hub module
 			auto *module = engine->getModule(hubModuleId);
-			while (true) {
-				if (!module)
-					break;
+			while (module) {
 				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
 
 				if (module->rightExpander.moduleId < 0)
 					break;
-				if (!module->rightExpander.module)
-					break;
+
 				module = module->rightExpander.module;
 			}
 		}
