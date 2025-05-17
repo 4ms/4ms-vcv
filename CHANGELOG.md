@@ -1,5 +1,17 @@
 # CHANGE LOG
 
+## v2.0.15 (in progress)
+
+- Add "Include Modules from:" right-click menu option that allows including only certain modules in the exported patch file. 
+  Thanks to @rjsmith.
+   - All: include all modules (current behavior)
+   - Left Only: only modules touching each other to the left of the Hub
+   - Right Only: only modules touching each other to the right of the Hub
+   - Left & Right Only: only modules touching each other to the left or the right of the Hub
+   - Connected: only modules connected to the Hub by cables, directly or indirectly through any number of other modules.
+
+- Fix Wi-Fi URL being stored in patch file and overriding local settings
+
 ## v2.0.14
 
 - Knob alias name is removed if knob no longer has any mappings
