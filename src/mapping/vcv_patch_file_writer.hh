@@ -54,19 +54,50 @@ struct VCVPatchFileWriter {
 			}
 		}
 
+		if (mappingMode == MappingMode::CONNECTED) {
+			std::set<int64_t> connected_modules;
+			connected_modules.insert(hubModuleId);
+
+			auto cables = engine->getCableIds();
+
+			unsigned num_found = 0;
+
+			// iterate all cables until we find no more new modules
+			while (connected_modules.size() != num_found) {
+
+				num_found = connected_modules.size();
+
+				for (auto cable_id : cables) {
+					auto *cable = engine->getCable(cable_id);
+					if (cable->inputModule && cable->outputModule) {
+						auto input_id = cable->inputModule->getId();
+						auto output_id = cable->outputModule->getId();
+
+						if (connected_modules.contains(input_id)) {
+							connected_modules.insert(output_id);
+						} else if (connected_modules.contains(output_id)) {
+							connected_modules.insert(input_id);
+						}
+					}
+				}
+			}
+
+			for (auto module_id : connected_modules) {
+				if (auto *module = engine->getModule(module_id))
+					addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
+			}
+		}
+
 		if (mappingMode == MappingMode::LEFTRIGHT || mappingMode == MappingMode::LEFT) {
 
 			// Add modules joined to the left of the hub module
 			auto *module = engine->getModule(hubModuleId);
-			while (true) {
-				if (!module)
-					break;
+			while (module) {
 				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
 
 				if (module->leftExpander.moduleId < 0)
 					break;
-				if (!module->leftExpander.module)
-					break;
+
 				module = module->leftExpander.module;
 			}
 		}
@@ -75,15 +106,12 @@ struct VCVPatchFileWriter {
 
 			// Add modules joined to the right of the hub module
 			auto *module = engine->getModule(hubModuleId);
-			while (true) {
-				if (!module)
-					break;
+			while (module) {
 				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
 
 				if (module->rightExpander.moduleId < 0)
 					break;
-				if (!module->rightExpander.module)
-					break;
+
 				module = module->rightExpander.module;
 			}
 		}
