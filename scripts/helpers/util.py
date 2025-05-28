@@ -14,9 +14,6 @@ def is_valid_slug(slug):
 def str_to_identifier(s):
     if not s:
         return "_"
-    # Identifiers can't start with a number
-    if s[0].isdigit():
-        s = "_" + s
     # Capitalize first letter
     s = s.title()
     # Replace + with P
@@ -29,6 +26,9 @@ def str_to_identifier(s):
     s = re.sub(r' ', '', s)
     # Replace other special characters with underscore
     s = re.sub(r'\W', '_', s)
+    # Identifiers can't start with a number
+    if s[0].isdigit():
+        s = "_" + s
     return s
 
 
