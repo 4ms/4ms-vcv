@@ -53,3 +53,35 @@ include $(RACK_DIR)/plugin.mk
 
 tests:
 	@$(MAKE) --no-print-directory -f tests/Makefile
+
+
+# 
+# Generate SVGs, info headers
+#
+
+BRAND_SLUG := 4ms/fp
+
+INFO_SVGS := $(notdir $(wildcard lib/CoreModules/4ms/svg/*_info.svg))
+MODULES := $(INFO_SVGS:_info.svg=)
+VCV_SVGS := $(addsuffix _artwork.svg,$(addprefix res/modules/,$(MODULES)))
+INFO_HEADERS := $(addsuffix _info.hh,$(addprefix lib/CoreModules/4ms/info/,$(MODULES)))
+
+# Call this if an info.svg file is updated
+debug:
+	$(info INFO SVGS: $(INFO_SVGS))
+	$(info MODULES: $(MODULES))
+	$(info VCV_SVGS: $(VCV_SVGS))
+	$(info INFO_HEADERS: $(INFO_HEADERS))
+
+update-images: vcv-svgs info-headers 
+
+vcv-svgs: $(VCV_SVGS)
+
+info-headers: $(INFO_HEADERS)
+
+res/modules/%_artwork.svg: lib/CoreModules/4ms/svg/%_info.svg
+	scripts/vcv-artwork.py --input $< --output $@
+
+lib/CoreModules/4ms/info/%.hh: lib/CoreModules/4ms/svg/%.svg
+	scripts/createinfo.py --input $< --outdir $(PWD)/lib/CoreModules/4ms/info --brand $(BRAND_SLUG)
+
