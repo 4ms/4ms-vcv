@@ -1,4 +1,5 @@
 #include "CoreModules/elements/element_counter.hh"
+#include "CoreModules/elements/elements.hh"
 #include "vcv_creation_context.hh"
 
 namespace MetaModule::VCVImplementation::Module
@@ -6,15 +7,61 @@ namespace MetaModule::VCVImplementation::Module
 using Indices = ElementCount::Indices;
 
 inline void do_config_element(JackInput el, const Indices &indices, const ModuleContext_t &context) {
-	context.module->configInput(indices.input_idx, el.short_name.data());
+	std::string_view name = el.short_name;
+	if (name.ends_with(" In"))
+		name.remove_suffix(3);
+	else if (name.ends_with(" in"))
+		name.remove_suffix(3);
+	else if (name.ends_with(" Input"))
+		name.remove_suffix(6);
+	else if (name.ends_with(" input"))
+		name.remove_suffix(6);
+	else if (name.ends_with("In"))
+		name.remove_suffix(2);
+	else if (name.ends_with("Input"))
+		name.remove_suffix(5);
+
+	context.module->configInput(indices.input_idx, std::string{name});
 };
 
 inline void do_config_element(JackOutput el, const Indices &indices, const ModuleContext_t &context) {
-	context.module->configOutput(indices.output_idx, el.short_name.data());
+	std::string_view name = el.short_name;
+	if (name.ends_with(" Out"))
+		name.remove_suffix(4);
+	else if (name.ends_with(" out"))
+		name.remove_suffix(4);
+	else if (name.ends_with(" Output"))
+		name.remove_suffix(7);
+	else if (name.ends_with(" output"))
+		name.remove_suffix(7);
+	else if (name.ends_with("Out"))
+		name.remove_suffix(3);
+	else if (name.ends_with("Output"))
+		name.remove_suffix(6);
+
+	context.module->configOutput(indices.output_idx, std::string{name});
 };
 
 inline void do_config_element(Pot el, const Indices &indices, const ModuleContext_t &context) {
-	context.module->configParam(indices.param_idx, 0.f, 1.f, el.default_value, el.short_name.data());
+	float display_mult = el.display_mult;
+	std::string units{el.units};
+
+	if (el.min_value == 0 && el.max_value == 1 && el.units == "" && el.display_mult == 1) {
+		display_mult = 100;
+		units = "%";
+	}
+
+	el.default_value = el.default_value * (el.max_value - el.min_value) + el.min_value;
+
+	context.module->configParam(indices.param_idx,
+								el.min_value,
+								el.max_value,
+								el.default_value,
+								std::string{el.short_name},
+								units,
+								el.display_base,
+								display_mult,
+								el.display_offset);
 };
 
 inline void do_config_element(LightElement el, const Indices &indices, const ModuleContext_t &context) {
