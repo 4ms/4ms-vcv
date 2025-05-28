@@ -13,7 +13,7 @@ def createInfoFile(svgFilename, infoFilePath = None, brand = "4ms"):
     if infoFilePath == None:
         infoFilePath = os.getenv('METAMODULE_INFO_DIR')
         if infoFilePath is None:
-            infoFilePath = pathFromHere("src/modules/info")
+            infoFilePath = pathFromHere("../lib/CoreModules/4ms/info")
 
     if os.path.isdir(infoFilePath) == False:
         # Try infoFilePath as a path relative to the dir containing svgFilename
@@ -72,6 +72,10 @@ def panel_to_components(tree):
     components['lights'] = []
     components['alt_params'] = []
 
+    components['legacy_knobs'] = [] #legacy only
+    components['legacy_switches'] = [] #legacy only
+    components['legacy_inputs'] = [] #legacy only
+    components['legacy_outputs'] = [] #legacy only
 
     all = components_group.findall(".//svg:*",ns)
 
@@ -119,6 +123,7 @@ def panel_to_components(tree):
 
 
         c['display_name'] = format_for_display(name)
+        c['legacy_enum_name'] = format_as_legacy_enum_item(name)
         c['enum_name'] = format_as_enum_item(name)
 
         # Get position
@@ -180,6 +185,7 @@ def panel_to_components(tree):
                 set_class_if_not_set(c, get_slider_class(c))
                 c['category'] = "Slider"
 
+            components['legacy_knobs'].append(c)
             components['params'].append(c)
 
         #Magenta: LED
@@ -191,30 +197,35 @@ def panel_to_components(tree):
         #Green: Input jack, analog (CV or audio): 
         elif color == '#00ff00':
             set_class_if_not_set(c, "AnalogJackInput4ms")
+            components['legacy_inputs'].append(c)
             components['jacks'].append(c)
             c['category'] = "In"
 
         #Light Green: Input jack, digital (gate or trig):
         elif color == '#80ff80':
             set_class_if_not_set(c, "GateJackInput4ms")
+            components['legacy_inputs'].append(c)
             components['jacks'].append(c)
             c['category'] = "In"
 
         #Blue: Output jack, analog (CV or audio)
         elif color == '#0000ff':
             set_class_if_not_set(c, "AnalogJackOutput4ms")
+            components['legacy_outputs'].append(c)
             components['jacks'].append(c)
             c['category'] = "Out"
 
         #Light Blue: Output jack, digital (gate or trig):
         elif color == '#8080ff':
             set_class_if_not_set(c, "GateJackOutput4ms")
+            components['legacy_outputs'].append(c)
             components['jacks'].append(c)
             c['category'] = "Out"
 
         #Deep Purple: Encodeer
         elif color == '#c000c0':
             set_class_if_not_set(c, get_encoder_class_from_radius(el.get('r')))
+            components['legacy_knobs'].append(c)
             components['params'].append(c)
             c['category'] = "Encoder"
 
@@ -223,12 +234,14 @@ def panel_to_components(tree):
             set_class_if_not_set(c, "OrangeButton")
             if default_val_int == 1:
                 c['default_val'] = "LatchingButton::State_t::DOWN"
+            components['legacy_switches'].append(c)
             components['params'].append(c)
             c['category'] = "Button"
 
         #Light Orange: Button - Momentary
         elif color == '#ffc000':
             set_class_if_not_set(c, "WhiteMomentary7mm")
+            components['legacy_switches'].append(c)
             components['params'].append(c)
             c['category'] = "Button"
 
@@ -237,6 +250,7 @@ def panel_to_components(tree):
             set_class_if_not_set(c, get_toggle2pos_class(c))
             if default_val_int == 0x81:
                 c['default_val'] = f"{c['class']}::State_t::" + ("RIGHT" if "Horiz" in c['class'] else "UP")
+            components['legacy_switches'].append(c)
             components['params'].append(c)
             c['category'] = "Switch"
 
@@ -247,6 +261,7 @@ def panel_to_components(tree):
                 c['default_val'] = f"{c['class']}::State_t::CENTER"
             elif default_val_int == 0x82:
                 c['default_val'] = f"{c['class']}::State_t::" + ("RIGHT" if "Horiz" in c['class'] else "UP")
+            components['legacy_switches'].append(c)
             components['params'].append(c)
             c['category'] = "Switch"
 
@@ -297,6 +312,11 @@ def panel_to_components(tree):
 
 
     # Sort components
+    components['legacy_knobs'].reverse()
+    components['legacy_switches'].reverse()
+    components['legacy_inputs'].reverse()
+    components['legacy_outputs'].reverse()
+
     components['params'].reverse()
     components['jacks'].reverse()
     components['lights'].reverse()
@@ -336,7 +356,7 @@ struct {slug}Info : ModuleInfoBase {{
     static constexpr std::string_view slug{{"{slug}"}};
     static constexpr std::string_view description{{"{components['ModuleName']}"}};
     static constexpr uint32_t width_hp = {components['HP']};
-    static constexpr std::string_view svg_filename{{"res/{slug}.svg"}};
+    static constexpr std::string_view svg_filename{{"res/modules/{slug}_artwork.svg"}};
     static constexpr std::string_view png_filename{{"{brand}/{slug}.png"}};
 
     using enum Coords;
@@ -346,6 +366,15 @@ struct {slug}Info : ModuleInfoBase {{
 
     enum class Elem {{{list_elem_names(components['elements'])}
     }};
+
+    // Legacy naming
+    {make_legacy_enum("Knob", components['legacy_knobs'])}
+    {make_legacy_enum("Switch", components['legacy_switches'])}
+    {make_legacy_enum("Input", components['legacy_inputs'])}
+    {make_legacy_enum("Output", components['legacy_outputs'])}
+    {make_legacy_enum("Led", components['lights'])}
+    {make_legacy_enum("AltParam", components['alt_params'])}
+
 }};
 }} // namespace MetaModule
 """
@@ -446,6 +475,37 @@ def list_elem_names(elems):
         source += f"""
         {name},"""
     return source
+
+def make_legacy_enum(item_prefix, elements):
+    if len(elements) == 0:
+        return ""
+    source = f"""
+    enum {{"""
+    i = 0
+    for k in elements:
+        source += f"""
+        {item_prefix}{k['legacy_enum_name']}, """
+        i = i + 1
+    if item_prefix == "Knob":
+           source += """
+        NumKnobs,"""
+    elif item_prefix == "Switch":
+           source += """
+        NumSwitches,"""
+    elif item_prefix == "Input":
+           source += """
+        NumInJacks,"""
+    elif item_prefix == "Output":
+           source += """
+        NumOutJacks,"""
+    elif item_prefix == "Led":
+           source += """
+        NumDiscreteLeds,"""
+
+    source += f"""
+    }};"""
+    return source
+
 
 
 if __name__ == "__main__":

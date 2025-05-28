@@ -11,7 +11,7 @@ def extractForVcv(svgFilename, artworkFilename = None, slug = ""):
     if artworkFilename == None:
         outputpath = os.getenv('METAMODULE_ARTWORK_DIR')
         if outputpath is None:
-            outputpath = pathFromHere("../../../res")
+            outputpath = pathFromHere("../res")
         artworkFilename = os.path.join(outputpath, slug + ".svg")
 
     logging.debug(f"reading from {svgFilename}, writing to {artworkFilename}")
