@@ -3,6 +3,7 @@
 #include "CoreModules/moduleFactory.hh"
 #include "comm/comm_module.hh"
 #include "util/base_concepts.hh"
+#include "util/overloaded.hh"
 #include "widgets/vcv_module_creator.hh"
 #include "widgets/vcv_widget_creator.hh"
 
@@ -87,15 +88,30 @@ struct GenericModule {
 		};
 
 		void appendContextMenu(rack::ui::Menu *menu) override {
-			MetaModule::VCVWidgetCreator<Info> creator(this, module);
+			bool hasAltParams = false;
+			for (auto const &element : Info::Elements) {
+				auto isAltParam = std::visit(overloaded{[](MetaModule::BaseElement const &) { return false; },
+														[](MetaModule::AltParamElement const &) {
+															return true;
+														}},
+											 element);
+				if (isAltParam) {
+					hasAltParams = true;
+					break;
+				}
+			}
 
-			// add single entry with submenu
-			// we need to forward the creator so the entry itself is able to create further menu items
-			auto altParamItem = new AltParamMenuTop(creator);
-			altParamItem->text = "Alt Parameters";
-			altParamItem->rightText = RIGHT_ARROW;
+			if (hasAltParams) {
+				MetaModule::VCVWidgetCreator<Info> creator(this, module);
 
-			menu->addChild(altParamItem);
+				// add single entry with submenu
+				// we need to forward the creator so the entry itself is able to create further menu items
+				auto altParamItem = new AltParamMenuTop(creator);
+				altParamItem->text = "Alt Parameters";
+				altParamItem->rightText = RIGHT_ARROW;
+
+				menu->addChild(altParamItem);
+			}
 		}
 	};
 };
