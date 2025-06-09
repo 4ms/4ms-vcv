@@ -22,13 +22,14 @@ endif
 CMAKE_BUILD ?= build
 cmake_rack_plugin := $(CMAKE_BUILD)/$(RACK_PLUGIN)
 
-$(info cmake_rack_plugin target is '$(cmake_rack_plugin)')
-
 # create empty plugin lib to skip the make target execution
-$(shell touch $(RACK_PLUGIN))
+# $(shell touch $(RACK_PLUGIN))
 
 # trigger CMake build when running `make dep`
 DEPS += $(cmake_rack_plugin)
+
+all: $(cmake_rack_plugin)
+	cmake --build $(CMAKE_BUILD)
 
 $(cmake_rack_plugin): CMakeLists.txt
 	$(CMAKE) -B $(CMAKE_BUILD) -DRACK_SDK_DIR=$(RACK_DIR) -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(CMAKE_BUILD)/dist $(EXTRA_CMAKE)
@@ -43,6 +44,7 @@ dist: rack_plugin res
 
 configure:
 	$(CMAKE) --fresh -B $(CMAKE_BUILD) -DRACK_SDK_DIR=$(RACK_DIR) -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(CMAKE_BUILD)/dist $(EXTRA_CMAKE)
+
 
 DISTRIBUTABLES += $(wildcard LICENSE*) res README.md 
 
