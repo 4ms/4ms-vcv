@@ -26,8 +26,7 @@ void PatchFileWriter::setPatchDesc(std::string patchDesc) {
 	pd.description = patchDesc.c_str();
 }
 
-void PatchFileWriter::setMidiSettings(MIDI::ModuleIds &ids, MIDI::Settings const &settings) {
-	midiModuleIds = ids;
+void PatchFileWriter::setMidiSettings(MIDI::Settings const &settings) {
 	midiSettings = settings;
 
 	// Handle MIDI CC->Knob maps
@@ -95,46 +94,37 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 		if (out_jack < 0 || in_jack < 0 || cable.sendingModuleId < 0 || cable.receivedModuleId < 0)
 			continue;
 
-		if (cable.sendingModuleId == midiModuleIds.midiCV &&
-			cable.receivedModuleId != midiSettings.CV.voctSplitModuleId &&
-			cable.receivedModuleId != midiSettings.CV.gateSplitModuleId &&
-			cable.receivedModuleId != midiSettings.CV.velSplitModuleId &&
-			cable.receivedModuleId != midiSettings.CV.aftSplitModuleId &&
-			cable.receivedModuleId != midiSettings.CV.retrigSplitModuleId)
-		{
-			mapMidiCVJack(cable, midiSettings.CV.midi_chan);
+		if (cable.sendingModuleId == midiSettings.CV.module_id) {
+			if (cable.sendingModuleId == midiSettings.CV.voctSplitModuleId) {
+				mapMidiCVPolySplitJack(cable, MidiMonoNoteJack, midiSettings.CV.midi_chan);
+
+			} else if (cable.sendingModuleId == midiSettings.CV.gateSplitModuleId) {
+				mapMidiCVPolySplitJack(cable, MidiMonoGateJack, midiSettings.CV.midi_chan);
+
+			} else if (cable.sendingModuleId == midiSettings.CV.velSplitModuleId) {
+				mapMidiCVPolySplitJack(cable, MidiMonoVelJack, midiSettings.CV.midi_chan);
+
+			} else if (cable.sendingModuleId == midiSettings.CV.aftSplitModuleId) {
+				mapMidiCVPolySplitJack(cable, MidiMonoAftertouchJack, midiSettings.CV.midi_chan);
+
+			} else if (cable.sendingModuleId == midiSettings.CV.retrigSplitModuleId) {
+				mapMidiCVPolySplitJack(cable, MidiMonoRetrigJack, midiSettings.CV.midi_chan);
+
+			} else {
+				mapMidiCVJack(cable, midiSettings.CV.midi_chan);
+			}
 			continue;
 
-		} else if (cable.sendingModuleId == midiModuleIds.midiGate) {
+		} else if (cable.sendingModuleId == midiSettings.gate.module_id) {
 			mapMidiGateJack(cable, midiSettings.gate.midi_chan);
 			continue;
 
-		} else if (cable.sendingModuleId == midiModuleIds.midiCC) {
+		} else if (cable.sendingModuleId == midiSettings.CCCV.module_id) {
 			mapMidiCCJack(cable, midiSettings.CCCV.midi_chan);
 			continue;
 
-		} else if (cable.sendingModuleId == midiModuleIds.midiMaps) {
+		} else if (cable.sendingModuleId == midiSettings.CCKnob.module_id) {
 			//MIDI Maps has no jacks!
-			continue;
-
-		} else if (cable.sendingModuleId == midiSettings.CV.voctSplitModuleId) {
-			mapMidiCVPolySplitJack(cable, MidiMonoNoteJack, midiSettings.CV.midi_chan);
-			continue;
-
-		} else if (cable.sendingModuleId == midiSettings.CV.gateSplitModuleId) {
-			mapMidiCVPolySplitJack(cable, MidiMonoGateJack, midiSettings.CV.midi_chan);
-			continue;
-
-		} else if (cable.sendingModuleId == midiSettings.CV.velSplitModuleId) {
-			mapMidiCVPolySplitJack(cable, MidiMonoVelJack, midiSettings.CV.midi_chan);
-			continue;
-
-		} else if (cable.sendingModuleId == midiSettings.CV.aftSplitModuleId) {
-			mapMidiCVPolySplitJack(cable, MidiMonoAftertouchJack, midiSettings.CV.midi_chan);
-			continue;
-
-		} else if (cable.sendingModuleId == midiSettings.CV.retrigSplitModuleId) {
-			mapMidiCVPolySplitJack(cable, MidiMonoRetrigJack, midiSettings.CV.midi_chan);
 			continue;
 
 		} else if (cable.sendingModuleId == hubModuleId) {
@@ -247,6 +237,7 @@ void PatchFileWriter::addKnobMaps(unsigned panelKnobId, unsigned knobSetId, cons
 			.module_id = idMap[m.moduleId],
 			.param_id = static_cast<uint16_t>(m.paramId),
 			.curve_type = 0,
+			.midi_chan = 0,
 			.min = m.range_min,
 			.max = m.range_max,
 			.alias_name = m.alias_name.c_str(),

@@ -1,6 +1,4 @@
 #include "mapping/midi_modules.hh"
-#include "mapping/JackMap.hh"
-#include "mapping/module_directory.hh"
 #include "patch/midi_def.hh"
 #include <optional>
 
@@ -16,25 +14,25 @@ void Modules::addMidiModule(rack::Module *module) {
 		auto read_settings = readMidiCVModule(module->id);
 		if (read_settings) {
 			settings.CV = read_settings.value();
-			moduleIds.midiCV = module->id;
+			settings.CV.module_id = module->id;
 		}
 	} else if (module->model->slug == "MIDI-Map") {
 		auto read_settings = readMidiMapModule(module->id);
 		if (read_settings) {
 			settings.CCKnob = read_settings.value();
-			moduleIds.midiMaps = module->id;
+			settings.CCKnob.module_id = module->id;
 		}
 	} else if (module->model->slug == "MIDITriggerToCVInterface") {
 		auto read_settings = readMidiGateModule(module->id);
 		if (read_settings) {
 			settings.gate = read_settings.value();
-			moduleIds.midiGate = module->id;
+			settings.gate.module_id = module->id;
 		}
 	} else if (module->model->slug == "MIDICCToCVInterface") {
 		auto read_settings = readMidiCCCVModule(module->id);
 		if (read_settings) {
 			settings.CCCV = read_settings.value();
-			moduleIds.midiCC = module->id;
+			settings.CCCV.module_id = module->id;
 		}
 	}
 }
@@ -44,7 +42,7 @@ void Modules::addPolySplitCable(rack::Cable *cable) {
 	auto out = cable->outputModule;
 	auto in = cable->inputModule;
 
-	if (out->getId() == moduleIds.midiCV && in->model->slug == "Split") {
+	if (out->getId() == settings.CV.module_id && in->model->slug == "Split") {
 		if (cable->outputId == CoreMidiJacks::VoctJack)
 			settings.CV.voctSplitModuleId = in->getId();
 

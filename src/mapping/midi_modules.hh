@@ -6,14 +6,8 @@
 namespace MetaModule::MIDI
 {
 
-struct ModuleIds {
-	int64_t midiCV = -1;
-	int64_t midiMaps = -1;
-	int64_t midiGate = -1;
-	int64_t midiCC = -1;
-};
-
 struct MidiCVSettings {
+	int64_t module_id = -1;
 	float pitchwheelRange = 1;
 	unsigned channels = 0;
 	unsigned midi_chan = 0;
@@ -43,6 +37,7 @@ enum CoreMidiJacks {
 };
 
 struct MidiGateSettings {
+	int64_t module_id = -1;
 	std::array<int8_t, 128> notes{};
 	bool velocity_mode = false;
 	bool mpe_mode = false;
@@ -50,6 +45,7 @@ struct MidiGateSettings {
 };
 
 struct MidiCCCVSettings {
+	int64_t module_id = -1;
 	std::array<int8_t, 128> CCnums{};
 	std::array<int8_t, 128> values{};
 	bool smooth = false;
@@ -65,21 +61,21 @@ struct CCKnobMap {
 };
 
 struct MidiCCKnobSettings {
+	int64_t module_id = -1;
 	std::array<CCKnobMap, 128> ccs{};
 	bool smooth = false;
 	uint8_t midi_chan = 0;
 };
 
 struct Settings {
-	MidiCVSettings CV;
-	MidiGateSettings gate;
-	MidiCCCVSettings CCCV;
-	MidiCCKnobSettings CCKnob;
+	MidiCVSettings CV;		   // aka MIDI-CV, MIDIToCVInterface
+	MidiGateSettings gate;	   // aka MIDI-Gate, MIDITriggerToCVInterface
+	MidiCCCVSettings CCCV;	   // aka MIDICCToCVInterface
+	MidiCCKnobSettings CCKnob; // aka MIDI-Map
 };
 
 struct Modules {
 	Settings settings;
-	ModuleIds moduleIds;
 
 	void addMidiModule(rack::Module *module);
 	void addPolySplitCable(rack::Cable *cable);

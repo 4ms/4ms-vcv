@@ -9,7 +9,6 @@
 #include "mapping/midi_modules.hh"
 #include "mapping/module_directory.hh"
 #include "mapping/patch_writer.hh"
-#include "patch/midi_def.hh"
 #include "plugin.hh"
 #include <fstream>
 #include <rack.hpp>
@@ -161,7 +160,7 @@ struct VCVPatchFileWriter {
 		}
 
 		PatchFileWriter pw{moduleData, hubModuleId};
-		pw.setMidiSettings(midimodules.moduleIds, midimodules.settings);
+		pw.setMidiSettings(midimodules.settings);
 		pw.setPatchName(patchName);
 		pw.setPatchDesc(patchDesc);
 		pw.setExpanders(expanders);

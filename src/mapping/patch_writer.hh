@@ -23,7 +23,7 @@ public:
 	void setPatchDesc(std::string patchDesc);
 	void setCableList(std::vector<CableMap> &cables);
 	void setParamList(std::vector<ParamMap> &params);
-	void setMidiSettings(MIDI::ModuleIds &ids, MIDI::Settings const &settings);
+	void setMidiSettings(MIDI::Settings const &settings);
 	void setExpanders(ExpanderMappings const &exp);
 	void addModuleStateJson(rack::Module *module);
 
@@ -49,7 +49,6 @@ private:
 	PatchData pd;
 	int64_t hubModuleId = -1;
 
-	MIDI::ModuleIds midiModuleIds;
 	MIDI::Settings midiSettings;
 
 	ExpanderMappings expanders;
