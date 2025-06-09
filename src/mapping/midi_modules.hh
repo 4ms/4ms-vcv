@@ -68,10 +68,10 @@ struct MidiCCKnobSettings {
 };
 
 struct Settings {
-	MidiCVSettings CV;		   // aka MIDI-CV, MIDIToCVInterface
-	MidiGateSettings gate;	   // aka MIDI-Gate, MIDITriggerToCVInterface
-	MidiCCCVSettings CCCV;	   // aka MIDICCToCVInterface
-	MidiCCKnobSettings CCKnob; // aka MIDI-Map
+	std::vector<MidiCVSettings> CV;			// aka MIDI-CV, MIDIToCVInterface
+	std::vector<MidiGateSettings> gate;		// aka MIDI-Gate, MIDITriggerToCVInterface
+	std::vector<MidiCCCVSettings> CCCV;		// aka MIDICCToCVInterface
+	std::vector<MidiCCKnobSettings> CCKnob; // aka MIDI-Map
 };
 
 struct Modules {
