@@ -102,7 +102,7 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 			cable.receivedModuleId != midiSettings.CV.aftSplitModuleId &&
 			cable.receivedModuleId != midiSettings.CV.retrigSplitModuleId)
 		{
-			mapMidiCVJack(cable);
+			mapMidiCVJack(cable, midiSettings.CV.midi_chan);
 			continue;
 
 		} else if (cable.sendingModuleId == midiModuleIds.midiGate) {
@@ -339,7 +339,7 @@ void PatchFileWriter::mapMidiCVPolySplitJack(CableMap &cable, unsigned monoJackI
 	mapInputJack(cable);
 }
 
-void PatchFileWriter::mapMidiCVJack(CableMap &cable) {
+void PatchFileWriter::mapMidiCVJack(CableMap &cable, uint32_t midi_chan) {
 	using enum MIDI::CoreMidiJacks;
 
 	if (cable.sendingJackId == VoctJack)
@@ -382,6 +382,7 @@ void PatchFileWriter::mapMidiCVJack(CableMap &cable) {
 	else if (cable.sendingJackId == ContJack)
 		cable.sendingJackId = MidiContinueJack;
 
+	cable.sendingJackId = MetaModule::Midi::set_midi_channel(cable.sendingJackId, midi_chan);
 	mapInputJack(cable);
 }
 

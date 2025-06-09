@@ -38,7 +38,7 @@ public:
 private:
 	void mapInputJack(CableMap &map);
 	void mapOutputJack(CableMap &map);
-	void mapMidiCVJack(CableMap &map);
+	void mapMidiCVJack(CableMap &map, uint32_t midi_chan);
 	void mapMidiGateJack(CableMap &map, unsigned midi_chan);
 	void mapMidiCCJack(CableMap &cable, unsigned midi_chan);
 
