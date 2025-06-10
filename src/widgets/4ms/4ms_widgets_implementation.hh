@@ -12,12 +12,15 @@ static constexpr float Fix4msScaling = 75.f / 25.4f;
 ////// Helpers
 
 template<typename WidgetT, typename LightT = void>
-void create_4ms_param(float x_mm, float y_mm, const Indices &indices, const WidgetContext_t &context) {
+WidgetT *create_4ms_param(float x_mm, float y_mm, const Indices &indices, const WidgetContext_t &context) {
 	auto ctr_pos = rack::Vec(x_mm, y_mm).mult(Fix4msScaling);
-	context.module_widget->addParam(rack::createParamCentered<WidgetT>(ctr_pos, context.module, indices.param_idx));
+	auto widget = rack::createParamCentered<WidgetT>(ctr_pos, context.module, indices.param_idx);
+	context.module_widget->addParam(widget);
 
 	if constexpr (!std::is_same_v<LightT, void>)
 		context.module_widget->addChild(rack::createLightCentered<LightT>(ctr_pos, context.module, indices.light_idx));
+
+	return widget;
 }
 
 template<typename WidgetT, typename LightT = void>
@@ -30,14 +33,29 @@ void create_4ms_light_param(float x_mm, float y_mm, const Indices &indices, cons
 /////////////// Params
 
 inline void do_create(Knob el, const Indices &indices, const WidgetContext_t &context) {
-	if (el.image.ends_with("knob9mm_x.png"))
-		create_4ms_param<Small9mmKnob>(el.x_mm, el.y_mm, indices, context);
+	auto degrees_to_radians = [](float degrees) {
+		return M_PI * degrees / 180.f;
+	};
+
+	if (el.image.ends_with("knob9mm_x.png")) {
+		auto knob = create_4ms_param<Small9mmKnob>(el.x_mm, el.y_mm, indices, context);
+		knob->minAngle = degrees_to_radians(el.min_angle);
+		knob->maxAngle = degrees_to_radians(el.max_angle);
+	}
 
 	else if (el.image.ends_with("knob_x.png"))
-		create_4ms_param<Davies1900hBlackKnob4ms>(el.x_mm, el.y_mm, indices, context);
+	{
+		auto knob = create_4ms_param<Davies1900hBlackKnob4ms>(el.x_mm, el.y_mm, indices, context);
+		knob->minAngle = degrees_to_radians(el.min_angle);
+		knob->maxAngle = degrees_to_radians(el.max_angle);
+	}
 
 	else if (el.image.ends_with("knob_large_x.png"))
-		create_4ms_param<DaviesLarge4ms>(el.x_mm, el.y_mm, indices, context);
+	{
+		auto knob = create_4ms_param<DaviesLarge4ms>(el.x_mm, el.y_mm, indices, context);
+		knob->minAngle = degrees_to_radians(el.min_angle);
+		knob->maxAngle = degrees_to_radians(el.max_angle);
+	}
 }
 
 inline void do_create(Slider el, const Indices &indices, const WidgetContext_t &context) {
