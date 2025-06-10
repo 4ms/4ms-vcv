@@ -2,6 +2,7 @@
 #include "CoreModules/elements/element_counter.hh"
 #include "CoreModules/elements/elements.hh"
 #include "console/pr_dbg.hh"
+#include "hub/hub_jack_label.hh"
 #include "hub/hub_module_widget.hh"
 #include "hub/jack_alias_menu.hh"
 #include "widgets/4ms/4ms_widgets.hh"
@@ -11,7 +12,7 @@ namespace MetaModule
 
 struct HubWidgetContext {
 	MetaModuleHubWidget *module_widget;
-	rack::Module *module;
+	MetaModuleHubBase *module;
 };
 
 namespace HubWidgetImpl
@@ -50,6 +51,11 @@ inline void do_create(JackInput el, const ElementCount::Indices &idx, const HubW
 		p->alias = &ctx.module_widget->hubModule->jack_alias.out[idx.input_idx];
 	}
 	ctx.module_widget->addInput(p);
+
+	auto label = new HubJackLabel{ctx.module, idx.input_idx, HubJackLabel::JackDir::Input};
+	label->box.size = rack::mm2px({16, 4});
+	label->box.pos = rack::mm2px({el.x_mm, el.y_mm + 7.5f}) - label->box.size.div(2);
+	ctx.module_widget->addChild(label);
 }
 
 inline void do_create(JackOutput el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
@@ -58,6 +64,11 @@ inline void do_create(JackOutput el, const ElementCount::Indices &idx, const Hub
 		p->alias = &ctx.module_widget->hubModule->jack_alias.in[idx.output_idx];
 	}
 	ctx.module_widget->addOutput(p);
+
+	auto label = new HubJackLabel{ctx.module, idx.output_idx, HubJackLabel::JackDir::Output};
+	label->box.size = rack::mm2px({16, 4});
+	label->box.pos = rack::mm2px({el.x_mm, el.y_mm + 7.5f}) - label->box.size.div(2);
+	ctx.module_widget->addChild(label);
 }
 
 inline void do_create(LatchingButton el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
@@ -70,7 +81,7 @@ inline void do_create(LatchingButton el, const ElementCount::Indices &idx, const
 template<typename INFO>
 struct HubWidgetCreator {
 
-	HubWidgetCreator(MetaModuleHubWidget *module_widget, rack::Module *module)
+	HubWidgetCreator(MetaModuleHubWidget *module_widget, MetaModuleHubBase *module)
 		: context{module_widget, module} {
 	}
 
