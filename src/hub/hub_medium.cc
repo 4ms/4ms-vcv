@@ -3,7 +3,6 @@
 #include "flatbuffers/encode.hh"
 #include "hub/buttons.hh"
 #include "hub/hub_elements.hh"
-#include "hub/jack_alias_menu.hh"
 #include "hub/knob_set_buttons.hh"
 #include "hub_module_widget.hh"
 #include "mapping/vcv_patch_file_writer.hh"
@@ -253,8 +252,12 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		patchName->text = rack::system::getStem(filename);
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
-		auto yml = PatchFileWriter::createPatchYml(
-			hubModule->id, hubModule->mappings, hubModule->jack_alias, patchName->text, patchDesc->text, hubModule->mappingMode);
+		auto yml = PatchFileWriter::createPatchYml(hubModule->id,
+												   hubModule->mappings,
+												   hubModule->jack_alias,
+												   patchName->text,
+												   patchDesc->text,
+												   hubModule->mappingMode);
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -267,8 +270,12 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		}
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
-		auto yml = PatchFileWriter::createPatchYml(
-			hubModule->id, hubModule->mappings, hubModule->jack_alias, patchName->text, patchDesc->text, hubModule->mappingMode);
+		auto yml = PatchFileWriter::createPatchYml(hubModule->id,
+												   hubModule->mappings,
+												   hubModule->jack_alias,
+												   patchName->text,
+												   patchDesc->text,
+												   hubModule->mappingMode);
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -345,11 +352,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		menu->addChild(new MenuSeparator());
 
-		auto jacks = std::array{
-			std::make_tuple(std::span{hubModule->jack_alias.in.begin(), PanelDef::NumAudioIn}, "Input "),
-			std::make_tuple(std::span{hubModule->jack_alias.in.begin() + PanelDef::NumAudioIn, PanelDef::NumGateIn},
-							"Gate "),
-			std::make_tuple(std::span{hubModule->jack_alias.out}, "Output ")};
+		auto jacks =
+			std::vector<JackMenuCategories>{{"Input ", MetaModuleHubBase::JackDir::In, {0, 1, 2, 3, 4, 5}},
+											{"Gate ", MetaModuleHubBase::JackDir::In, {6, 7}},
+											{"Output ", MetaModuleHubBase::JackDir::Out, {0, 1, 2, 3, 4, 5, 6, 7}}};
 		menu->addChild(createAliasSubmenu(jacks));
 
 		menu->addChild(new MenuSeparator());

@@ -50,24 +50,28 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 	}
 
 protected:
-	static rack::ui::MenuItem *createAliasSubmenu(std::span<std::tuple<std::span<std::string>, const char *>> jacks_) {
+	struct JackMenuCategories {
+		std::string category_name;
+		MetaModuleHubBase::JackDir dir;
+		std::vector<unsigned> jack_indices;
+	};
+
+	rack::ui::MenuItem *createAliasSubmenu(std::vector<JackMenuCategories> const &jack_categories) {
 		using namespace rack;
 
-		std::vector<std::remove_reference_t<decltype(jacks_[0])>> jacks;
-		jacks.insert(jacks.begin(), jacks_.begin(), jacks_.end());
-
-		return createSubmenuItem("Jack Aliases", "", [jacks](Menu *menu) {
-			for (auto &j : jacks) {
+		return createSubmenuItem("Jack Aliases", "", [=, this](Menu *menu) {
+			for (auto jack_cat : jack_categories) {
 				menu->addChild(new MenuSeparator());
-				menu->addChild(createMenuLabel<MenuLabel>(std::get<1>(j)));
-				for (auto jack_idx = 0u; jack_idx < std::get<0>(j).size(); jack_idx++) {
+				menu->addChild(createMenuLabel<MenuLabel>(jack_cat.category_name));
+				for (auto i = 0u; i < jack_cat.jack_indices.size(); i++) {
+					auto jack_idx = jack_cat.jack_indices[i];
 					menu->addChild(new MenuSeparator());
-					menu->addChild(
-						new JackNameMenuItem{[j](unsigned idx, std::string const &text) { std::get<0>(j)[idx] = text; },
-											 jack_idx,
-											 std::get<1>(j) + std::to_string(jack_idx + 1),
-											 std::get<0>(j)[jack_idx],
-											 kMaxJackAliasChars});
+					menu->addChild(new JackNameMenuItem{[=, this](unsigned, std::string const &text) {
+															hubModule->set_jack_alias(jack_cat.dir, jack_idx, text);
+														},
+														jack_cat.category_name + std::to_string(i + 1),
+														hubModule->get_jack_alias(jack_cat.dir, jack_idx),
+														kMaxJackAliasChars});
 				}
 			}
 		});

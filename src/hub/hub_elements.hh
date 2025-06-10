@@ -36,8 +36,10 @@ struct HubPort : rack::PJ301MPort {
 	void appendContextMenu(rack::ui::Menu *menu) override {
 		using namespace rack;
 		menu->addChild(new MenuSeparator());
-		menu->addChild(new JackNameMenuItem{[this](unsigned _, std::string const &text) { *alias = text; },
-											{},
+		auto label = new MenuLabel;
+		label->text = "Alias:";
+		menu->addChild(label);
+		menu->addChild(new JackNameMenuItem{[this](unsigned, std::string const &text) { *alias = text; },
 											"alias",
 											*alias,
 											MetaModuleHubWidget::kMaxJackAliasChars});

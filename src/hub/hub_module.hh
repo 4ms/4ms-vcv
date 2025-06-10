@@ -183,6 +183,35 @@ struct MetaModuleHubBase : public rack::Module {
 		mappings.setActiveKnobSetIdx(0);
 		mappings.refreshParamHandles(ShouldLock::No);
 	}
+
+	enum class JackDir { In, Out };
+
+	void set_jack_alias(JackDir dir, unsigned idx, std::string_view text) {
+		if (dir == JackDir::In) {
+			if (idx < jack_alias.in.size()) {
+				jack_alias.in[idx] = text;
+				inputInfos[idx]->name = text;
+			}
+		} else {
+			if (idx < jack_alias.out.size()) {
+				jack_alias.out[idx] = text;
+				outputInfos[idx]->name = text;
+			}
+		}
+	}
+
+	std::string_view get_jack_alias(JackDir dir, unsigned idx) {
+		if (dir == JackDir::In) {
+			if (idx < jack_alias.in.size())
+				return jack_alias.in[idx];
+
+		} else if (dir == JackDir::Out) {
+			if (idx < jack_alias.out.size())
+				return jack_alias.out[idx];
+		}
+
+		return "";
+	}
 };
 
 } // namespace MetaModule
