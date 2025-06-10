@@ -48,14 +48,21 @@ void PatchFileWriter::setMidiSettings(MIDI::Settings const &settings) {
 			}
 		}
 	}
-	if (pd.midi_maps.set.size())
+	if (pd.midi_maps.set.size()) {
 		pd.midi_maps.name = "MIDI";
+	}
 
-	// TODO: make these per MIDI channel
-	pd.midi_poly_num = std::ranges::max_element(midiSettings.CV, {}, &MIDI::MidiCVSettings::channels)->channels;
-	pd.midi_poly_num = std::min(pd.midi_poly_num, 8u);
-	pd.midi_poly_mode = midiSettings.CV[0].polyMode;
-	pd.midi_pitchwheel_range = midiSettings.CV[0].pitchwheelRange;
+	if (midiSettings.CV.size()) {
+		// TODO: make these per MIDI channel
+		pd.midi_poly_num = std::ranges::max_element(midiSettings.CV, {}, &MIDI::MidiCVSettings::channels)->channels;
+		pd.midi_poly_num = std::min(pd.midi_poly_num, 8u);
+		pd.midi_poly_mode = midiSettings.CV[0].polyMode;
+		pd.midi_pitchwheel_range = midiSettings.CV[0].pitchwheelRange;
+	} else {
+		pd.midi_poly_num = 1;
+		pd.midi_poly_mode = PolyMode::Rotate;
+		pd.midi_pitchwheel_range = -1;
+	}
 }
 
 void PatchFileWriter::setExpanders(ExpanderMappings const &exp) {
