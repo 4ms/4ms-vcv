@@ -1,10 +1,10 @@
 #pragma once
 #include "CoreModules/elements/element_counter.hh"
-#include "base_modules_implemenation.hh"
+#include "config_element_impl.hh"
 #include "console/pr_dbg.hh"
 #include "vcv_creation_context.hh"
 
-namespace MetaModule::VCVImplementation::Module
+namespace MetaModule
 {
 
 inline void do_config_element(BaseElement el, const ElementCount::Indices &, const ModuleContext_t &) {
@@ -12,15 +12,11 @@ inline void do_config_element(BaseElement el, const ElementCount::Indices &, con
 	// FIXME: This should probably be replaced with more specific fallbacks
 	pr_dbg("Element not configured (%.*s)\n", (int)el.short_name.size(), el.short_name.data());
 };
-} // namespace MetaModule::VCVImplementation::Module
-
-namespace MetaModule
-{
 
 template<typename INFO>
-struct VCVModuleParamCreator {
+struct ConfigElement {
 
-	VCVModuleParamCreator(rack::Module *module)
+	ConfigElement(rack::Module *module)
 		: context{module} {
 	}
 
@@ -28,7 +24,7 @@ struct VCVModuleParamCreator {
 	void config_element(const T &element) {
 		// forward to implementation together with current context
 		if (auto indices = ElementCount::get_indices<INFO>(element)) {
-			VCVImplementation::Module::do_config_element(element, indices.value(), context);
+			do_config_element(element, indices.value(), context);
 		}
 	}
 

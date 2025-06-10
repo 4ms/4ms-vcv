@@ -3,7 +3,7 @@
 #include "CoreModules/moduleFactory.hh"
 #include "comm/comm_module.hh"
 #include "util/base_concepts.hh"
-#include "widgets/vcv_module_creator.hh"
+#include "widgets/config_element.hh"
 #include "widgets/vcv_widget_creator.hh"
 
 template<Derived<MetaModule::ModuleInfoBase> Info>
@@ -22,8 +22,7 @@ struct GenericModule {
 			configComm(cnt.num_params, cnt.num_inputs, cnt.num_outputs, cnt.num_lights);
 
 			// Configure elements with VCV
-			// this includes alt parameters
-			MetaModule::VCVModuleParamCreator<Info> creator{this};
+			MetaModule::ConfigElement<Info> creator{this};
 			for (auto &element : Info::Elements) {
 				std::visit([&creator](auto &el) { creator.config_element(el); }, element);
 			}

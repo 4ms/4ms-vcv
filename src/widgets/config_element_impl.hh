@@ -2,8 +2,9 @@
 #include "CoreModules/elements/elements.hh"
 #include "vcv_creation_context.hh"
 
-namespace MetaModule::VCVImplementation::Module
+namespace MetaModule
 {
+
 using Indices = ElementCount::Indices;
 
 inline void do_config_element(JackInput el, const Indices &indices, const ModuleContext_t &context) {
@@ -100,4 +101,4 @@ inline void do_config_element(AltParamChoice el, const Indices &indices, const M
 	context.module->configParam(indices.param_idx, 0, el.num_pos - 1, el.default_value, el.short_name.data());
 }
 
-} // namespace MetaModule::VCVImplementation::Module
+} // namespace MetaModule
