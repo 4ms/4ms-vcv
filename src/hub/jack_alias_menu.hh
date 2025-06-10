@@ -18,7 +18,7 @@ struct JackNameMenuItem : rack::widget::Widget {
 		box.size = {250, BND_WIDGET_HEIGHT};
 		txt = new KnobSetNameTextBox{std::move(onChangeCallback), knobSetIdx, max_chars};
 		txt->box.pos = {10, 0};
-		txt->box.size = {230, BND_WIDGET_HEIGHT};
+		txt->box.size = {190, BND_WIDGET_HEIGHT};
 		txt->placeholder = placeholder;
 		txt->text = initialText;
 		addChild(txt);
