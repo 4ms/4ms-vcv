@@ -15,14 +15,18 @@ void HubJackLabel::draw(const DrawArgs &args) {
 
 	if (name.length()) {
 		nvgBeginPath(args.vg);
-		nvgFillColor(args.vg, nvgRGB(0x23, 0x1f, 0x20));
-		nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+
+		float bounds[4];
+		nvgTextAlign(args.vg, NVGalign::NVG_ALIGN_CENTER | NVGalign::NVG_ALIGN_MIDDLE);
+		nvgFontSize(args.vg, 7.5f);
+		nvgTextBounds(args.vg, box.size.x / 2.f, box.size.y / 2.f, name.c_str(), NULL, bounds);
+
+		nvgFillColor(args.vg, nvgRGBA(0x23, 0x1f, 0x20, 0xff));
+		nvgRect(args.vg, bounds[0] - 2, bounds[1] - 2, bounds[2] + 2, bounds[3] + 2);
 		nvgFill(args.vg);
 
-		nvgBeginPath(args.vg);
 		nvgTextAlign(args.vg, NVGalign::NVG_ALIGN_CENTER | NVGalign::NVG_ALIGN_MIDDLE);
-		nvgFillColor(args.vg, nvgRGB(0xbb, 0xbb, 0xbb));
-		nvgFontSize(args.vg, 9.0f);
+		nvgFillColor(args.vg, nvgRGB(0xff, 0xff, 0xff));
 		nvgText(args.vg, box.size.x / 2.f, box.size.y / 2.f, name.c_str(), NULL);
 	}
 }

@@ -46,6 +46,7 @@ struct HubPort : rack::PJ301MPort {
 };
 
 inline void do_create(JackInput el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
+	// These are Input jacks as seen by VCV, but they are called "Out 1", "Out 2", etc
 	auto p = rack::createInputCentered<HubPort>(rack::mm2px({el.x_mm, el.y_mm}), ctx.module, idx.input_idx);
 	if (ctx.module_widget->hubModule) {
 		p->alias = &ctx.module_widget->hubModule->jack_alias.out[idx.input_idx];
@@ -53,12 +54,13 @@ inline void do_create(JackInput el, const ElementCount::Indices &idx, const HubW
 	ctx.module_widget->addInput(p);
 
 	auto label = new HubJackLabel{ctx.module, idx.input_idx, HubJackLabel::JackDir::Input};
-	label->box.size = rack::mm2px({16, 4});
+	label->box.size = rack::mm2px({14, 4});
 	label->box.pos = rack::mm2px({el.x_mm, el.y_mm + 7.5f}) - label->box.size.div(2);
 	ctx.module_widget->addChild(label);
 }
 
 inline void do_create(JackOutput el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
+	// These are Output jacks as seen by VCV, but they are called "In 1", "In 2", etc
 	auto p = rack::createOutputCentered<HubPort>(rack::mm2px({el.x_mm, el.y_mm}), ctx.module, idx.output_idx);
 	if (ctx.module_widget->hubModule) {
 		p->alias = &ctx.module_widget->hubModule->jack_alias.in[idx.output_idx];
@@ -66,7 +68,7 @@ inline void do_create(JackOutput el, const ElementCount::Indices &idx, const Hub
 	ctx.module_widget->addOutput(p);
 
 	auto label = new HubJackLabel{ctx.module, idx.output_idx, HubJackLabel::JackDir::Output};
-	label->box.size = rack::mm2px({16, 4});
+	label->box.size = rack::mm2px({14, 4});
 	label->box.pos = rack::mm2px({el.x_mm, el.y_mm + 7.5f}) - label->box.size.div(2);
 	ctx.module_widget->addChild(label);
 }
