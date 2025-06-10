@@ -1,6 +1,4 @@
 #include "mapping/midi_modules.hh"
-#include "mapping/JackMap.hh"
-#include "mapping/module_directory.hh"
 #include "patch/midi_def.hh"
 #include <optional>
 
@@ -15,26 +13,22 @@ void Modules::addMidiModule(rack::Module *module) {
 	if (module->model->slug == "MIDIToCVInterface") {
 		auto read_settings = readMidiCVModule(module->id);
 		if (read_settings) {
-			settings.CV = read_settings.value();
-			moduleIds.midiCV = module->id;
+			settings.CV.push_back(read_settings.value());
 		}
 	} else if (module->model->slug == "MIDI-Map") {
 		auto read_settings = readMidiMapModule(module->id);
 		if (read_settings) {
-			settings.CCKnob = read_settings.value();
-			moduleIds.midiMaps = module->id;
+			settings.CCKnob.push_back(read_settings.value());
 		}
 	} else if (module->model->slug == "MIDITriggerToCVInterface") {
 		auto read_settings = readMidiGateModule(module->id);
 		if (read_settings) {
-			settings.gate = read_settings.value();
-			moduleIds.midiGate = module->id;
+			settings.gate.push_back(read_settings.value());
 		}
 	} else if (module->model->slug == "MIDICCToCVInterface") {
 		auto read_settings = readMidiCCCVModule(module->id);
 		if (read_settings) {
-			settings.CCCV = read_settings.value();
-			moduleIds.midiCC = module->id;
+			settings.CCCV.push_back(read_settings.value());
 		}
 	}
 }
@@ -44,30 +38,36 @@ void Modules::addPolySplitCable(rack::Cable *cable) {
 	auto out = cable->outputModule;
 	auto in = cable->inputModule;
 
-	if (out->getId() == moduleIds.midiCV && in->model->slug == "Split") {
-		if (cable->outputId == CoreMidiJacks::VoctJack)
-			settings.CV.voctSplitModuleId = in->getId();
+	for (auto &midicv_module : settings.CV) {
+		if (out->getId() == midicv_module.module_id && in->model->slug == "Split") {
+			if (cable->outputId == CoreMidiJacks::VoctJack)
+				midicv_module.voctSplitModuleId = in->getId();
 
-		else if (cable->outputId == CoreMidiJacks::GateJack)
-			settings.CV.gateSplitModuleId = in->getId();
+			else if (cable->outputId == CoreMidiJacks::GateJack)
+				midicv_module.gateSplitModuleId = in->getId();
 
-		else if (cable->outputId == CoreMidiJacks::VelJack)
-			settings.CV.velSplitModuleId = in->getId();
+			else if (cable->outputId == CoreMidiJacks::VelJack)
+				midicv_module.velSplitModuleId = in->getId();
 
-		else if (cable->outputId == CoreMidiJacks::AftJack)
-			settings.CV.aftSplitModuleId = in->getId();
+			else if (cable->outputId == CoreMidiJacks::AftJack)
+				midicv_module.aftSplitModuleId = in->getId();
 
-		else if (cable->outputId == CoreMidiJacks::RetrigJack)
-			settings.CV.retrigSplitModuleId = in->getId();
+			else if (cable->outputId == CoreMidiJacks::RetrigJack)
+				midicv_module.retrigSplitModuleId = in->getId();
+		}
 	}
 }
 
 bool Modules::isPolySplitModule(rack::Module *module) {
 	auto id = module->getId();
 
-	return (id > 0) && ((id == settings.CV.voctSplitModuleId) || (id == settings.CV.gateSplitModuleId) ||
-						(id == settings.CV.velSplitModuleId) || (id == settings.CV.aftSplitModuleId) ||
-						(id == settings.CV.retrigSplitModuleId));
+	for (auto const &midicv_module : settings.CV) {
+		if ((id == midicv_module.voctSplitModuleId) || (id == midicv_module.gateSplitModuleId) ||
+			(id == midicv_module.velSplitModuleId) || (id == midicv_module.aftSplitModuleId) ||
+			(id == midicv_module.retrigSplitModuleId))
+			return true;
+	}
+	return false;
 }
 
 unsigned clockDivToMidiClockJack(unsigned clockDiv) {
@@ -123,6 +123,8 @@ std::optional<MidiCVSettings> readMidiCVModule(int64_t module_id) {
 
 	settings.midi_chan = readMidiChannelJson(rootJ);
 
+	settings.module_id = module_id;
+
 	json_decref(rootJ);
 	return settings;
 }
@@ -158,6 +160,8 @@ std::optional<MidiGateSettings> readMidiGateModule(int64_t module_id) {
 	settings.mpe_mode = mpeModeJ ? json_boolean_value(mpeModeJ) : false;
 
 	settings.midi_chan = readMidiChannelJson(rootJ);
+
+	settings.module_id = module_id;
 
 	json_decref(rootJ);
 
@@ -200,6 +204,8 @@ std::optional<MidiCCCVSettings> readMidiCCCVModule(int64_t module_id) {
 	settings.lsb_mode = lsbModeJ ? json_boolean_value(lsbModeJ) : false;
 
 	settings.midi_chan = readMidiChannelJson(rootJ);
+
+	settings.module_id = module_id;
 
 	json_decref(rootJ);
 
@@ -245,6 +251,8 @@ std::optional<MidiCCKnobSettings> readMidiMapModule(int64_t module_id) {
 	settings.smooth = smoothJ ? json_boolean_value(smoothJ) : false;
 
 	settings.midi_chan = readMidiChannelJson(rootJ);
+
+	settings.module_id = module_id;
 
 	json_decref(rootJ);
 

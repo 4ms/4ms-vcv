@@ -12,6 +12,12 @@
 
 - Fix Wi-Fi URL being stored in patch file and overriding local settings
 
+- Don't show Alt Parameters menu item if it would be empty
+
+- Fix not exporting MIDI channel in patch file if no Split module was used
+
+- Allow multiple MIDI modules of the same kind in a patch. Mappings are merged (different channels can be used on each)
+
 ## v2.0.14
 
 - Knob alias name is removed if knob no longer has any mappings
