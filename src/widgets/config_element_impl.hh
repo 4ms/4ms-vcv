@@ -2,8 +2,9 @@
 #include "CoreModules/elements/elements.hh"
 #include "vcv_creation_context.hh"
 
-namespace MetaModule::VCVImplementation::Module
+namespace MetaModule
 {
+
 using Indices = ElementCount::Indices;
 
 inline void do_config_element(JackInput el, const Indices &indices, const ModuleContext_t &context) {
@@ -64,6 +65,26 @@ inline void do_config_element(Pot el, const Indices &indices, const ModuleContex
 								el.display_offset);
 };
 
+inline void do_config_element(KnobSnapped el, const Indices &indices, const ModuleContext_t &context) {
+
+	auto default_value = el.default_value * (el.num_pos - 1);
+
+	std::vector<std::string> labels;
+	labels.resize(el.num_pos);
+
+	auto num_pos_names = std::min<unsigned>(el.num_pos, el.pos_names.size());
+	for (auto i = 0u; i < num_pos_names; i++) {
+		auto &label = labels[i];
+		if (i < el.pos_names.size())
+			label = el.pos_names[i];
+		else
+			label = "(" + std::to_string(i + 1) + "/" + std::to_string(el.num_pos + 1) + ")";
+	}
+
+	context.module->configSwitch(
+		indices.param_idx, 0, el.num_pos - 1, default_value, std::string{el.short_name}, labels);
+};
+
 inline void do_config_element(LightElement el, const Indices &indices, const ModuleContext_t &context) {
 	context.module->configLight(indices.light_idx, el.short_name.data());
 };
@@ -100,4 +121,4 @@ inline void do_config_element(AltParamChoice el, const Indices &indices, const M
 	context.module->configParam(indices.param_idx, 0, el.num_pos - 1, el.default_value, el.short_name.data());
 }
 
-} // namespace MetaModule::VCVImplementation::Module
+} // namespace MetaModule

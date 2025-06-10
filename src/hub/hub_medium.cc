@@ -6,7 +6,7 @@
 #include "hub/knob_set_buttons.hh"
 #include "hub_module_widget.hh"
 #include "network/network.hh"
-#include "widgets/vcv_module_creator.hh"
+#include "widgets/config_element.hh"
 
 using namespace rack;
 
@@ -30,7 +30,7 @@ struct HubMedium : MetaModuleHubBase {
 		config(cnt.num_params + num_extra_params, cnt.num_inputs, cnt.num_outputs, cnt.num_lights);
 
 		// Configure elements with VCV
-		VCVModuleParamCreator<INFO> creator{this};
+		ConfigElement<INFO> creator{this};
 		for (auto &element : INFO::Elements) {
 			std::visit([&creator](auto &el) { creator.config_element(el); }, element);
 		}

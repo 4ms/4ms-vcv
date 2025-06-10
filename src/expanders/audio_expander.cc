@@ -2,7 +2,7 @@
 #include "CoreModules/hub/MMAudioExpander_info.hh"
 #include "hub/hub_elements.hh"
 #include "widgets/4ms/4ms_widgets.hh"
-#include "widgets/vcv_module_creator.hh"
+#include "widgets/config_element.hh"
 
 namespace MetaModule
 {
@@ -15,7 +15,7 @@ struct AudioExpanderModule : MetaModuleHubBase {
 		config(cnt.num_params, cnt.num_inputs, cnt.num_outputs, cnt.num_lights);
 
 		// Configure elements with VCV
-		VCVModuleParamCreator<Info> creator{this};
+		ConfigElement<Info> creator{this};
 		for (auto &element : Info::Elements) {
 			std::visit([&creator](auto &el) { creator.config_element(el); }, element);
 		}
