@@ -30,6 +30,7 @@ file(GLOB SOURCES
 	src/plugin.cc
 	src/expanders/audio_expander.cc
 	src/hub/hub_map_button.cc
+	src/hub/hub_jack_label.cc
 	src/hub/hub_medium.cc
 	src/hub/mm_blendish.cc
 	src/comm/comm_module.cc
