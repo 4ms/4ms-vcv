@@ -1,6 +1,6 @@
 # CHANGE LOG
 
-## v2.0.15 (in progress)
+## v2.0.15
 
 - Add "Include Modules from:" right-click menu option that allows including only certain modules in the exported patch file. 
   Thanks to @rjsmith.
@@ -17,6 +17,12 @@
 - Fix not exporting MIDI channel in patch file if no Split module was used
 
 - Allow multiple MIDI modules of the same kind in a patch. Mappings are merged (different channels can be used on each)
+
+- Update lots of parameter and jack labels:
+  - Add units and useful ranges
+  - All snapped knob position labels (e.g. QCD, PEG, ...)
+
+- Fix Drum module CV jacks not working, and envelope ranges not set correctly
 
 ## v2.0.14
 
