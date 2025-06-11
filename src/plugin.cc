@@ -27,6 +27,7 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelHubMedium);
 	p->addModel(modelKPLS);
 	p->addModel(modelL4);
+	p->addModel(modelLPG);
 	p->addModel(modelMNMX);
 	p->addModel(modelMPEG);
 	p->addModel(modelMultiLFO);

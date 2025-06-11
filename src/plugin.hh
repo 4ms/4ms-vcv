@@ -32,6 +32,7 @@ extern rack::Model *modelQPLFO;
 extern rack::Model *modelQCD;
 extern rack::Model *modelPI;
 extern rack::Model *modelPEG;
+extern rack::Model *modelLPG;
 extern rack::Model *modelL4;
 extern rack::Model *modelDLD;
 extern rack::Model *modelCLKM;
