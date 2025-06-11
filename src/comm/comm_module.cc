@@ -1,4 +1,5 @@
 #include "comm/comm_module.hh"
+#include "widgets/4ms/quantities.hh"
 
 void CommModule::onSampleRateChange() {
 	sampleRateChanged = true;
@@ -91,5 +92,61 @@ json_t *CommModule::dataToJson() {
 void CommModule::dataFromJson(json_t *rootJ) {
 	if (auto state_str = json_string_value(rootJ); state_str) {
 		core->load_state(state_str);
+	}
+}
+
+void CommModule::fromJson(json_t *rootJ) {
+	// Check plugin version
+	json_t *versionJ = json_object_get(rootJ, "version");
+	if (versionJ) {
+		patch_version = json_string_value(versionJ);
+	}
+
+	rack::engine::Module::fromJson(rootJ);
+}
+
+void CommModule::paramsFromJson(json_t *rootJ) {
+	size_t i;
+	json_t *paramJ;
+	json_array_foreach(rootJ, i, paramJ) {
+		// Get paramId
+		json_t *paramIdJ = json_object_get(paramJ, "id");
+		// Legacy v0.6 to <v1
+		if (!paramIdJ)
+			paramIdJ = json_object_get(paramJ, "paramId");
+		size_t paramId;
+		if (paramIdJ)
+			paramId = json_integer_value(paramIdJ);
+		// Use index if all else fails
+		else
+			paramId = i;
+
+		// Check ID bounds
+		if (paramId >= paramQuantities.size())
+			continue;
+
+		rack::ParamQuantity *pq = paramQuantities[paramId];
+		// Check that the Param is bounded
+		if (!pq->isBounded())
+			continue;
+
+		if (json_t *valueJ = json_object_get(paramJ, "value")) {
+			float val = json_number_value(valueJ);
+
+			if (rack::string::Version(patch_version) < rack::string::Version("2.0.15")) {
+
+				bool is_switch = dynamic_cast<rack::SwitchQuantity *>(pq) != nullptr;
+				bool is_snapped_knob = dynamic_cast<KnobSnappedParamQuantity *>(pq) != nullptr;
+				bool has_custom_range = (pq->minValue != 0 || pq->maxValue != 1);
+
+				// Do not convert normal switches, but do convert snapped knobs (which are technically switches)
+				if ((val <= 1 && val >= 0) && has_custom_range && (!is_switch || is_snapped_knob)) {
+					// custom range: legacy versions saved 0..1 in patch file, so convert that
+					val = pq->minValue * (1.f - val) + pq->maxValue * val;
+				}
+			}
+
+			pq->setImmediateValue(val);
+		}
 	}
 }

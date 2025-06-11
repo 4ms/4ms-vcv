@@ -13,6 +13,9 @@ public:
 private:
 	bool sampleRateChanged = true;
 
+	// Needed for converting legacy patch files (<2.0.15)
+	std::string patch_version;
+
 protected:
 	CommModule() = default;
 	~CommModule() = default;
@@ -23,4 +26,7 @@ protected:
 
 	json_t *dataToJson() override;
 	void dataFromJson(json_t *rootJ) override;
+
+	void fromJson(json_t *rootJ) override;
+	void paramsFromJson(json_t *rootJ) override;
 };
