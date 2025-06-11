@@ -1,3 +1,4 @@
+#include "4ms/quantities.hh"
 #include "CoreModules/elements/element_counter.hh"
 #include "CoreModules/elements/elements.hh"
 #include "vcv_creation_context.hh"
@@ -81,7 +82,7 @@ inline void do_config_element(KnobSnapped el, const Indices &indices, const Modu
 			label = "(" + std::to_string(i + 1) + "/" + std::to_string(el.num_pos + 1) + ")";
 	}
 
-	context.module->configSwitch(
+	context.module->configSwitch<KnobSnappedParamQuantity>(
 		indices.param_idx, 0, el.num_pos - 1, default_value, std::string{el.short_name}, labels);
 };
 
