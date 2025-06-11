@@ -311,6 +311,12 @@
       "tags": ["Envelope Generator"]
     },
     {
+      "slug": "LPG",
+      "name": "LPG",
+      "description": "Low-pass Gate",
+      "tags": ["Filter", "VCA", "Low-pass gate"]
+    },
+    {
       "slug": "BPF",
       "name": "BPF",
       "description": "Band-pass filter",
