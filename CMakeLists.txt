@@ -21,7 +21,8 @@ if (("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin") AND ("${CMAKE_OSX_ARCHITECTURES}" 
   add_compile_options(-fno-stack-check)
 endif()
 
-target_include_directories(${RACK_PLUGIN_LIB} PRIVATE 
+target_include_directories(${RACK_PLUGIN_LIB} PRIVATE
+    src/core-vcv
 	src
 	lib
 )
@@ -58,6 +59,8 @@ add_subdirectory(lib/CoreModules/4ms)
 add_subdirectory(lib/metamodule-core-interface)
 add_subdirectory(lib/patch-serial)
 add_subdirectory(lib/cpputil)
+
+target_include_directories(CoreModules-4ms BEFORE PRIVATE src/core-vcv)
 
 target_link_libraries(${RACK_PLUGIN_LIB} PRIVATE 
 	CoreModules
