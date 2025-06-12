@@ -50,6 +50,7 @@ target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	src/mapping/midi_modules.cc
 	src/mapping/patch_writer.cc
 	src/core-vcv/filesystem/async_filebrowser.cc
+	src/core-vcv/register_module.cc
 	${MODEL_SOURCES}
 )
 
