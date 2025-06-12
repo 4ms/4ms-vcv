@@ -7,6 +7,8 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 
 	//////////////// Auto generated ///////////////////////
 	// Add models below here
+	p->addModel(modelHubMedium);
+	p->addModel(modelMMAudioExpander);
 	p->addModel(modelAtvert2);
 	p->addModel(modelBPF);
 	p->addModel(modelCLKD);
@@ -24,7 +26,6 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelFreeverb);
 	p->addModel(modelGate);
 	p->addModel(modelHPF);
-	p->addModel(modelHubMedium);
 	p->addModel(modelKPLS);
 	p->addModel(modelL4);
 	p->addModel(modelLPG);
@@ -52,9 +53,9 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelSwitch14);
 	p->addModel(modelSwitch41);
 	p->addModel(modelTapo);
+	p->addModel(modelTSP);
 	p->addModel(modelVCAM);
 	p->addModel(modelVerb);
-	p->addModel(modelMMAudioExpander);
 }
 
 __attribute__((__visibility__("default"))) extern "C" json_t *settingsToJson() {

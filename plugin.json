@@ -149,6 +149,12 @@
       "tags": ["Mixer"]
     },
     {
+      "slug": "TSP",
+      "name": "Basic Sample Player",
+      "description": "Sample Player",
+      "tags": ["Sampler"]
+    },
+    {
       "slug": "Freeverb",
       "name": "Freeverb",
       "description": "Freeverb",
