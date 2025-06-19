@@ -28,6 +28,11 @@ inline void do_create(Knob el, const ElementCount::Indices &idx, const HubWidget
 		ctx.module_widget->addLabeledKnobPx<Small9mmKnob>(el.short_name, idx.param_idx, ctr_pos, 14.f);
 }
 
+inline void do_create(MomentaryButton el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
+	auto ctr_pos = rack::mm2px({el.x_mm, el.y_mm});
+	ctx.module_widget->addLabeledKnobPx<rack::VCVButton>(el.short_name, idx.param_idx, ctr_pos, 19.f);
+}
+
 inline void do_create(JackInput el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
 	ctx.module_widget->addInput(
 		rack::createInputCentered<rack::PJ301MPort>(rack::mm2px({el.x_mm, el.y_mm}), ctx.module, idx.input_idx));
