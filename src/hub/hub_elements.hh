@@ -47,6 +47,11 @@ struct HubPort : rack::PJ301MPort {
 	}
 };
 
+inline void do_create(MomentaryButton el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
+	auto ctr_pos = rack::mm2px({el.x_mm, el.y_mm});
+	ctx.module_widget->addLabeledKnobPx<rack::VCVButton>(el.short_name, idx.param_idx, ctr_pos, 19.f);
+}
+
 inline void do_create(JackInput el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
 	// These are Input jacks as seen by VCV, but they are called "Out 1", "Out 2", etc
 	auto p = rack::createInputCentered<HubPort>(rack::mm2px({el.x_mm, el.y_mm}), ctx.module, idx.input_idx);
