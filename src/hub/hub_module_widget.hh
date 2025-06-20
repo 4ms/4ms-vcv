@@ -3,8 +3,8 @@
 #include "hub/knob_set_buttons.hh"
 #include "hub/knob_set_menu.hh"
 #include "hub/text_field.hh"
-#include "hub_knob.hh"
 #include "hub_module.hh"
+#include "hub_param.hh"
 #include <string_view>
 
 namespace MetaModule
@@ -20,10 +20,10 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 		: hubModule{hubModule} {
 	}
 
-	template<typename KnobType>
+	template<typename KnobType, typename HubMapButtonType = HubKnobMapButton>
 	void addHubMappedParam(
 		std::string_view labelText, int knobId, rack::math::Vec posPx, float sz_mm = 18, float defaultValue = 0.5f) {
-		auto button = new HubKnobMapButton{hubModule, *this};
+		auto button = new HubMapButtonType{hubModule, *this};
 		button->box.pos =
 			rack::math::Vec(posPx.x - rack::mm2px(sz_mm) / 2, posPx.y - rack::mm2px(sz_mm) / 2); // top-left
 		button->box.size.x = rack::mm2px(sz_mm);
@@ -32,7 +32,7 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 		button->hubParamObj = {MappableObj::Type::Knob, knobId, hubModule ? hubModule->id : -1};
 		addChild(button);
 
-		auto *p = new HubKnob<KnobType>{hubModule, *button};
+		auto *p = new HubParam<KnobType>{hubModule, *button};
 		p->box.pos = posPx;
 		p->box.pos = p->box.pos.minus(p->box.size.div(2));
 		p->rack::app::ParamWidget::module = hubModule;
@@ -43,7 +43,7 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 			auto pq = p->getParamQuantity();
 			pq = module->paramQuantities[knobId];
 			pq->defaultValue = defaultValue;
-			button->setParamQuantity(pq);
+			button->paramQuantity = pq;
 		}
 		addParam(p);
 	}

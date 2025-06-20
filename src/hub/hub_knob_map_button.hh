@@ -10,40 +10,11 @@ namespace MetaModule
 {
 
 class HubKnobMapButton : public HubMapButton {
-	rack::ParamQuantity *paramQuantity = nullptr;
-	MetaModuleHubBase *hub;
-
 public:
+	rack::ParamQuantity *paramQuantity = nullptr;
+
 	HubKnobMapButton(MetaModuleHubBase *hub, rack::app::ModuleWidget &parent)
-		: HubMapButton{hub, parent}
-		, hub{hub} {
-	}
-
-	void setParamQuantity(rack::ParamQuantity *paramQ) {
-		paramQuantity = paramQ;
-	}
-
-	void onDeselect(const rack::event::Deselect &e) override {
-		end_mapping();
-	}
-
-	void end_mapping() {
-		if (!hub)
-			return;
-
-		// Check if a ParamWidget was touched
-		auto touchedParam = APP->scene->rack->getTouchedParam();
-
-		if (touchedParam && touchedParam->getParamQuantity()) {
-			int param_id = touchedParam->getParamQuantity()->paramId;
-			auto m = touchedParam->module;
-
-			APP->scene->rack->setTouchedParam(nullptr);
-			hub->registerMap(hubParamObj.objID, m, param_id);
-
-		} else {
-			hub->endMapping();
-		}
+		: HubMapButton{hub, parent} {
 	}
 
 	void onButton(const rack::event::Button &e) override {
