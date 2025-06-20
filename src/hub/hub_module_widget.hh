@@ -21,11 +21,8 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 	}
 
 	template<typename KnobType>
-	void addLabeledKnobPx(std::string_view labelText,
-						  int knobId,
-						  rack::math::Vec posPx,
-						  float sz_mm = kKnobSpacingX,
-						  float defaultValue = 0.5f) {
+	void addHubMappedParam(
+		std::string_view labelText, int knobId, rack::math::Vec posPx, float sz_mm = 18, float defaultValue = 0.5f) {
 		auto button = new HubKnobMapButton{hubModule, *this};
 		button->box.pos =
 			rack::math::Vec(posPx.x - rack::mm2px(sz_mm) / 2, posPx.y - rack::mm2px(sz_mm) / 2); // top-left

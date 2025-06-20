@@ -25,9 +25,9 @@ inline void do_create(BaseElement element, const ElementCount::Indices &, const 
 inline void do_create(Knob el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
 	auto ctr_pos = rack::mm2px({el.x_mm, el.y_mm});
 	if (el.image.ends_with("knob_x.png"))
-		ctx.module_widget->addLabeledKnobPx<Davies1900hBlackKnob4ms>(el.short_name, idx.param_idx, ctr_pos, 19.f);
+		ctx.module_widget->addHubMappedParam<Davies1900hBlackKnob4ms>(el.short_name, idx.param_idx, ctr_pos, 19.f);
 	else
-		ctx.module_widget->addLabeledKnobPx<Small9mmKnob>(el.short_name, idx.param_idx, ctr_pos, 14.f);
+		ctx.module_widget->addHubMappedParam<Small9mmKnob>(el.short_name, idx.param_idx, ctr_pos, 14.f);
 }
 
 struct HubPort : rack::PJ301MPort {
@@ -49,7 +49,7 @@ struct HubPort : rack::PJ301MPort {
 
 inline void do_create(MomentaryButton el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
 	auto ctr_pos = rack::mm2px({el.x_mm, el.y_mm});
-	ctx.module_widget->addLabeledKnobPx<rack::VCVButton>(el.short_name, idx.param_idx, ctr_pos, 19.f);
+	ctx.module_widget->addHubMappedParam<rack::VCVButton>(el.short_name, idx.param_idx, ctr_pos, 19.f);
 }
 
 inline void do_create(JackInput el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
