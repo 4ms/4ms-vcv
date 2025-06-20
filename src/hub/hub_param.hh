@@ -6,16 +6,16 @@
 namespace MetaModule
 {
 
-template<typename BaseKnobT>
-class HubKnob : public BaseKnobT {
+template<typename BaseParamT>
+class HubParam : public BaseParamT {
 public:
-	HubKnob(MetaModuleHubBase *hub, HubKnobMapButton &hubknob_mapbut)
+	HubParam(MetaModuleHubBase *hub, HubKnobMapButton &hubknob_mapbut)
 		: hub{hub}
 		, mapBut{hubknob_mapbut} {
 	}
 
-	void draw(const typename BaseKnobT::DrawArgs &args) override {
-		BaseKnobT::draw(args);
+	void draw(const typename BaseParamT::DrawArgs &args) override {
+		BaseParamT::draw(args);
 
 		if (!hub)
 			return;
