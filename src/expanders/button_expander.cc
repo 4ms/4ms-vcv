@@ -1,7 +1,6 @@
 #include "CoreModules/elements/element_counter.hh"
 #include "CoreModules/hub/MMButtonExpander_info.hh"
 #include "hub/hub_elements.hh"
-#include "widgets/4ms/4ms_widgets.hh"
 #include "widgets/config_element.hh"
 
 namespace MetaModule
@@ -22,6 +21,7 @@ struct ButtonExpanderModule : MetaModuleHubBase {
 	}
 
 	void process(const ProcessArgs &args) override {
+		processMaps();
 	}
 };
 
