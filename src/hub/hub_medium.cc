@@ -99,9 +99,9 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	const std::vector<std::string> mappingModeLabels = {
 		"All", "Left & Right Only", "Right Only", "Left Only", "Connected"};
 
-	HubMediumWidget(HubMedium *module) {
+	HubMediumWidget(HubMedium *module)
+		: MetaModuleHubWidget{module} {
 		setModule(module);
-		hubModule = module;
 
 		if (hubModule != nullptr) {
 

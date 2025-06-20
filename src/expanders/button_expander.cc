@@ -28,7 +28,8 @@ struct ButtonExpanderModule : MetaModuleHubBase {
 struct ButtonExpanderWidget : MetaModuleHubWidget {
 	using Info = ButtonExpanderModule::Info;
 
-	ButtonExpanderWidget(rack::Module *module) {
+	ButtonExpanderWidget(MetaModuleHubBase *module)
+		: MetaModuleHubWidget{module} {
 		using namespace rack;
 
 		setModule(module);
