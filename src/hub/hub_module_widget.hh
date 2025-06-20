@@ -10,11 +10,11 @@ namespace MetaModule
 {
 
 struct MetaModuleHubWidget : rack::app::ModuleWidget {
-	MetaModuleHubWidget() = default;
-
 	MetaModuleHubBase *hubModule;
 
-	static constexpr float kKnobSpacingX = 18;
+	MetaModuleHubWidget(MetaModuleHubBase *hubModule)
+		: hubModule{hubModule} {
+	}
 
 	template<typename KnobType>
 	void addLabeledKnobPx(std::string_view labelText,
