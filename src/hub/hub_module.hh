@@ -16,6 +16,10 @@ namespace MetaModule
 
 struct MetaModuleHubBase : public rack::Module {
 
+	MetaModuleHubBase(unsigned num_pots)
+		: mappings{num_pots} {
+	}
+
 	std::function<void()> updatePatchName;
 	std::string patchNameText = "";
 	std::string patchDescText = "";
@@ -29,7 +33,7 @@ struct MetaModuleHubBase : public rack::Module {
 	static constexpr uint32_t NumPots = 12;
 	static constexpr uint32_t MaxMapsPerPot = 8;
 	static constexpr uint32_t MaxKnobSets = 8;
-	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings{NumPots};
+	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings;
 
 	JackAlias jack_alias{};
 

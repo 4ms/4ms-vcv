@@ -24,7 +24,8 @@ struct HubMedium : MetaModuleHubBase {
 	static constexpr auto saveButtonIndex = ElementCount::count<INFO>().num_params;
 	static constexpr auto wifiSendButtonIndex = saveButtonIndex + 1;
 
-	HubMedium() {
+	HubMedium()
+		: MetaModuleHubBase(12) {
 
 		// Register with VCV the number of elements of each type
 		auto cnt = ElementCount::count<INFO>();

@@ -7,7 +7,9 @@
 namespace MetaModule
 {
 
-ButtonExpanderModule::ButtonExpanderModule() {
+ButtonExpanderModule::ButtonExpanderModule()
+	: MetaModuleHubBase(8) {
+
 	// Register with VCV the number of elements of each type
 	auto cnt = ElementCount::count<Info>();
 	config(cnt.num_params, cnt.num_inputs, cnt.num_outputs, cnt.num_lights);
