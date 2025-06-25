@@ -39,14 +39,15 @@ public:
 
 			button_exps.push_back(ButtonExp{.module_id = module->id});
 		}
-    }
-    
+	}
+
 	int64_t getAudioExpanderId() const {
 		return audio_exp_module_id;
 	}
 
-	
-
+	bool hasAudioExpander() const {
+		return audio_exp_module_id > -1;
+	}
 
 	// returns true if cable is connected to an Expander module
 	// that we don't know about (e.g. patch contains more than the max
