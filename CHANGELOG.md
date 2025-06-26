@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+## v2.0.16 (in progress)
+
+- Jack aliases: Can set a custom name for mapped jacks on the hub and on the audio expander.
+
+- Add Button Expander module
+
 ## v2.0.15
 
 - Add "Include Modules from:" right-click menu option that allows including only certain modules in the exported patch file. 
