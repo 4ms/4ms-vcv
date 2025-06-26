@@ -1,6 +1,5 @@
 #include "CoreModules/elements/element_counter.hh"
 #include "CoreModules/hub/HubMedium_info.hh"
-#include "expanders/button_expander.hh"
 #include "flatbuffers/encode.hh"
 #include "hub/buttons.hh"
 #include "hub/hub_elements.hh"
@@ -53,37 +52,11 @@ struct HubMedium : MetaModuleHubBase {
 		processMaps();
 
 		if (savebut_trig.process(params[saveButtonIndex].getValue() > 0.5f)) {
-			findExpanders();
 			should_save = true;
 		}
 
 		if (wifibut_trig.process(params[wifiSendButtonIndex].getValue() > 0.5f)) {
-			findExpanders();
 			should_send_wifi = true;
-		}
-	}
-
-	void findExpanders() {
-		auto addExpander = [this](rack::Module *module) {
-			if (auto buttonexp = dynamic_cast<ButtonExpanderModule *>(module)) {
-				exp_mappings.push_back(buttonexp->mappings);
-			}
-		};
-
-		rack::Module *module = this;
-		while (module) {
-			addExpander(module);
-			if (module->leftExpander.moduleId < 0)
-				break;
-			module = module->leftExpander.module;
-		}
-
-		module = this;
-		while (module) {
-			addExpander(module);
-			if (module->rightExpander.moduleId < 0)
-				break;
-			module = module->rightExpander.module;
 		}
 	}
 
@@ -94,8 +67,6 @@ private:
 		auto element_idx = static_cast<std::underlying_type_t<INFO::Elem>>(el);
 		return indices[element_idx];
 	}
-
-	std::vector<HubKnobMappings<MaxMapsPerPot, MaxKnobSets>> exp_mappings;
 };
 
 std::string wifiUrl = "";
