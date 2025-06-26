@@ -44,6 +44,29 @@ static bool checkUniqueAddress(unsigned addr, int64_t thisModuleId) {
 void ButtonExpanderModule::process(const ProcessArgs &args) {
 	processMaps();
 }
+// VCV Rack calls this periodically on auto-save
+json_t *ButtonExpanderModule::dataToJson() {
+	auto rootJ = MetaModuleHubBase::dataToJson();
+
+	json_t *expIdJ = json_integer(this->buttonExpanderId);
+	json_object_set_new(rootJ, "ButtonExpanderId", expIdJ);
+	return rootJ;
+}
+
+// VCV Rack calls this on startup, and on loading a new patch file
+void ButtonExpanderModule::dataFromJson(json_t *rootJ) {
+	MetaModuleHubBase::dataFromJson(rootJ);
+
+	auto expIdJ = json_object_get(rootJ, "ButtonExpanderId");
+	if (json_is_integer(expIdJ)) {
+		buttonExpanderId = std::clamp<unsigned>(json_integer_value(expIdJ), 0u, MaxButtonExpanders - 1);
+	}
+
+	auto aliasJ = json_object_get(rootJ, "Alias");
+	jack_alias.decodeJson(aliasJ);
+
+	mappings.decodeJson(rootJ);
+}
 
 ButtonExpanderWidget::ButtonExpanderWidget(ButtonExpanderModule *module)
 	: MetaModuleHubWidget{module}

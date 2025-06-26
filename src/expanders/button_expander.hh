@@ -11,6 +11,8 @@ struct ButtonExpanderModule : MetaModuleHubBase {
 	ButtonExpanderModule();
 
 	void process(const ProcessArgs &args) override;
+	json_t *dataToJson() override;
+	void dataFromJson(json_t *) override;
 
 	// Expander Id (0 - 3)
 	unsigned buttonExpanderId = 0;
