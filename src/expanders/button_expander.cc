@@ -23,6 +23,24 @@ ButtonExpanderModule::ButtonExpanderModule()
 	}
 }
 
+static bool checkUniqueAddress(unsigned addr, int64_t thisModuleId) {
+	auto context = rack::contextGet();
+	auto engine = context->engine;
+	auto moduleIDs = engine->getModuleIds();
+
+	// Scan patch for all ButtonExpanders and mark which IDs are already used
+	for (auto moduleID : moduleIDs) {
+
+		auto *module = engine->getModule(moduleID);
+
+		if (auto *button_exp = dynamic_cast<ButtonExpanderModule *>(module)) {
+			if (moduleID != thisModuleId && button_exp->buttonExpanderId == addr)
+				return false;
+		}
+	}
+	return true;
+}
+
 void ButtonExpanderModule::process(const ProcessArgs &args) {
 	processMaps();
 }
@@ -53,8 +71,15 @@ ButtonExpanderWidget::ButtonExpanderWidget(ButtonExpanderModule *module)
 }
 
 void ButtonExpanderWidget::step() {
-	if (id_label && buttonExpModule)
+	if (id_label && buttonExpModule) {
 		id_label->text = "#" + std::to_string(buttonExpModule->buttonExpanderId + 1);
+
+		if (!checkUniqueAddress(buttonExpModule->buttonExpanderId, buttonExpModule->id)) {
+			id_label->color = nvgRGB(0xFF, 0, 0);
+		} else {
+			id_label->color = nvgRGB(0x8F, 0x8F, 0xFF);
+		}
+	}
 
 	MetaModuleHubWidget::step();
 }
