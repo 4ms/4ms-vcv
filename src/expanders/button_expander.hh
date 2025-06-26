@@ -18,6 +18,14 @@ struct ButtonExpanderModule : MetaModuleHubBase {
 	unsigned buttonExpanderId = 0;
 };
 
+struct IndexLabel : rack::Label {
+	IndexLabel(ButtonExpanderModule *);
+	void onButton(const ButtonEvent &e) override;
+
+private:
+	ButtonExpanderModule *parent;
+};
+
 struct ButtonExpanderWidget : MetaModuleHubWidget {
 	ButtonExpanderWidget(ButtonExpanderModule *module);
 
@@ -25,7 +33,7 @@ struct ButtonExpanderWidget : MetaModuleHubWidget {
 	void appendContextMenu(rack::Menu *menu) override;
 
 private:
-	rack::Label *id_label = nullptr;
+	IndexLabel *id_label = nullptr;
 	ButtonExpanderModule *buttonExpModule = nullptr;
 };
 

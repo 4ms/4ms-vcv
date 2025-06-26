@@ -81,8 +81,9 @@ ButtonExpanderWidget::ButtonExpanderWidget(ButtonExpanderModule *module)
 	addChild(createWidget<ScrewBlack>(rack::math::Vec(RACK_GRID_WIDTH, 0)));
 	addChild(createWidget<ScrewBlack>(rack::math::Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-	id_label = createWidget<rack::Label>(rack::math::Vec(55, RACK_GRID_HEIGHT - 30));
-	id_label->color = nvgRGB(0xFF, 0x8F, 0x8F);
+	id_label = new IndexLabel(buttonExpModule);
+	id_label->box.pos = rack::math::Vec(55, RACK_GRID_HEIGHT - 30);
+	id_label->color = nvgRGB(0x8F, 0x8F, 0xFF);
 	id_label->text = "";
 	id_label->fontSize = 11;
 	addChild(id_label);
@@ -90,6 +91,21 @@ ButtonExpanderWidget::ButtonExpanderWidget(ButtonExpanderModule *module)
 	HubWidgetCreator<Info> creator(this, module);
 	for (auto &element : Info::Elements) {
 		std::visit([&creator](auto &el) { creator.create(el); }, element);
+	}
+}
+
+IndexLabel::IndexLabel(ButtonExpanderModule *module)
+	: parent{module} {
+}
+
+void IndexLabel::onButton(const ButtonEvent &e) {
+	if (e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS && e.mods == 0) {
+		if (parent) {
+			if (parent->buttonExpanderId >= (MaxButtonExpanders - 1))
+				parent->buttonExpanderId = 0;
+			else
+				parent->buttonExpanderId++;
+		}
 	}
 }
 
