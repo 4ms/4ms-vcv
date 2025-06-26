@@ -15,11 +15,7 @@ private:
 	int64_t audio_exp_module_id = -1;
 
 	constexpr static size_t MaxButtonExpanders = 4;
-	struct ButtonExp {
-		int64_t module_id = -1;
-		// MetaModuleHubBase *module = nullptr;
-	};
-	std::vector<ButtonExp> button_exps{};
+	std::vector<int64_t> button_exps{};
 
 public:
 	void addModule(rack::Module *module) {
@@ -37,7 +33,7 @@ public:
 			if (button_exps.size() >= MaxButtonExpanders)
 				WARN("Found more than %zu Button Expanders\n", MaxButtonExpanders);
 
-			button_exps.push_back(ButtonExp{.module_id = module->id});
+			button_exps.push_back(module->id);
 		}
 	}
 
@@ -47,6 +43,10 @@ public:
 
 	bool hasAudioExpander() const {
 		return audio_exp_module_id > -1;
+	}
+
+	std::vector<int64_t> getButtonExpanderIds() const {
+		return button_exps;
 	}
 
 	// returns true if cable is connected to an Expander module

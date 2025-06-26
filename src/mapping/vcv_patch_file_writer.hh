@@ -1,6 +1,7 @@
 #pragma once
 #include "console/pr_dbg.hh"
 #include "cpputil/util/colors.hh"
+#include "expanders/button_expander.hh"
 #include "hub/hub_knob_mappings.hh"
 #include "hub/hub_module.hh"
 #include "hub/jack_alias.hh"
@@ -170,7 +171,7 @@ struct VCVPatchFileWriter {
 		pw.setCableList(cableData);
 		pw.setParamList(paramData);
 
-		//combine hub aliases and expander aliases
+		//combine hub aliases and audio expander aliases
 		JackAlias aliases{jack_aliases};
 		if (expanders.hasAudioExpander()) {
 			auto hub_base = dynamic_cast<MetaModuleHubBase *>(engine->getModule(expanders.getAudioExpanderId()));
@@ -190,32 +191,51 @@ struct VCVPatchFileWriter {
 			}
 		}
 
-		// Iterate mappings, by MaxKnobSets times
+		// Set knob set names
 		for (unsigned set_i = 0; set_i < MaxKnobSets; set_i++) {
 			pw.addKnobMapSet(set_i, mappings.knobSetNames[set_i]);
+		}
 
-			for (unsigned hubParamId = 0; auto &knob_maps : mappings.mappings) {
+		// Go through all hub knob mappings
+		auto firstPanelKnob = 0u;
+		addAllMappings(firstPanelKnob, pw, mappings);
+
+		// Go through all button expander mappings
+		auto button_exps = expanders.getButtonExpanderIds();
+		for (auto moduleID : button_exps) {
+			auto *module = engine->getModule(moduleID);
+			if (auto buttonExp = dynamic_cast<ButtonExpanderModule *>(module)) {
+				auto firstButtonParamId = FirstButton + (buttonExp->buttonExpanderId * ButtonsPerExpander);
+				addAllMappings(firstButtonParamId, pw, buttonExp->mappings);
+			}
+		}
+
+		return pw.printPatchYAML();
+	}
+
+	static void addAllMappings(unsigned startingPanelId,
+							   PatchFileWriter &pw,
+							   HubKnobMappings<MaxMapsPerPot, MaxKnobSets> &mappings) {
+
+		for (unsigned set_i = 0; set_i < MaxKnobSets; set_i++) {
+			for (unsigned panelId = startingPanelId; auto &knob_maps : mappings.mappings) {
 
 				std::vector<Mapping> active_maps;
-				active_maps.reserve(8);
+				active_maps.reserve(MaxMapsPerPot);
 
 				for (auto &mapsets : knob_maps) {
 					auto &map = mapsets.maps[set_i];
-					map.alias_name = mappings.getMapAliasName({.objID = hubParamId}, set_i);
+					map.alias_name = mappings.getMapAliasName({.objID = panelId}, set_i);
 					if (map.moduleId > 0)
 						active_maps.push_back(map);
 				}
 
 				if (active_maps.size())
-					pw.addKnobMaps(hubParamId, set_i, active_maps);
+					pw.addKnobMaps(panelId, set_i, active_maps);
 
-				hubParamId++;
+				panelId++;
 			}
 		}
-
-		return pw.printPatchYAML();
-		// writeToFile(fileName, yml);
-		// writeAsHeader(fileName + ".hh", patchName + "_patch", yml);
 	}
 
 	static void addHubModuleToMapping(auto *module, std::vector<BrandModule> &moduleData) {
