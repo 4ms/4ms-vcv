@@ -19,7 +19,7 @@ namespace MetaModule
 {
 
 // Adapts VCVRack-format of patch data to a format PatchFileWriter can use
-template<size_t NumKnobs, size_t MaxMapsPerPot, size_t MaxKnobSets>
+template<size_t MaxMapsPerPot, size_t MaxKnobSets>
 struct VCVPatchFileWriter {
 
 	static std::string createPatchYml(int64_t hubModuleId,

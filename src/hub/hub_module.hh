@@ -17,7 +17,8 @@ namespace MetaModule
 struct MetaModuleHubBase : public rack::Module {
 
 	MetaModuleHubBase(unsigned num_pots)
-		: mappings{num_pots} {
+		: mappings{num_pots}
+		, last_knob_val(num_pots) {
 	}
 
 	std::function<void()> updatePatchName;
@@ -30,14 +31,15 @@ struct MetaModuleHubBase : public rack::Module {
 
 	std::optional<int> inProgressMapParamId{};
 
-	static constexpr uint32_t NumPots = 12;
+	static constexpr uint32_t MaxNumPots = 12;
 	static constexpr uint32_t MaxMapsPerPot = 8;
 	static constexpr uint32_t MaxKnobSets = 8;
 	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings;
 
 	JackAlias jack_alias{};
 
-	std::array<float, NumPots> last_knob_val{};
+	// TODO: make this an array and resize to num_pots in constructor
+	std::vector<float> last_knob_val{};
 
 	// Mapping State/Progress
 

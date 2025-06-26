@@ -158,14 +158,14 @@ public:
 		setMapAliasName(paramObj, newname, activeSetId);
 	}
 
-	std::string getMapAliasName(MappableObj paramObj, unsigned set_id) {
+	std::string getMapAliasName(MappableObj paramObj, unsigned set_id) const {
 		if (paramObj.objID < (int)num_knobs) {
 			return aliases[paramObj.objID][set_id];
 		}
 		return "";
 	}
 
-	std::string getMapAliasName(MappableObj paramObj) {
+	std::string getMapAliasName(MappableObj paramObj) const {
 		return getMapAliasName(paramObj, activeSetId);
 	}
 

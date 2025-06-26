@@ -252,7 +252,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		patchName->text = rack::system::getStem(filename);
 
-		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
+		using PatchFileWriter = VCVPatchFileWriter<HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		auto yml = PatchFileWriter::createPatchYml(hubModule->id,
 												   hubModule->mappings,
 												   hubModule->jack_alias,
@@ -270,7 +270,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			patchFileName += ".yml";
 		}
 
-		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
+		using PatchFileWriter = VCVPatchFileWriter<HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		auto yml = PatchFileWriter::createPatchYml(hubModule->id,
 												   hubModule->mappings,
 												   hubModule->jack_alias,
