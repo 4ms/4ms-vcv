@@ -53,7 +53,7 @@ bool apply_module_specific_fixes(rack::engine::Cable *cable, std::vector<CableMa
 
 	{
 		constexpr int Prism_POLY_IN = 12;
-		constexpr int Prism_MONO_IN_1 = 16;
+		constexpr int Prism_MONO_IN_1 = 27;
 
 		if (inModel->getFullName() == "Prism Rainbow" && cable->inputId == Prism_POLY_IN &&
 			outModel->getFullName() == "VCV Merge")
