@@ -99,37 +99,37 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 	pd.int_cables.clear();
 
 	for (auto &cable : cables) {
-		auto in_jack = cable.receivedJackId;
-		auto out_jack = cable.sendingJackId;
+		auto in_jack = cable.inputJackId;
+		auto out_jack = cable.outputJackId;
 
-		if (out_jack < 0 || in_jack < 0 || cable.sendingModuleId < 0 || cable.receivedModuleId < 0)
+		if (out_jack < 0 || in_jack < 0 || cable.outputModuleId < 0 || cable.inputModuleId < 0)
 			continue;
 
 		bool handled = false;
 
 		for (auto const &cv_module : midiSettings.CV) {
 
-			if (cable.sendingModuleId == cv_module.voctSplitModuleId) {
+			if (cable.outputModuleId == cv_module.voctSplitModuleId) {
 				mapMidiCVPolySplitJack(cable, MidiMonoNoteJack, cv_module.midi_chan);
 				handled = true;
 
-			} else if (cable.sendingModuleId == cv_module.gateSplitModuleId) {
+			} else if (cable.outputModuleId == cv_module.gateSplitModuleId) {
 				mapMidiCVPolySplitJack(cable, MidiMonoGateJack, cv_module.midi_chan);
 				handled = true;
 
-			} else if (cable.sendingModuleId == cv_module.velSplitModuleId) {
+			} else if (cable.outputModuleId == cv_module.velSplitModuleId) {
 				mapMidiCVPolySplitJack(cable, MidiMonoVelJack, cv_module.midi_chan);
 				handled = true;
 
-			} else if (cable.sendingModuleId == cv_module.aftSplitModuleId) {
+			} else if (cable.outputModuleId == cv_module.aftSplitModuleId) {
 				mapMidiCVPolySplitJack(cable, MidiMonoAftertouchJack, cv_module.midi_chan);
 				handled = true;
 
-			} else if (cable.sendingModuleId == cv_module.retrigSplitModuleId) {
+			} else if (cable.outputModuleId == cv_module.retrigSplitModuleId) {
 				mapMidiCVPolySplitJack(cable, MidiMonoRetrigJack, cv_module.midi_chan);
 				handled = true;
 
-			} else if (cable.sendingModuleId == cv_module.module_id) {
+			} else if (cable.outputModuleId == cv_module.module_id) {
 				mapMidiCVJack(cable, cv_module.midi_chan);
 				handled = true;
 			}
@@ -139,7 +139,7 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 			continue; // next cable
 
 		for (auto const &gate_module : midiSettings.gate) {
-			if (cable.sendingModuleId == gate_module.module_id) {
+			if (cable.outputModuleId == gate_module.module_id) {
 				mapMidiGateJack(cable, gate_module.midi_chan);
 				handled = true;
 			}
@@ -148,7 +148,7 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 			continue; // next cable
 
 		for (auto const &cccv_module : midiSettings.CCCV) {
-			if (cable.sendingModuleId == cccv_module.module_id) {
+			if (cable.outputModuleId == cccv_module.module_id) {
 				mapMidiCCJack(cable, cccv_module.midi_chan);
 				handled = true;
 			}
@@ -157,7 +157,7 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 			continue; // next cable
 
 		for (auto const &ccknob_module : midiSettings.CCKnob) {
-			if (cable.sendingModuleId == ccknob_module.module_id) {
+			if (cable.outputModuleId == ccknob_module.module_id) {
 				//MIDI Maps has no jacks
 				handled = true;
 			}
@@ -165,30 +165,30 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 		if (handled)
 			continue; // next cable
 
-		if (cable.sendingModuleId == hubModuleId) {
+		if (cable.outputModuleId == hubModuleId) {
 			mapInputJack(cable);
 			continue;
 
-		} else if (cable.receivedModuleId == hubModuleId) {
+		} else if (cable.inputModuleId == hubModuleId) {
 			mapOutputJack(cable);
 			continue;
 
-		} else if (expanders.isKnownJackExpander(cable.sendingModuleId)) {
+		} else if (expanders.isKnownJackExpander(cable.outputModuleId)) {
 			mapInputJack(cable);
 			continue;
 
-		} else if (expanders.isKnownJackExpander(cable.receivedModuleId)) {
+		} else if (expanders.isKnownJackExpander(cable.inputModuleId)) {
 			mapOutputJack(cable);
 			continue;
 		}
 
-		if (!idMap.contains(cable.receivedModuleId) || !idMap.contains(cable.sendingModuleId))
+		if (!idMap.contains(cable.inputModuleId) || !idMap.contains(cable.outputModuleId))
 			continue;
 
 		// Map internal cable:
 
-		auto in_mod = idMap[cable.receivedModuleId];
-		auto out_mod = idMap[cable.sendingModuleId];
+		auto in_mod = idMap[cable.inputModuleId];
+		auto out_mod = idMap[cable.outputModuleId];
 
 		// Look for an existing entry:
 		auto found = std::find_if(pd.int_cables.begin(), pd.int_cables.end(), [=](const auto &x) {
@@ -283,36 +283,36 @@ void PatchFileWriter::addKnobMaps(unsigned panelKnobId, unsigned knobSetId, cons
 	}
 }
 
-// Presumes the map has already been verified that the sendingModuleId is
+// Presumes the map has already been verified that the outputModuleId is
 // the hub we're using or a known expander,
 // and the jack ids are valid, and the receivedModuleId is in our module list
 void PatchFileWriter::mapInputJack(CableMap &map) {
-	if (expanders.isKnownJackExpander(map.sendingModuleId))
+	if (expanders.isKnownJackExpander(map.outputModuleId))
 		expanders.setExpanderInputJackId(&map);
 
-	if (expanders.isKnownJackExpander(map.receivedModuleId))
+	if (expanders.isKnownJackExpander(map.inputModuleId))
 		expanders.setExpanderOutputJackId(&map);
 
-	if (idMap.contains(map.receivedModuleId)) {
+	if (idMap.contains(map.inputModuleId)) {
 		// Look for an existing entry to this panel input jack
 		auto found = std::find_if(pd.mapped_ins.begin(), pd.mapped_ins.end(), [=](const auto &x) {
-			return x.panel_jack_id == (uint32_t)map.sendingJackId;
+			return x.panel_jack_id == (uint32_t)map.outputJackId;
 		});
 
 		if (found != pd.mapped_ins.end()) {
 			// If we already have an entry for this panel jack, append a new module input jack to the ins vector
 			found->ins.push_back({
-				.module_id = static_cast<uint16_t>(idMap[map.receivedModuleId]),
-				.jack_id = static_cast<uint16_t>(map.receivedJackId),
+				.module_id = static_cast<uint16_t>(idMap[map.inputModuleId]),
+				.jack_id = static_cast<uint16_t>(map.inputJackId),
 			});
 		} else {
 			// Make a new entry:
 			pd.mapped_ins.push_back({
-				.panel_jack_id = static_cast<uint32_t>(map.sendingJackId),
+				.panel_jack_id = static_cast<uint32_t>(map.outputJackId),
 				.ins = {{
 					{
-						.module_id = static_cast<uint16_t>(idMap[map.receivedModuleId]),
-						.jack_id = static_cast<uint16_t>(map.receivedJackId),
+						.module_id = static_cast<uint16_t>(idMap[map.inputModuleId]),
+						.jack_id = static_cast<uint16_t>(map.inputJackId),
 					},
 				}},
 				.alias_name = "",
@@ -321,38 +321,38 @@ void PatchFileWriter::mapInputJack(CableMap &map) {
 	}
 }
 
-// Presumes the map has already been verified that the sendingModuleId is the hub we're using
+// Presumes the map has already been verified that the outputModuleId is the hub we're using
 // And the jack ids are valid
 // and the receivedModuleId is in our module list
 void PatchFileWriter::mapOutputJack(CableMap &map) {
-	if (expanders.isKnownJackExpander(map.sendingModuleId))
+	if (expanders.isKnownJackExpander(map.outputModuleId))
 		expanders.setExpanderInputJackId(&map);
 
-	if (expanders.isKnownJackExpander(map.receivedModuleId))
+	if (expanders.isKnownJackExpander(map.inputModuleId))
 		expanders.setExpanderOutputJackId(&map);
 
 	// Update the mapped_outs entry if there already is one with the same panel_jack_id (Note that this is
 	// an error, since we can't have multiple outs assigned to a net, but we're going to roll with it).
 	// otherwise push it to the vector
 
-	if (idMap.contains(map.sendingModuleId)) {
+	if (idMap.contains(map.outputModuleId)) {
 		// Look for an existing entry:
 		auto found = std::find_if(pd.mapped_outs.begin(), pd.mapped_outs.end(), [=](const auto &x) {
-			return x.panel_jack_id == (uint32_t)map.receivedJackId;
+			return x.panel_jack_id == (uint32_t)map.inputJackId;
 		});
 
 		if (found != pd.mapped_outs.end()) {
-			found->out.module_id = static_cast<uint16_t>(idMap[map.sendingModuleId]);
-			found->out.jack_id = static_cast<uint16_t>(map.sendingJackId);
+			found->out.module_id = static_cast<uint16_t>(idMap[map.outputModuleId]);
+			found->out.jack_id = static_cast<uint16_t>(map.outputJackId);
 			// Todo: Log error: multiple module outputs mapped to same panel output jack
 		} else {
 			// Make a new entry:
 			pd.mapped_outs.push_back({
-				.panel_jack_id = static_cast<uint32_t>(map.receivedJackId),
+				.panel_jack_id = static_cast<uint32_t>(map.inputJackId),
 				.out =
 					{
-						.module_id = static_cast<uint16_t>(idMap[map.sendingModuleId]),
-						.jack_id = static_cast<uint16_t>(map.sendingJackId),
+						.module_id = static_cast<uint16_t>(idMap[map.outputModuleId]),
+						.jack_id = static_cast<uint16_t>(map.outputJackId),
 					},
 				.alias_name = "",
 			});
@@ -361,68 +361,68 @@ void PatchFileWriter::mapOutputJack(CableMap &map) {
 }
 
 void PatchFileWriter::mapMidiCVPolySplitJack(CableMap &cable, unsigned monoJackId, unsigned midi_chan) {
-	if (cable.sendingJackId >= 8) {
+	if (cable.outputJackId >= 8) {
 		return; //skip poly > 8
 	}
 
-	cable.sendingJackId = MetaModule::Midi::set_midi_channel(monoJackId + cable.sendingJackId, midi_chan);
+	cable.outputJackId = MetaModule::Midi::set_midi_channel(monoJackId + cable.outputJackId, midi_chan);
 	mapInputJack(cable);
 }
 
 void PatchFileWriter::mapMidiCVJack(CableMap &cable, uint32_t midi_chan) {
 	using enum MIDI::CoreMidiJacks;
 
-	if (cable.sendingJackId == VoctJack)
-		cable.sendingJackId = MidiMonoNoteJack;
+	if (cable.outputJackId == VoctJack)
+		cable.outputJackId = MidiMonoNoteJack;
 
-	else if (cable.sendingJackId == GateJack)
-		cable.sendingJackId = MidiMonoGateJack;
+	else if (cable.outputJackId == GateJack)
+		cable.outputJackId = MidiMonoGateJack;
 
-	else if (cable.sendingJackId == VelJack)
-		cable.sendingJackId = MidiMonoVelJack;
+	else if (cable.outputJackId == VelJack)
+		cable.outputJackId = MidiMonoVelJack;
 
-	else if (cable.sendingJackId == AftJack)
-		cable.sendingJackId = MidiMonoAftertouchJack;
+	else if (cable.outputJackId == AftJack)
+		cable.outputJackId = MidiMonoAftertouchJack;
 
-	else if (cable.sendingJackId == RetrigJack)
-		cable.sendingJackId = MidiMonoRetrigJack;
+	else if (cable.outputJackId == RetrigJack)
+		cable.outputJackId = MidiMonoRetrigJack;
 
-	else if (cable.sendingJackId == PWJack)
-		cable.sendingJackId = MidiPitchWheelJack;
+	else if (cable.outputJackId == PWJack)
+		cable.outputJackId = MidiPitchWheelJack;
 
-	else if (cable.sendingJackId == MWJack)
-		cable.sendingJackId = MidiModWheelJack;
+	else if (cable.outputJackId == MWJack)
+		cable.outputJackId = MidiModWheelJack;
 
-	else if (cable.sendingJackId == ClockJack)
-		cable.sendingJackId = MidiClockJack;
+	else if (cable.outputJackId == ClockJack)
+		cable.outputJackId = MidiClockJack;
 
-	else if (cable.sendingJackId == ClockDivJack) {
+	else if (cable.outputJackId == ClockDivJack) {
 
 		for (auto const &cv_module : midiSettings.CV) {
-			if (cv_module.module_id == cable.sendingModuleId) {
-				cable.sendingJackId = std::clamp<unsigned>(cv_module.clockDivJack, MidiClockJack, MidiClockDiv96Jack);
+			if (cv_module.module_id == cable.outputModuleId) {
+				cable.outputJackId = std::clamp<unsigned>(cv_module.clockDivJack, MidiClockJack, MidiClockDiv96Jack);
 			}
 		}
 	}
 
-	else if (cable.sendingJackId == StartJack)
-		cable.sendingJackId = MidiStartJack;
+	else if (cable.outputJackId == StartJack)
+		cable.outputJackId = MidiStartJack;
 
-	else if (cable.sendingJackId == StopJack)
-		cable.sendingJackId = MidiStopJack;
+	else if (cable.outputJackId == StopJack)
+		cable.outputJackId = MidiStopJack;
 
-	else if (cable.sendingJackId == ContJack)
-		cable.sendingJackId = MidiContinueJack;
+	else if (cable.outputJackId == ContJack)
+		cable.outputJackId = MidiContinueJack;
 
-	cable.sendingJackId = MetaModule::Midi::set_midi_channel(cable.sendingJackId, midi_chan);
+	cable.outputJackId = MetaModule::Midi::set_midi_channel(cable.outputJackId, midi_chan);
 	mapInputJack(cable);
 }
 
 void PatchFileWriter::mapMidiGateJack(CableMap &cable, unsigned midi_chan) {
 	for (auto const &gate_module : midiSettings.gate) {
-		if (cable.sendingJackId <= (int)gate_module.notes.size()) {
-			auto notenum = gate_module.notes[cable.sendingJackId];
-			cable.sendingJackId = MetaModule::Midi::set_midi_channel(MidiGateNote0 + notenum, midi_chan);
+		if (cable.outputJackId <= (int)gate_module.notes.size()) {
+			auto notenum = gate_module.notes[cable.outputJackId];
+			cable.outputJackId = MetaModule::Midi::set_midi_channel(MidiGateNote0 + notenum, midi_chan);
 			mapInputJack(cable);
 		}
 	}
@@ -430,10 +430,10 @@ void PatchFileWriter::mapMidiGateJack(CableMap &cable, unsigned midi_chan) {
 
 void PatchFileWriter::mapMidiCCJack(CableMap &cable, unsigned midi_chan) {
 	for (auto const &cccv_module : midiSettings.CCCV) {
-		if (cable.sendingJackId <= (int)cccv_module.CCnums.size()) {
-			auto ccnum = cccv_module.CCnums[cable.sendingJackId];
+		if (cable.outputJackId <= (int)cccv_module.CCnums.size()) {
+			auto ccnum = cccv_module.CCnums[cable.outputJackId];
 
-			cable.sendingJackId = MetaModule::Midi::set_midi_channel(MidiCC0 + ccnum, midi_chan);
+			cable.outputJackId = MetaModule::Midi::set_midi_channel(MidiCC0 + ccnum, midi_chan);
 			mapInputJack(cable);
 		}
 	}

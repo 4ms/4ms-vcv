@@ -58,11 +58,11 @@ public:
 	// Adjusts the cable jack ID from the expander's internal ID
 	// to the panel mapping ID
 	void setExpanderInputJackId(CableMap *cable) {
-		cable->sendingJackId = AudioExpander::get_map_injack_num(cable->sendingJackId);
+		cable->outputJackId = AudioExpander::get_map_injack_num(cable->outputJackId);
 	}
 
 	void setExpanderOutputJackId(CableMap *cable) {
-		cable->receivedJackId = AudioExpander::get_map_outjack_num(cable->receivedJackId);
+		cable->inputJackId = AudioExpander::get_map_outjack_num(cable->inputJackId);
 	}
 };
 

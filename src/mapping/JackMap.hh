@@ -3,13 +3,13 @@
 #include <cstdint>
 
 struct CableMap {
-	int sendingJackId = 0;
-	int receivedJackId = 0;
-	int64_t sendingModuleId = 0;
-	int64_t receivedModuleId = 0;
+	int outputJackId = 0;
+	int inputJackId = 0;
+	int64_t outputModuleId = 0;
+	int64_t inputModuleId = 0;
 	uint16_t lv_color_full = 0;
 
 	bool isSameJack(const CableMap &other) const {
-		return (sendingJackId == other.sendingJackId) && (sendingModuleId == other.sendingModuleId);
+		return (outputJackId == other.outputJackId) && (outputModuleId == other.outputModuleId);
 	}
 };

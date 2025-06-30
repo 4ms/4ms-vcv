@@ -28,7 +28,8 @@ struct ModuleDirectory {
 								"MIDI-Map",
 								"MIDITriggerToCVInterface",
 								"MIDICCToCVInterface",
-								"Split"
+								"Split",
+								"Merge"
 
 		};
 

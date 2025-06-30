@@ -1,6 +1,6 @@
 #pragma once
+#include "cable_color.hh"
 #include "console/pr_dbg.hh"
-#include "cpputil/util/colors.hh"
 #include "hub/hub_knob_mappings.hh"
 #include "mapping/JackMap.hh"
 #include "mapping/ModuleID.h"
@@ -8,6 +8,7 @@
 #include "mapping/expanders.hh"
 #include "mapping/midi_modules.hh"
 #include "mapping/module_directory.hh"
+#include "mapping/module_specific_fixes.hh"
 #include "mapping/patch_writer.hh"
 #include "plugin.hh"
 #include <fstream>
@@ -115,15 +116,24 @@ struct VCVPatchFileWriter {
 			}
 		}
 
+		// Get all cables
+		auto cable_ids = engine->getCableIds();
+		std::vector<rack::engine::Cable *> cables;
+		cables.reserve(cable_ids.size());
+		for (auto id : cable_ids) {
+			cables.push_back(engine->getCable(id));
+		}
+
 		// Scan cables for MIDICV -> Split connections
-		for (auto cableID : engine->getCableIds()) {
-			midimodules.addPolySplitCable(engine->getCable(cableID));
+		for (auto cable : cables) {
+			midimodules.addPolySplitCable(cable);
 		}
 
 		// Scan cables
 		std::vector<CableMap> cableData;
 		for (auto cableWidget : APP->scene->rack->getCompleteCables()) {
 			auto cable = cableWidget->cable;
+
 			auto out = cable->outputModule;
 			auto in = cable->inputModule;
 
@@ -144,18 +154,15 @@ struct VCVPatchFileWriter {
 				if (expanders.isUnknownExpanderCable(cable))
 					continue;
 
-				uint8_t r_amt = (uint8_t)(rack::clamp(cableWidget->color.r) * 255);
-				uint8_t g_amt = (uint8_t)(rack::clamp(cableWidget->color.g) * 255);
-				uint8_t b_amt = (uint8_t)(rack::clamp(cableWidget->color.b) * 255);
-				uint16_t color = Color(r_amt, g_amt, b_amt).Rgb565();
-
-				cableData.push_back({
-					.sendingJackId = cable->outputId,
-					.receivedJackId = cable->inputId,
-					.sendingModuleId = out->getId(),
-					.receivedModuleId = in->getId(),
-					.lv_color_full = color,
-				});
+				if (!apply_module_specific_fixes(cable, cableData)) {
+					cableData.push_back({
+						.outputJackId = cable->outputId,
+						.inputJackId = cable->inputId,
+						.outputModuleId = out->getId(),
+						.inputModuleId = in->getId(),
+						.lv_color_full = cable_color_rgb565(cableWidget),
+					});
+				}
 			}
 		}
 
