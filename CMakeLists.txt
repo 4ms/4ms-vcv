@@ -27,6 +27,10 @@ target_include_directories(${RACK_PLUGIN_LIB} PRIVATE
 )
 
 file(GLOB SOURCES 
+	src/models/*.cc
+)
+
+target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	src/plugin.cc
 	src/expanders/audio_expander.cc
 	src/expanders/button_expander.cc
@@ -37,17 +41,7 @@ file(GLOB SOURCES
 	src/comm/comm_module.cc
 	src/mapping/midi_modules.cc
 	src/mapping/patch_writer.cc
-	src/models/*.cc
-)
-
-target_sources(${RACK_PLUGIN_LIB} PRIVATE
-	src/plugin.cc
-	src/hub/hub_map_button.cc
-	src/hub/hub_medium.cc
-	src/hub/mm_blendish.cc
-	src/comm/comm_module.cc
-	src/mapping/midi_modules.cc
-	src/mapping/patch_writer.cc
+	src/mapping/module_specific_fixes.cc
     src/network/network.cpp
 	${SOURCES}
 )
