@@ -48,7 +48,7 @@ set(VCVRACK TRUE)
 
 add_subdirectory(lib/CoreModules)
 add_subdirectory(lib/CoreModules/4ms)
-add_subdirectory(lib/metamodule-core-interface)
+add_subdirectory(lib/metamodule-plugin-sdk/core-interface)
 add_subdirectory(lib/patch-serial)
 add_subdirectory(lib/cpputil)
 
