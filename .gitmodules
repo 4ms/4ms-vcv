@@ -4,9 +4,6 @@
 [submodule "lib/patch-serial"]
 	path = lib/patch-serial
 	url = https://github.com/4ms/metamodule-patch-serial
-[submodule "lib/metamodule-core-interface"]
-	path = lib/metamodule-core-interface
-	url = https://github.com/4ms/metamodule-core-interface
 [submodule "lib/CoreModules"]
 	path = lib/CoreModules
 	url = https://github.com/4ms/metamodule-core-modules
