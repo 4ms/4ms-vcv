@@ -10,3 +10,6 @@
 [submodule "lib/flatbuffers"]
 	path = lib/flatbuffers
 	url = https://github.com/google/flatbuffers.git
+[submodule "lib/metamodule-plugin-sdk"]
+	path = lib/metamodule-plugin-sdk
+	url = https://github.com/4ms/metamodule-plugin-sdk
