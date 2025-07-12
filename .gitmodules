@@ -4,12 +4,12 @@
 [submodule "lib/patch-serial"]
 	path = lib/patch-serial
 	url = https://github.com/4ms/metamodule-patch-serial
-[submodule "lib/metamodule-core-interface"]
-	path = lib/metamodule-core-interface
-	url = https://github.com/4ms/metamodule-core-interface
 [submodule "lib/CoreModules"]
 	path = lib/CoreModules
 	url = https://github.com/4ms/metamodule-core-modules
 [submodule "lib/flatbuffers"]
 	path = lib/flatbuffers
 	url = https://github.com/google/flatbuffers.git
+[submodule "lib/metamodule-plugin-sdk"]
+	path = lib/metamodule-plugin-sdk
+	url = https://github.com/4ms/metamodule-plugin-sdk
