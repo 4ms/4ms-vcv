@@ -68,6 +68,20 @@ private:
 	AltParamChoiceLabeled element;
 };
 
+struct AltParamActionMenuItem : rack::ui::MenuItem {
+	rack::Quantity *quantity = nullptr;
+
+	AltParamActionMenuItem(rack::Quantity *quant)
+		: quantity{quant} {
+	}
+
+	void onAction(const ActionEvent &e) override {
+		if (quantity) {
+			quantity->setValue(1);
+		}
+	}
+};
+
 /*
  * Slider that snaps to integer values
 */
@@ -139,6 +153,13 @@ do_render_to_menu(AltParamChoiceLabeled el, rack::ui::Menu *menu, Indices &indic
 	item->text = el.short_name;
 	item->rightText = RIGHT_ARROW;
 	menu->addChild(item);
+}
+
+inline void
+do_render_to_menu(AltParamAction el, rack::ui::Menu *menu, Indices &indices, const WidgetContext_t &context) {
+	auto menu_item = new AltParamActionMenuItem(context.module->getParamQuantity(indices.param_idx));
+	menu_item->text = el.short_name.data();
+	menu->addChild(menu_item);
 }
 
 } // namespace MetaModule::VCVImplementation::Widget
