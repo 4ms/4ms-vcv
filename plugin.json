@@ -171,6 +171,12 @@
       "tags": ["Effect", "Reverb"]
     },
     {
+      "slug": "TSP",
+      "name": "Sample Player",
+      "description": "Basic Sample Player",
+      "tags": ["Sampler"]
+    },
+    {
       "slug": "CLKM",
       "name": "Clock Multiplier",
       "description": "Outputs a clock signal at a multiple of an incoming clock signal's tempo.",

@@ -1,4 +1,6 @@
 #pragma once
+#include "CoreModules/elements/base_element.hh"
+#include "comm/comm_module.hh"
 #include "plugin.hh"
 
 namespace MetaModule
@@ -140,5 +142,81 @@ struct TOrangeLight : TBase {
 	}
 };
 using OrangeLightWidget = TOrangeLight<>;
+
+struct GraphicDisplayWidget : rack::widget::TransparentWidget {
+
+	unsigned display_idx;
+	CommModule *module;
+	NVGcontext *vg = nullptr;
+
+	GraphicDisplayWidget(unsigned light_idx, CommModule *module)
+		: display_idx{light_idx}
+		, module{module} {
+		if (module) {
+			// Hack: here  we send the address of our member var `vg` to the core module
+			// i.e. we send a NVGcontext** disguised as a lv_obj_t*
+			// Is there a better way without redefining the CoreProcessor API?
+			module->core->show_graphic_display(light_idx, {}, {}, (lv_obj_t *)(&vg));
+		}
+	}
+
+	void draw(const DrawArgs &args) override {
+		if (module) {
+			vg = args.vg;
+			module->core->draw_graphic_display(display_idx);
+		}
+	}
+
+	~GraphicDisplayWidget() {
+		if (module) {
+			module->core->hide_graphic_display(display_idx);
+		}
+	}
+};
+
+struct TextDisplayWidget : rack::widget::TransparentWidget {
+	unsigned display_idx;
+	CommModule *module;
+	std::string chars;
+	float font_size = 10;
+	NVGcolor font_color;
+	std::shared_ptr<rack::Font> font_face;
+
+	TextDisplayWidget(unsigned display_idx, CommModule *module, DynamicTextDisplay const &el)
+		: display_idx{display_idx}
+		, module{module} {
+		chars.reserve(255);
+		auto font = el.font;
+		// font face is ignored for now
+		auto size_str = font.substr(font.length() - 2);
+		auto size = atoi(size_str.data());
+		font_size = (size > 4) ? size - 3 : 9;
+
+		font_color = nvgRGB(el.color.red(), el.color.green(), el.color.blue());
+
+		chars = el.text;
+		font_face = APP->window->loadFont(rack::asset::system("res/fonts/DejaVuSans.ttf"));
+	}
+
+	void draw(const DrawArgs &args) override {
+		if (module && font_face) {
+			std::array<char, 255> txt;
+			auto num_chars = module->core->get_display_text(display_idx, txt);
+			if (num_chars) {
+				txt[num_chars] = '\0';
+				chars.resize(num_chars);
+				std::copy(txt.begin(), txt.end(), chars.begin());
+			}
+
+			//TODO: check text width, and reduce font size if won't fit in widget->box
+
+			nvgFontSize(args.vg, font_size);
+			nvgFontFaceId(args.vg, font_face->handle);
+			nvgFillColor(args.vg, font_color);
+			nvgTextAlign(args.vg, NVG_ALIGN_TOP | NVG_ALIGN_LEFT);
+			nvgTextBox(args.vg, 0, 0, box.size.x - 1, chars.data(), nullptr);
+		}
+	}
+};
 
 } // namespace MetaModule

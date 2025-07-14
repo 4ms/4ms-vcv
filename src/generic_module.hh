@@ -59,7 +59,7 @@ struct GenericModule {
 			}
 
 			// create widgets from all elements
-			MetaModule::VCVWidgetCreator<Info> creator(this, module);
+			MetaModule::VCVWidgetCreator<Info> creator(this, mainModule);
 			for (auto &element : Info::Elements) {
 				std::visit([&creator](auto &el) { creator.create(el); }, element);
 			}
@@ -101,7 +101,7 @@ struct GenericModule {
 			}
 
 			if (hasAltParams) {
-				MetaModule::VCVWidgetCreator<Info> creator(this, module);
+				MetaModule::VCVWidgetCreator<Info> creator(this, mainModule);
 
 				// add single entry with submenu
 				// we need to forward the creator so the entry itself is able to create further menu items
