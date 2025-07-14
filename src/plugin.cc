@@ -1,4 +1,5 @@
 #include "plugin.hh"
+#include "thread/async_thread_control.hh"
 
 rack::Plugin *pluginInstance;
 
@@ -56,6 +57,13 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelVCAM);
 	p->addModel(modelVerb);
 	p->addModel(modelMMAudioExpander);
+
+	MetaModule::Async::start_module_threads();
+}
+
+extern "C" void destroy() {
+	printf("plugin destroy\n");
+	MetaModule::Async::kill_module_threads();
 }
 
 __attribute__((__visibility__("default"))) extern "C" json_t *settingsToJson() {
