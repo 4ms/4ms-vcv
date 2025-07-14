@@ -10,6 +10,8 @@ public:
 	std::vector<CommInputJack> inJacks;
 	std::vector<CommOutputJack> outJacks;
 
+	std::string last_file_path;
+
 private:
 	bool sampleRateChanged = true;
 

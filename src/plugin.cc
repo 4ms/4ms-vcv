@@ -3,6 +3,11 @@
 
 rack::Plugin *pluginInstance;
 
+namespace MetaModule
+{
+std::string last_file_path;
+}
+
 __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	pluginInstance = p;
 
