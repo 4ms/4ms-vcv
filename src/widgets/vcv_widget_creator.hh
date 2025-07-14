@@ -1,5 +1,5 @@
 #pragma once
-#include "4ms/4ms_widgets_implementation.hh"
+#include "4ms/4ms_widget_creator.hh"
 #include "CoreModules/elements/element_counter.hh"
 #include "CoreModules/elements/elements.hh"
 #include "alt_params_implementation.h"
@@ -29,7 +29,7 @@ namespace MetaModule
 template<typename INFO>
 struct VCVWidgetCreator {
 
-	VCVWidgetCreator(rack::ModuleWidget *module_widget, rack::Module *module)
+	VCVWidgetCreator(rack::ModuleWidget *module_widget, CommModule *module)
 		: context{module_widget, module} {
 	}
 
@@ -46,7 +46,7 @@ struct VCVWidgetCreator {
 
 	template<typename EL>
 	void renderToContextMenu(const EL &element, rack::ui::Menu *menu) {
-		// only alt parameters are considered for rendering to menu for now
+		// only alt parameters are considered for rendering to menu
 		if constexpr (std::derived_from<EL, AltParamElement>) {
 			// forward to implementation with required context
 			if (auto indices = ElementCount::get_indices<INFO>(element)) {

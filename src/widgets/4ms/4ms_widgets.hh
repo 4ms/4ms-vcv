@@ -1,4 +1,5 @@
 #pragma once
+#include "comm/comm_module.hh"
 #include "plugin.hh"
 
 namespace MetaModule
@@ -140,5 +141,36 @@ struct TOrangeLight : TBase {
 	}
 };
 using OrangeLightWidget = TOrangeLight<>;
+
+struct GraphicDisplayWidget : rack::widget::TransparentWidget {
+
+	unsigned light_idx;
+	CommModule *module;
+	NVGcontext *vg = nullptr;
+
+	GraphicDisplayWidget(unsigned light_idx, CommModule *module, float width)
+		: light_idx{light_idx}
+		, module{module} {
+		if (module) {
+			// Hack: here  we send the address of our member var `vg` to the core module
+			// i.e. we send a NVGcontext** disguised as a lv_obj_t*
+			// Is there a better way without redefining the CoreProcessor API?
+			module->core->show_graphic_display(light_idx, {}, width, (lv_obj_t *)(&vg));
+		}
+	}
+
+	void draw(const DrawArgs &args) override {
+		if (module) {
+			vg = args.vg;
+			module->core->draw_graphic_display(light_idx);
+		}
+	}
+
+	~GraphicDisplayWidget() {
+		if (module) {
+			module->core->hide_graphic_display(light_idx);
+		}
+	}
+};
 
 } // namespace MetaModule
