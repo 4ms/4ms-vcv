@@ -1,6 +1,14 @@
+#include "helpers/4ms_elements.hh"
+#include "osdialog/osdialog.h"
 #include "rack.hpp"
+#include "widgets/vcv_creation_context.hh"
 #include <CoreModules/elements/element_state_conversion.hh>
 #include <algorithm>
+
+namespace MetaModule
+{
+extern std::string last_file_path;
+}
 
 namespace MetaModule::VCVImplementation::Widget
 {
@@ -68,16 +76,35 @@ private:
 	AltParamChoiceLabeled element;
 };
 
-struct AltParamActionMenuItem : rack::ui::MenuItem {
-	rack::Quantity *quantity = nullptr;
+struct FileBrowseActionMenuItem : rack::ui::MenuItem {
+	rack::engine::Param *param;
+	std::string filterext;
 
-	AltParamActionMenuItem(rack::Quantity *quant)
-		: quantity{quant} {
+	FileBrowseActionMenuItem(rack::Param &param, std::string_view filterext)
+		: param{&param}
+		, filterext{filterext} {
 	}
 
 	void onAction(const ActionEvent &e) override {
-		if (quantity) {
-			quantity->setValue(1);
+		if (param) {
+			// Get filters from AltParamAction element (std::string_view argument)
+			osdialog_filters *filters = nullptr;
+
+			if (filterext == ".wav, .WAV")
+				filters = osdialog_filters_parse("WAV (.wav):wav,WAV");
+
+			if (char *path = osdialog_file(OSDIALOG_OPEN, "", nullptr, filters)) {
+				// Set global
+				last_file_path = path;
+				free(path);
+
+				//Toggle value to send message to module, which will read the global
+				auto val = param->getValue();
+				param->setValue(1 - val);
+			}
+
+			if (filters)
+				osdialog_filters_free(filters);
 		}
 	}
 };
@@ -157,7 +184,8 @@ do_render_to_menu(AltParamChoiceLabeled el, rack::ui::Menu *menu, Indices &indic
 
 inline void
 do_render_to_menu(AltParamAction el, rack::ui::Menu *menu, Indices &indices, const WidgetContext_t &context) {
-	auto menu_item = new AltParamActionMenuItem(context.module->getParamQuantity(indices.param_idx));
+	auto &param = context.module->getParam(indices.param_idx);
+	auto menu_item = new FileBrowseActionMenuItem(param, el.args[0]);
 	menu_item->text = el.short_name.data();
 	menu->addChild(menu_item);
 }
