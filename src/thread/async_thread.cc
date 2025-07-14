@@ -25,7 +25,7 @@ AsyncThread::AsyncThread(CoreProcessor *module, Callback &&new_action)
 void AsyncThread::start() {
 	if (internal->id) {
 		if (auto task = Async::get_task(*internal->id)) {
-			printf("Start task id %u\n", *internal->id);
+			// printf("Start task id %u\n", *internal->id);
 
 			task->action = action;
 			task->one_shot = false;
@@ -46,7 +46,7 @@ void AsyncThread::run_once() {
 			task->one_shot = true;
 			task->enabled = true;
 
-			printf("Run once task id %u\n", *internal->id);
+			// printf("Run once task id %u\n", *internal->id);
 		}
 	}
 }
@@ -56,9 +56,10 @@ void AsyncThread::stop() {
 		if (auto task = Async::get_task(*internal->id)) {
 			task->enabled = false;
 
-			printf("Stop task id %u\n", *internal->id);
-		} else
-			printf("Can't stop unknown task id %u\n", *internal->id);
+			// printf("Stop task id %u\n", *internal->id);
+		}
+		// else
+		// printf("Can't stop unknown task id %u\n", *internal->id);
 	}
 }
 
