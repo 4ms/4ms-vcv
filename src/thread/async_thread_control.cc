@@ -1,21 +1,30 @@
-#include "coreproc_plugin/async_thread_control.hh"
+#include "async_thread_control.hh"
 #include "console/pr_dbg.hh"
 #include "util/fixed_vector.hh"
-#include <atomic>
+#include <cstdlib>
 #include <optional>
 #include <thread>
 
-namespace MetaModule
+namespace MetaModule::Async
 {
 
 namespace
 {
 
 static FixedVector<Async::Task, 64> tasks;
-std::atomic<bool> kill_signal = false;
-std::atomic<bool> pause_signal = false;
 
-std::thread async_task_runner;
+std::atomic<bool> kill_signal = false;
+
+struct SafeWrapper {
+	// Rack does not call plugin destroy() so we need to
+	// use RAII to do cleanup:
+
+	std::thread async_task_runner;
+
+	~SafeWrapper() {
+		kill_module_threads();
+	}
+} runner;
 
 std::optional<uint32_t> task_index(uint32_t id) {
 	if (auto found = std::ranges::find(tasks, id, &Async::Task::id); found != tasks.end()) {
@@ -28,10 +37,9 @@ std::optional<uint32_t> task_index(uint32_t id) {
 
 } // namespace
 
-std::optional<uint32_t> create_async_task(CoreProcessor *module) {
+std::optional<uint32_t> create_task(CoreProcessor *module) {
 	if (auto id = tasks.push_back_for_overwrite(); id != tasks.max_size()) {
 		tasks[id].enabled = false;
-		tasks[id].core_id = 0;
 		tasks[id].id = std::rand();
 		return tasks[id].id;
 	} else {
@@ -40,17 +48,23 @@ std::optional<uint32_t> create_async_task(CoreProcessor *module) {
 	}
 }
 
-void destroy_async_task(uint32_t id) {
+void destroy_task(uint32_t id) {
 	if (auto idx = task_index(id)) {
-		pr_trace("Erase task id %u (index %u)\n", (unsigned)id, (unsigned)(*idx));
+		printf("Erase task id %u (index %u)\n", (unsigned)id, (unsigned)(*idx));
 		tasks.erase(*idx);
 	}
 }
 
+Async::Task *get_task(unsigned id) {
+	if (auto idx = task_index(id))
+		return &tasks[*idx];
+	else
+		return nullptr;
+}
 void start_module_threads() {
 	pr_trace("Starting module async thread\n");
 
-	async_task_runner = std::thread([=]() {
+	runner.async_task_runner = std::thread([=]() {
 		while (true) {
 			if (kill_signal) {
 				printf("Got kill signal\n");
@@ -60,7 +74,7 @@ void start_module_threads() {
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 			for (auto &task : tasks) {
-				if (task.enabled && !pause_signal) {
+				if (task.enabled /*&& !pause_signal*/) {
 					task.action();
 
 					if (task.one_shot)
@@ -72,22 +86,6 @@ void start_module_threads() {
 	});
 }
 
-void pause_module_threads(unsigned) {
-	pause_module_threads();
-}
-
-void pause_module_threads() {
-	pause_signal = true;
-}
-
-void resume_module_threads(unsigned) {
-	resume_module_threads();
-}
-
-void resume_module_threads() {
-	pause_signal = false;
-}
-
 void kill_module_threads() {
 	printf("Killing threads...\n");
 
@@ -96,8 +94,8 @@ void kill_module_threads() {
 	auto start = std::chrono::steady_clock::now().time_since_epoch().count() / 1'000'000LL;
 
 	while (true) {
-		if (async_task_runner.joinable()) {
-			async_task_runner.join();
+		if (runner.async_task_runner.joinable()) {
+			runner.async_task_runner.join();
 			return;
 		}
 
@@ -108,14 +106,4 @@ void kill_module_threads() {
 	}
 }
 
-void peg_task_to_core(uint32_t, uint32_t) {
-}
-
-Async::Task *get_task(unsigned id) {
-	if (auto idx = task_index(id))
-		return &tasks[*idx];
-	else
-		return nullptr;
-}
-
-} // namespace MetaModule
+} // namespace MetaModule::Async

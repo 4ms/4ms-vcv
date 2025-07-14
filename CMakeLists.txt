@@ -41,6 +41,18 @@ target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	src/mapping/patch_writer.cc
 	src/mapping/module_specific_fixes.cc
     src/network/network.cpp
+	src/filesystem/async_filebrowser.cc
+
+	src/wav/wav_file_stream.cc
+	src/wav/dr_wav.c
+	src/dsp/stream_resampler.cc
+	src/graphics/waveform_display.cc
+
+	src/thread/async_thread.cc
+	src/thread/async_thread_control.cc
+
+	src/compat/gui.cc
+	src/compat/patch.cc
 	${SOURCES}
 )
 
