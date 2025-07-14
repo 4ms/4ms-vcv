@@ -1,7 +1,7 @@
 #include "graphics/waveform_display.hh"
 #include "CoreModules/CoreProcessor.hh"
 #include "CoreModules/elements/units.hh"
-// #include "thorvg/thorvg/inc/thorvg.h"
+#include "nanovg.h"
 #include <algorithm>
 #include <atomic>
 #include <cmath>
@@ -10,16 +10,15 @@ namespace MetaModule
 {
 
 struct StreamingWaveformDisplay::Internal {
-	// tvg::SwCanvas *canvas = nullptr;
-	// tvg::Shape *bar_cursor = nullptr;
-	// tvg::Shape *wave = nullptr;
+	NVGcontext *vg = nullptr;
+	NVGcontext **vgaddr = nullptr;
 };
 
-// TSP: (24mm, 23.4mm)
 StreamingWaveformDisplay::StreamingWaveformDisplay(float display_width_mm, float display_height_mm)
 	: internal{new Internal}
-	, display_width{mm_to_px(display_width_mm, 240)}
-	, display_height{mm_to_px(display_height_mm, 240)}
+	, bar_height{5}
+	, display_width{mm_to_px(display_width_mm, 379)}
+	, display_height{mm_to_px(display_height_mm, 379)}
 	, wave_height{(display_height - bar_height) / 2.f} {
 
 	samples.resize(320);
@@ -89,95 +88,74 @@ void StreamingWaveformDisplay::set_cursor_width(unsigned width) {
 
 void StreamingWaveformDisplay::show_graphic_display(std::span<uint32_t> pix_buffer,
 													unsigned width,
-													lv_obj_t *lvgl_canvas) {
-	// internal->canvas = tvg::SwCanvas::gen();
-	// auto scene = tvg::Scene::gen();
-
-	// auto scaled_height = pix_buffer.size() / width;
-	// internal->canvas->target(pix_buffer.data(), width, width, scaled_height, tvg::ColorSpace::ARGB8888);
-	// scaling = float(width) / display_width;
-	// scene->scale(scaling);
-
-	// // Bar to represent entire sample
-	// auto bar = tvg::Shape::gen();
-	// bar->appendRect(0, display_height - bar_height / scaling, display_width, bar_height / scaling);
-	// bar->fill(bar_r, bar_g, bar_b, 0xFF);
-	// scene->push(bar);
-
-	// // Trolley to indicate position
-	// internal->bar_cursor = tvg::Shape::gen();
-	// internal->bar_cursor->appendRect(0, display_height - bar_height / scaling, cursor_width, bar_height / scaling);
-	// internal->bar_cursor->fill(0xFF, 0xFF, 0xFF, 0xFF);
-	// scene->push(internal->bar_cursor);
-
-	// // Black background
-	// auto wave_bg = tvg::Shape::gen();
-	// wave_bg->appendRect(0, 0, display_width, display_height - bar_height);
-	// wave_bg->fill(0x00, 0x00, 0x00, 0xFF);
-	// scene->push(wave_bg);
-
-	// // Waveform
-	// internal->wave = tvg::Shape::gen();
-	// internal->wave->moveTo(display_width, wave_height);
-	// internal->wave->lineTo(0, wave_height);
-	// internal->wave->strokeFill(wave_r, wave_g, wave_b, 0xFF);
-	// internal->wave->strokeWidth(1.0f);
-	// scene->push(internal->wave);
-
-	// internal->canvas->push(scene);
+													lv_obj_t *context_ptr) {
+	internal->vgaddr = reinterpret_cast<NVGcontext **>(context_ptr);
 }
 
 bool StreamingWaveformDisplay::draw_graphic_display() {
-	//if (!internal->canvas)
-	//	return false;
+	if (!internal->vgaddr)
+		return false;
 
-	//internal->bar_cursor->translate(scaling * cursor_pos * (display_width - cursor_width), 0);
-	//internal->bar_cursor->scale(scaling);
-	//internal->canvas->update(internal->bar_cursor);
+	internal->vg = *internal->vgaddr;
+	if (!internal->vg)
+		return false;
 
-	//internal->wave->reset();
+	// Bar
+	nvgBeginPath(internal->vg);
+	nvgRect(internal->vg, 0, display_height - bar_height / scaling, display_width, bar_height / scaling);
+	nvgFillColor(internal->vg, nvgRGBA(bar_r, bar_g, bar_b, 0xFF));
+	nvgFill(internal->vg);
+	nvgClosePath(internal->vg);
 
-	////start with the oldest sample
-	//int start = newest_sample.load() + 1;
+	// Trolley
+	nvgBeginPath(internal->vg);
+	auto cursor_x = cursor_pos * (display_width - cursor_width);
+	nvgRect(internal->vg, cursor_x, display_height - bar_height, cursor_width, bar_height);
+	nvgFillColor(internal->vg, nvgRGBA(0xFF, 0xFF, 0xFF, 0xFF));
+	nvgFill(internal->vg);
+	nvgClosePath(internal->vg);
 
-	//// Draw top contour left->right
-	//int i = start;
-	//for (auto x = 0u; x < samples.size(); x++) {
-	//	float x_pos = (float)x * display_width / (float)samples.size();
-	//	float y_pos = samples[i].first * wave_height + wave_height;
-	//	if (x == 0)
-	//		internal->wave->moveTo(x_pos, y_pos);
-	//	else
-	//		internal->wave->lineTo(x_pos, y_pos);
-	//	i = (i + 1) % samples.size();
-	//}
+	// Waveform
+	nvgScissor(internal->vg, 0, 0, display_width, display_height - bar_height);
+	nvgBeginPath(internal->vg);
 
-	//// Continue shape, drawing bottom contour right->left
-	//for (int x = samples.size() - 1; x >= 0; x--) {
-	//	if (--i < 0)
-	//		i = samples.size() - 1;
-	//	float x_pos = (float)x * display_width / (float)samples.size();
-	//	float y_pos = samples[i].second * wave_height + wave_height;
-	//	internal->wave->lineTo(x_pos, y_pos);
-	//}
+	//start with the oldest sample
+	int start = newest_sample.load() + 1;
 
-	//internal->wave->strokeWidth(1.0f / scaling);
-	//internal->wave->strokeFill(wave_r, wave_g, wave_b, 0xFF);
-	//internal->wave->fill(wave_r, wave_g, wave_b, 0x7F);
-	//internal->wave->scale(scaling);
+	// Draw top contour left->right
+	int i = start;
+	for (auto x = 0u; x < samples.size(); x++) {
+		float x_pos = (float)x * display_width / (float)samples.size();
+		float y_pos = samples[i].first * wave_height + wave_height;
+		if (x == 0)
+			nvgMoveTo(internal->vg, x_pos, y_pos);
+		else
+			nvgLineTo(internal->vg, x_pos, y_pos);
+		i = (i + 1) % samples.size();
+	}
 
-	//internal->canvas->update(internal->wave);
-	//internal->canvas->draw();
-	//internal->canvas->sync();
+	// Continue shape, drawing bottom contour right->left
+	for (int x = samples.size() - 1; x >= 0; x--) {
+		if (--i < 0)
+			i = samples.size() - 1;
+		float x_pos = (float)x * display_width / (float)samples.size();
+		float y_pos = samples[i].second * wave_height + wave_height;
+		nvgLineTo(internal->vg, x_pos, y_pos);
+	}
+	nvgClosePath(internal->vg);
+
+	nvgStrokeColor(internal->vg, nvgRGBA(wave_r, wave_g, wave_b, 0xFF));
+	nvgFillColor(internal->vg, nvgRGBA(wave_r, wave_g, wave_b, 0x7F));
+	nvgStrokeWidth(internal->vg, 0.5f);
+	nvgFill(internal->vg);
+	nvgStroke(internal->vg);
+
+	nvgResetScissor(internal->vg);
 
 	return true;
 }
 
 void StreamingWaveformDisplay::hide_graphic_display() {
-	// if (internal->canvas) {
-	// 	delete internal->canvas;
-	// 	internal->canvas = nullptr;
-	// }
 }
 
 } // namespace MetaModule
