@@ -65,6 +65,12 @@ void CommModule::process(const ProcessArgs &args) {
 		light.setBrightness(core->get_led_brightness(i));
 		i++;
 	}
+
+	for (unsigned i = 0; auto &p : params) {
+		auto val = core->get_param(i);
+		getParamQuantity(i)->setScaledValue(val);
+		i++;
+	}
 }
 
 void CommModule::configComm(unsigned NUM_PARAMS, unsigned NUM_INPUTS, unsigned NUM_OUTPUTS, unsigned NUM_LIGHTS) {
