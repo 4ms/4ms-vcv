@@ -15,21 +15,25 @@ struct MetaModuleHubWidget : rack::app::ModuleWidget {
 
 	static constexpr float kKnobSpacingX = 18;
 	static constexpr unsigned kMaxJackAliasChars = 16;
-    
+
 	MetaModuleHubWidget(MetaModuleHubBase *hubModule)
 		: hubModule{hubModule} {
 	}
 
 	template<typename KnobType, typename HubMapButtonType = HubKnobMapButton>
-	void addHubMappedParam(
-		std::string_view labelText, int knobId, rack::math::Vec posPx, float sz_mm = 18, float defaultValue = 0.5f) {
+	void addHubMappedParam(std::string_view labelText,
+						   int knobId,
+						   rack::math::Vec posPx,
+						   MappableObj::Type type,
+						   float sz_mm = 18,
+						   float defaultValue = 0.5f) {
 		auto button = new HubMapButtonType{hubModule, *this};
 		button->box.pos =
 			rack::math::Vec(posPx.x - rack::mm2px(sz_mm) / 2, posPx.y - rack::mm2px(sz_mm) / 2); // top-left
 		button->box.size.x = rack::mm2px(sz_mm);
 		button->box.size.y = rack::mm2px(sz_mm);
 		button->text = labelText;
-		button->hubParamObj = {MappableObj::Type::Knob, knobId, hubModule ? hubModule->id : -1};
+		button->hubParamObj = {type, knobId, hubModule ? hubModule->id : -1};
 		addChild(button);
 
 		auto *p = new HubParam<KnobType>{hubModule, *button};

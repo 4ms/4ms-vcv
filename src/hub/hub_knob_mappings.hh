@@ -146,6 +146,31 @@ public:
 		return {0, 1}; //not found --> default value
 	}
 
+	// Curve Type
+	uint8_t getCurveType(MappableObj paramObj) const {
+		for (auto &knob : mappings) {
+			for (auto &mapset : knob) {
+				if (is_valid(mapset) && paramObj.moduleID == mapset.paramHandle.moduleId &&
+					paramObj.objID == mapset.paramHandle.paramId)
+				{
+					return mapset.maps[activeSetId].curve_type;
+				}
+			}
+		}
+
+		return 0; //not found --> default value
+	}
+
+	void setCurveType(const MappableObj paramObj, uint8_t val) {
+		for (auto &knob : mappings) {
+			for (auto &mapset : knob) {
+				if (is_valid(mapset) && paramObj.moduleID == mapset.paramHandle.moduleId &&
+					paramObj.objID == mapset.paramHandle.paramId)
+					mapset.maps[activeSetId].curve_type = val;
+			}
+		}
+	}
+
 	// Mapping Alias:
 
 	void setMapAliasName(MappableObj paramObj, std::string const &newname, unsigned set_id) {
@@ -242,6 +267,7 @@ public:
 					json_object_set_new(thisMapJ, "SrcObjID", json_integer(hubParamId));
 					json_object_set_new(thisMapJ, "RangeMin", json_real(map.range_min));
 					json_object_set_new(thisMapJ, "RangeMax", json_real(map.range_max));
+					json_object_set_new(thisMapJ, "CurveType", json_integer(map.curve_type));
 					json_object_set_new(thisMapJ, "AliasName", json_string(aliases[hubParamId][knobSetId].c_str()));
 
 					json_array_append(mapsJ, thisMapJ);
@@ -308,6 +334,9 @@ public:
 							val = json_object_get(mappingJ, "RangeMax");
 							map->range_max = json_is_real(val) ? json_real_value(val) : 1.f;
 
+							val = json_object_get(mappingJ, "CurveType");
+							map->curve_type = json_is_integer(val) ? json_integer_value(val) : 0;
+
 							val = json_object_get(mappingJ, "AliasName");
 							std::string name = json_is_string(val) ? json_string_value(val) : "";
 							setMapAliasName({.objID = hubParamId}, name, set_i);
@@ -344,7 +373,7 @@ private:
 	}
 
 	// checks if the mapset has a valid paramhandle in the active set
-	bool is_valid(KnobMappingSet mapset) {
+	bool is_valid(KnobMappingSet mapset) const {
 		bool paramHandleValid = mapset.paramHandle.module && mapset.paramHandle.moduleId >= 0;
 		if (!paramHandleValid) {
 			mapset.maps[activeSetId].clear();
@@ -353,7 +382,7 @@ private:
 	}
 
 	bool is_valid(Mapping map) {
-		return map.moduleId >= 0 && map.paramId >= 0;
+		return map.module_id >= 0 && map.param_id >= 0;
 	}
 
 	void updateMapsFromParamHandles() {
@@ -382,8 +411,8 @@ public:
 				// will remove paramHandle from the engine. That is, calling updateParamHandle()
 				// without changing the module or param values will delete the paramHandle.
 				// To fix this, rack::Engine would need to check if oldParamHandle == paramHandle
-				if (mapset.paramHandle.moduleId != map.moduleId || mapset.paramHandle.paramId != map.paramId) {
-					updateParamHandle(do_lock, &mapset.paramHandle, map.moduleId, map.paramId, true);
+				if (mapset.paramHandle.moduleId != map.module_id || mapset.paramHandle.paramId != map.param_id) {
+					updateParamHandle(do_lock, &mapset.paramHandle, map.module_id, map.param_id, true);
 				}
 			}
 		}

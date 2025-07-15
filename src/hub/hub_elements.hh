@@ -6,6 +6,7 @@
 #include "hub/hub_module_widget.hh"
 #include "hub/jack_alias_menu.hh"
 #include "widgets/4ms/4ms_widgets.hh"
+#include <rack.hpp>
 
 namespace MetaModule
 {
@@ -25,9 +26,11 @@ inline void do_create(BaseElement element, const ElementCount::Indices &, const 
 inline void do_create(Knob el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
 	auto ctr_pos = rack::mm2px({el.x_mm, el.y_mm});
 	if (el.image.ends_with("knob_x.png"))
-		ctx.module_widget->addHubMappedParam<Davies1900hBlackKnob4ms>(el.short_name, idx.param_idx, ctr_pos, 19.f);
+		ctx.module_widget->addHubMappedParam<Davies1900hBlackKnob4ms>(
+			el.short_name, idx.param_idx, ctr_pos, MappableObj::Type::Knob, 19.f);
 	else
-		ctx.module_widget->addHubMappedParam<Small9mmKnob>(el.short_name, idx.param_idx, ctr_pos, 14.f);
+		ctx.module_widget->addHubMappedParam<Small9mmKnob>(
+			el.short_name, idx.param_idx, ctr_pos, MappableObj::Type::Knob, 14.f);
 }
 
 struct HubPort : rack::PJ301MPort {
@@ -49,7 +52,8 @@ struct HubPort : rack::PJ301MPort {
 
 inline void do_create(MomentaryButton el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
 	auto ctr_pos = rack::mm2px({el.x_mm, el.y_mm});
-	ctx.module_widget->addHubMappedParam<rack::VCVButton>(el.short_name, idx.param_idx, ctr_pos, 15.f);
+	ctx.module_widget->addHubMappedParam<rack::VCVButton>(
+		el.short_name, idx.param_idx, ctr_pos, MappableObj::Type::Button, 15.f);
 }
 
 inline void do_create(JackInput el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {

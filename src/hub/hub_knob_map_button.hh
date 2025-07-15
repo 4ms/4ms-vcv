@@ -83,6 +83,17 @@ public:
 
 				MappableObj paramObj{MappableObj::Type::Knob, paramId, moduleId};
 
+				menu->addChild(new rack::MenuSeparator);
+
+				if (hubParamObj.objType == MappableObj::Type::Button) {
+					menu->addChild(rack::createBoolMenuItem(
+						"Button toggles parameter",
+						"",
+						[=, this]() { return hub->mappings.getCurveType(paramObj); },
+						[=, this](bool val) { hub->mappings.setCurveType(paramObj, val ? 1 : 0); }));
+					menu->addChild(new rack::MenuSeparator);
+				}
+
 				auto mn = new RangeSlider<RangePart::Min>(hub, paramObj);
 				mn->box.size.x = 100;
 				menu->addChild(mn);
