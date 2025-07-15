@@ -67,17 +67,9 @@ struct GenericModule {
 
 		void appendContextMenu(rack::ui::Menu *menu) override {
 			MetaModule::VCVWidgetCreator<Info> creator(this, mainModule);
-			bool first = true;
 
 			for (auto &element : Info::Elements) {
-				std::visit(
-					[&menu, &creator, &first](auto &el) {
-						if (first)
-							menu->addChild(new rack::MenuSeparator);
-						creator.renderToContextMenu(el, menu);
-						first = false;
-					},
-					element);
+				std::visit([&menu, &creator](auto &el) { creator.renderToContextMenu(el, menu); }, element);
 			}
 		}
 	};
