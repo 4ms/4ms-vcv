@@ -74,7 +74,12 @@ void HubMapButton::end_mapping() {
 		auto m = touchedParam->module;
 
 		APP->scene->rack->setTouchedParam(nullptr);
-		hub->registerMap(hubParamObj.objID, m, param_id);
+
+		if (m->getModel()->slug == "MMButtonExpander" || m->getModel()->slug == "HubMedium") {
+			hub->endMapping();
+		} else {
+			hub->registerMap(hubParamObj.objID, m, param_id);
+		}
 
 	} else {
 		hub->endMapping();
