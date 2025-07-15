@@ -98,9 +98,8 @@ struct FileBrowseActionMenuItem : rack::ui::MenuItem {
 				last_file_path = path;
 				free(path);
 
-				//Toggle value to send message to module, which will read the global
-				auto val = param->getValue();
-				param->setValue(1 - val);
+				// Set the param, which notifies the module that a path is available
+				param->setValue(1);
 			}
 
 			if (filters)
