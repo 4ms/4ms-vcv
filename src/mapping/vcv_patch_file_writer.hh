@@ -234,7 +234,7 @@ struct VCVPatchFileWriter {
 				for (auto &mapsets : knob_maps) {
 					auto &map = mapsets.maps[set_i];
 					map.alias_name = mappings.getMapAliasName({.objID = panelId}, set_i);
-					if (map.moduleId > 0)
+					if (map.module_id > 0)
 						active_maps.push_back(map);
 				}
 

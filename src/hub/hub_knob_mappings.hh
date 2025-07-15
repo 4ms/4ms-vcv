@@ -208,8 +208,8 @@ public:
 		}
 
 		auto *map = &knob.maps[set_id];
-		map->moduleId = destModuleId;
-		map->paramId = destParamId;
+		map->module_id = destModuleId;
+		map->param_id = destParamId;
 		return map;
 	}
 
@@ -261,8 +261,8 @@ public:
 						continue;
 
 					json_t *thisMapJ = json_object();
-					json_object_set_new(thisMapJ, "DstModID", json_integer(map.moduleId));
-					json_object_set_new(thisMapJ, "DstObjID", json_integer(map.paramId));
+					json_object_set_new(thisMapJ, "DstModID", json_integer(map.module_id));
+					json_object_set_new(thisMapJ, "DstObjID", json_integer(map.param_id));
 					json_object_set_new(thisMapJ, "SrcModID", json_integer(hubModuleId));
 					json_object_set_new(thisMapJ, "SrcObjID", json_integer(hubParamId));
 					json_object_set_new(thisMapJ, "RangeMin", json_real(map.range_min));
@@ -363,7 +363,7 @@ private:
 	KnobMappingSet &nextFreeMap(unsigned hubParamId, unsigned set_idx) {
 		// Find first unused mapping slot
 		for (auto &mapset : mappings[hubParamId]) {
-			if (mapset.maps[set_idx].moduleId < 0) {
+			if (mapset.maps[set_idx].module_id < 0) {
 				return mapset;
 			}
 		}
@@ -388,8 +388,8 @@ private:
 	void updateMapsFromParamHandles() {
 		for (auto &knob : mappings) {
 			for (auto &mapset : knob) {
-				mapset.maps[activeSetId].moduleId = mapset.paramHandle.moduleId;
-				mapset.maps[activeSetId].paramId = mapset.paramHandle.paramId;
+				mapset.maps[activeSetId].module_id = mapset.paramHandle.moduleId;
+				mapset.maps[activeSetId].param_id = mapset.paramHandle.paramId;
 			}
 		}
 	}
@@ -435,8 +435,8 @@ public:
 		for (auto &knob : mappings) {
 			for (auto &mapset : knob) {
 				for (auto &map : mapset.maps) {
-					if (map.moduleId >= 0) {
-						if (APP->engine->getModule(map.moduleId) == nullptr) {
+					if (map.module_id >= 0) {
+						if (APP->engine->getModule(map.module_id) == nullptr) {
 							map.clear();
 						}
 					}
