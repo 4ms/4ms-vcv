@@ -1,5 +1,5 @@
 #include "helpers/4ms_elements.hh"
-#include "osdialog/osdialog.h"
+#include "osdialog.h"
 #include "rack.hpp"
 #include "widgets/vcv_creation_context.hh"
 #include <CoreModules/elements/element_state_conversion.hh>
@@ -26,7 +26,7 @@ struct AltParamChoiceItem : rack::ui::MenuItem {
 		: module(module_)
 		, param_idx(param_idx_)
 		, el(el_)
-		, choiceIndex(choiceIndex_){};
+		, choiceIndex(choiceIndex_) {};
 	void onAction(const ActionEvent &e) override {
 		e.unconsume();
 

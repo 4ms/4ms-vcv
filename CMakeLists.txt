@@ -82,5 +82,5 @@ target_include_directories(${RACK_PLUGIN_LIB} PRIVATE
 )
 
 target_include_directories(CoreModules-4ms PRIVATE
-	${RACK_SDK_DIR}/dep # For osdialog_types.h
+	${RACK_SDK_DIR}/dep/include # For osdialog_types.h
 )
