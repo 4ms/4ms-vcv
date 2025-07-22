@@ -50,13 +50,17 @@ struct VCVWidgetCreator {
 		if constexpr (std::derived_from<EL, AltParamElement>) {
 			// forward to implementation with required context
 			if (auto indices = ElementCount::get_indices<INFO>(element)) {
+				if (first_menu)
+					menu->addChild(new rack::MenuSeparator);
 				VCVImplementation::Widget::do_render_to_menu(element, menu, indices.value(), context);
+				first_menu = false;
 			}
 		}
 	}
 
 private:
 	WidgetContext_t context;
+	bool first_menu = true;
 };
 
 } // namespace MetaModule

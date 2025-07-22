@@ -65,51 +65,11 @@ struct GenericModule {
 			}
 		}
 
-		// custom menu item that draws a child menu populated with entries
-		// defined by the alt parameter elements of the module
-		struct AltParamMenuTop : rack::ui::MenuItem {
-			AltParamMenuTop(MetaModule::VCVWidgetCreator<Info> creator_)
-				: creator(creator_) {
-			}
-
-			rack::ui::Menu *createChildMenu() override {
-				auto childMenu = new rack::ui::Menu;
-
-				// let each element render itself to the menu
-				for (auto &element : Info::Elements) {
-					std::visit([&childMenu, this](auto &el) { creator.renderToContextMenu(el, childMenu); }, element);
-				}
-				return childMenu;
-			}
-
-		private:
-			MetaModule::VCVWidgetCreator<Info> creator;
-		};
-
 		void appendContextMenu(rack::ui::Menu *menu) override {
-			bool hasAltParams = false;
-			for (auto const &element : Info::Elements) {
-				auto isAltParam = std::visit(overloaded{[](MetaModule::BaseElement const &) { return false; },
-														[](MetaModule::AltParamElement const &) {
-															return true;
-														}},
-											 element);
-				if (isAltParam) {
-					hasAltParams = true;
-					break;
-				}
-			}
+			MetaModule::VCVWidgetCreator<Info> creator(this, mainModule);
 
-			if (hasAltParams) {
-				MetaModule::VCVWidgetCreator<Info> creator(this, module);
-
-				// add single entry with submenu
-				// we need to forward the creator so the entry itself is able to create further menu items
-				auto altParamItem = new AltParamMenuTop(creator);
-				altParamItem->text = "Alt Parameters";
-				altParamItem->rightText = RIGHT_ARROW;
-
-				menu->addChild(altParamItem);
+			for (auto &element : Info::Elements) {
+				std::visit([&menu, &creator](auto &el) { creator.renderToContextMenu(el, menu); }, element);
 			}
 		}
 	};
