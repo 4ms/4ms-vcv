@@ -4,17 +4,17 @@
    height="128.59mm"
    viewBox="0 0 115.45 364.5"
    version="1.1"
-   id="svg53"
+   id="svg68"
    sodipodi:docname="Freeverb_artwork.svg"
-   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
-     id="defs53" />
+     id="defs68" />
   <sodipodi:namedview
-     id="namedview53"
+     id="namedview68"
      pagecolor="#ffffff"
      bordercolor="#000000"
      borderopacity="0.25"
@@ -23,25 +23,21 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     showgrid="false"
-     inkscape:zoom="2.502009"
-     inkscape:cx="76.938171"
-     inkscape:cy="243.00472"
-     inkscape:window-width="2512"
-     inkscape:window-height="1387"
-     inkscape:window-x="50"
-     inkscape:window-y="25"
-     inkscape:window-maximized="1"
+     inkscape:zoom="0.6829637"
+     inkscape:cx="71.014024"
+     inkscape:cy="393.87159"
+     inkscape:window-width="1696"
+     inkscape:window-height="831"
+     inkscape:window-x="32"
+     inkscape:window-y="38"
+     inkscape:window-maximized="0"
      inkscape:current-layer="faceplate" />
   <g
      id="faceplate">
-    <rect
-       x=".12"
-       y=".12"
-       width="115.2"
-       height="364.25"
-       style="fill: #ededed; stroke: #9d9d9e; stroke-miterlimit: 10; stroke-width: .25px;"
-       id="rect1" />
+    <path
+       id="rect1"
+       style="fill:#ededed;stroke:#9d9d9e;stroke-width:0.25px;stroke-miterlimit:10"
+       d="m 0.12,0.12 h 115.2 V 364.37 H 0.12 Z" />
     <g
        id="g4">
       <path
@@ -293,21 +289,22 @@
          id="path49" />
     </g>
     <g
-       id="g52">
+       id="g42"
+       transform="matrix(0.99998057,0,0,0.99998057,28.712722,-7.3320635)">
       <path
-         d="M63.34,8.16s-3.5,4.44-5.53,7.03v-6.03c0-.52-.25-.98-.64-1.18-.39-.19-.84-.08-1.13.29l-7.28,9.25c-.4.5-.38,1.3.03,1.79.41.48,1.06.47,1.46-.03,0,0,3.47-4.41,5.5-6.99v6.03c0,.52.26.98.65,1.17.39.19.84.08,1.13-.29,0,0,3.49-4.44,5.53-7.03v6.15c0,.7.46,1.27,1.03,1.27s1.03-.57,1.03-1.27v-9.29c0-.52-.26-.98-.65-1.17-.39-.19-.84-.08-1.13.3Z"
-         style="fill: #000; stroke: #000; stroke-width: .6px;"
-         id="path50" />
+         id="path40-6"
+         d="m 20.6,26.79 c -0.37,0 -0.71,-0.17 -0.97,-0.47 -0.51,-0.6 -0.52,-1.54 -0.04,-2.16 l 6.97,-8.88 c 0.38,-0.48 1.05,-0.65 1.57,-0.39 0.52,0.26 0.79,0.82 0.79,1.45 v 4.77 l 4.64,-5.85 c 0.38,-0.48 1.01,-0.64 1.53,-0.38 0.5,0.25 0.83,0.81 0.83,1.44 v 8.82 c 0,0.86 -0.61,1.57 -1.36,1.57 -0.75,0 -1.36,-0.7 -1.36,-1.57 v -4.79 l -4.64,5.85 c -0.38,0.48 -1.01,0.64 -1.54,0.38 -0.5,-0.24 -0.83,-0.81 -0.83,-1.44 v -4.67 l -4.61,5.8 c -0.26,0.32 -0.62,0.51 -1,0.51 h 0.02 z"
+         style="fill:#2cabe1" />
       <path
-         d="M48.76,8.09l-4.82,6.13c-.4.5-.38,1.3.02,1.79.41.48,1.06.47,1.46-.03,0,0,1.62-2.07,3.05-3.87v6.31c0,.7.46,1.27,1.03,1.27s1.03-.57,1.03-1.27v-9.44c0-.52-.26-.98-.65-1.17-.39-.19-.84-.08-1.13.3Z"
-         style="fill: #000; stroke: #000; stroke-width: .6px;"
-         id="path51" />
+         id="path41-9"
+         d="m 20.6,26.79 c -0.75,0 -1.35,-0.7 -1.35,-1.57 v -4.93 l -2.26,2.84 c -0.5,0.63 -1.44,0.65 -1.97,0.04 -0.51,-0.6 -0.52,-1.53 -0.03,-2.15 l 4.61,-5.76 c 0.26,-0.32 0.63,-0.5 1,-0.5 0.18,0 0.37,0.04 0.54,0.12 0.5,0.25 0.82,0.81 0.82,1.44 v 8.89 c 0,0.86 -0.61,1.57 -1.36,1.57 v 0 z"
+         style="fill:#ea2228" />
       <path
-         d="M71.71,12.61c-.16-.47-.53-.77-.95-.77h-2.11l1.54-1.95s.8-1.17.09-1.82c-.7-.64-1.58.06-1.58.06l-3.22,4.1c-.29.37-.37.91-.21,1.37.16.47.54.77.95.77h2.11l-2.5,3.17s-1.03,1.13-.27,1.89c.76.76,1.76-.14,1.76-.14l4.18-5.32c.29-.36.37-.91.21-1.37Z"
-         style="fill: #000; stroke: #000; stroke-width: .6px;"
-         id="path52" />
+         id="path42-0"
+         d="m 37.2,26.81 v 0 c -0.35,0 -0.68,-0.15 -0.94,-0.42 -0.76,-0.78 -0.14,-1.84 0.29,-2.3 L 38.5,21.73 37.24,21.71 C 36.68,21.7 36.2,21.31 36,20.71 35.81,20.15 35.93,19.5 36.29,19.07 l 3.16,-3.83 c 0.23,-0.28 0.55,-0.48 1.13,-0.47 0.33,0 0.67,0.17 0.92,0.4 0.71,0.66 0.29,1.7 -0.07,2.2 l -1.04,1.26 1.26,0.02 c 0.56,0.01 1.04,0.4 1.24,1 0.19,0.56 0.07,1.21 -0.29,1.64 l -4.1,4.97 c -0.35,0.35 -0.65,0.55 -1.3,0.54 v 0 z"
+         style="fill:#00a650" />
     </g>
   </g>
   <g
-     id="g53" />
+     id="g1" />
 </svg>
