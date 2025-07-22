@@ -1,5 +1,13 @@
 # CHANGE LOG
 
+## v2.0.16
+
+- Updated MetaModule SDK to v2.1, and using the entire SDK as a submodule (not just core-interface)
+
+- Added color logo to non-hardware modules, and tweaked artwork so screws don't cover any art/words
+
+- Made AltParams display directly in the context menu, instead of in a submenu
+
 ## v2.0.15
 
 - Add "Include Modules from:" right-click menu option that allows including only certain modules in the exported patch file. 
