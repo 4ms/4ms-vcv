@@ -8,6 +8,8 @@
 
 - Made AltParams display directly in the context menu, instead of in a submenu
 
+- Add Basic Sample Player module
+
 ## v2.0.15
 
 - Add "Include Modules from:" right-click menu option that allows including only certain modules in the exported patch file. 
