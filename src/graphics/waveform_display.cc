@@ -74,14 +74,37 @@ void StreamingWaveformDisplay::set_wave_color(uint8_t r, uint8_t g, uint8_t b) {
 	wave_b = b;
 }
 
+void StreamingWaveformDisplay::set_wave_color(std::span<const float, 3> rgb) {
+	set_wave_color(255.f * rgb[0], 255.f * rgb[1], 255.f * rgb[2]);
+}
+
 void StreamingWaveformDisplay::set_bar_color(uint8_t r, uint8_t g, uint8_t b) {
 	bar_r = r;
 	bar_g = g;
 	bar_b = b;
 }
 
+void StreamingWaveformDisplay::set_bar_color(std::span<const float, 3> rgb) {
+	set_bar_color(255.f * rgb[0], 255.f * rgb[1], 255.f * rgb[2]);
+}
+
+void StreamingWaveformDisplay::set_highlight_color(uint8_t r, uint8_t g, uint8_t b) {
+	hilite_r = r;
+	hilite_g = g;
+	hilite_b = b;
+}
+
+void StreamingWaveformDisplay::set_highlight_color(std::span<const float, 3> rgb) {
+	set_highlight_color(255.f * rgb[0], 255.f * rgb[1], 255.f * rgb[2]);
+}
+
 void StreamingWaveformDisplay::set_cursor_width(unsigned width) {
 	cursor_width = width;
+}
+
+void StreamingWaveformDisplay::set_highlighted_begin_end(float begin, float end) {
+	highlight_begin = begin;
+	highlight_end = end;
 }
 
 // Functions below here run in the GUI thread and may get interrupted by the functions above
@@ -104,6 +127,31 @@ bool StreamingWaveformDisplay::draw_graphic_display() {
 	nvgBeginPath(internal->vg);
 	nvgRect(internal->vg, 0, display_height - bar_height / scaling, display_width, bar_height / scaling);
 	nvgFillColor(internal->vg, nvgRGBA(bar_r, bar_g, bar_b, 0xFF));
+	nvgFill(internal->vg);
+	nvgClosePath(internal->vg);
+
+	nvgBeginPath(internal->vg);
+	if (highlight_begin <= highlight_end) {
+		nvgRect(internal->vg,
+				highlight_begin * display_width,
+				display_height - bar_height / scaling,
+				(highlight_end - highlight_begin) * display_width,
+				bar_height / scaling);
+	} else {
+		// [0, end]
+		nvgRect(internal->vg,
+				0,
+				display_height - bar_height / scaling,
+				highlight_end * display_width,
+				bar_height / scaling);
+		// [begin, max]
+		nvgRect(internal->vg,
+				highlight_begin * display_width,
+				display_height - bar_height / scaling,
+				(1.f - highlight_begin) * display_width,
+				bar_height / scaling);
+	}
+	nvgFillColor(internal->vg, nvgRGBA(hilite_r, hilite_g, hilite_b, 0xFF));
 	nvgFill(internal->vg);
 	nvgClosePath(internal->vg);
 
