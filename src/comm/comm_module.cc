@@ -66,10 +66,9 @@ void CommModule::process(const ProcessArgs &args) {
 		i++;
 	}
 
-	for (unsigned i = 0; auto &p : params) {
+	for (unsigned i = 0; i < params.size(); i++) {
 		auto val = core->get_param(i);
 		getParamQuantity(i)->setScaledValue(val);
-		i++;
 	}
 }
 
