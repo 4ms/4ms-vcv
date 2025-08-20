@@ -193,7 +193,7 @@ struct VCVPatchFileWriter {
 
 				for (auto &mapsets : knob_maps) {
 					auto &map = mapsets.maps[set_i];
-					map.alias_name = mappings.getMapAliasName({.objID = hubParamId}, set_i);
+					map.alias_name = mappings.getMapAliasName(hubParamId, set_i);
 					if (map.moduleId > 0)
 						active_maps.push_back(map);
 				}
