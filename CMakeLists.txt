@@ -42,6 +42,9 @@ target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	src/mapping/module_specific_fixes.cc
     src/network/network.cpp
 	src/filesystem/async_filebrowser.cc
+	src/hardware_support/memory.cc
+	src/hardware_support/random.cc
+	src/hardware_support/time.cc
 
 	src/wav/wav_file_stream.cc
 	src/wav/dr_wav.c

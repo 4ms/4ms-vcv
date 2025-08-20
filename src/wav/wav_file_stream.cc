@@ -66,8 +66,13 @@ struct WavFileStream::Internal {
 		return max_samples;
 	}
 
-	size_t buffer_size() const {
+	size_t buffer_samples() const {
 		return pre_buff.max_size();
+	}
+
+	size_t buffer_frames() const {
+		auto channels = wav.channels >= 2 ? 2 : 1;
+		return buffer_samples() / channels;
 	}
 
 	bool load(std::string_view sample_path) {
@@ -142,7 +147,7 @@ struct WavFileStream::Internal {
 					next_frame_to_write.store(next_frame_to_write.load() + 1);
 
 					auto f = frames_in_buffer.load();
-					if (f < buffer_size() / wav.channels)
+					if (f < buffer_frames())
 						frames_in_buffer.store(f + 1);
 				}
 			}
@@ -275,7 +280,8 @@ WavFileStream::~WavFileStream() = default;
 // clang-format off
 bool WavFileStream::resize(size_t max_samples){ return internal->resize(max_samples); }
 size_t WavFileStream::max_size() const{ return internal->max_size(); }
-size_t WavFileStream::buffer_size() const{ return internal->buffer_size(); }
+size_t WavFileStream::buffer_samples() const{ return internal->buffer_samples(); }
+size_t WavFileStream::buffer_frames() const{ return internal->buffer_frames(); }
 bool WavFileStream::load(std::string_view sample_path){ return internal->load(sample_path); }
 void WavFileStream::unload(){ internal->unload(); }
 bool WavFileStream::is_loaded() const{ return internal->is_loaded(); }
