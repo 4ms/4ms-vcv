@@ -1,4 +1,5 @@
 #include <functional>
+#include <string.h>
 #include <string>
 #include <string_view>
 

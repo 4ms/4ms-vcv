@@ -1,6 +1,7 @@
 #include "async_thread_control.hh"
 #include "console/pr_dbg.hh"
 #include "util/fixed_vector.hh"
+#include <atomic>
 #include <cstdlib>
 #include <optional>
 #include <thread>
