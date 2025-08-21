@@ -186,6 +186,9 @@ struct WavFileStream::Internal {
 	}
 
 	unsigned frames_available() const {
+		if(wav.channels == 0){
+			return 0;
+		}
 		return samples_available() / wav.channels;
 	}
 
@@ -198,6 +201,9 @@ struct WavFileStream::Internal {
 	}
 
 	unsigned current_playback_frame() const {
+		if(wav.channels == 0){
+			return 0;
+		}
 		return next_sample_to_read.load() / wav.channels;
 	}
 
