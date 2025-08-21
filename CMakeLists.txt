@@ -45,6 +45,7 @@ target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	src/hardware_support/memory.cc
 	src/hardware_support/random.cc
 	src/hardware_support/time.cc
+	src/hardware_support/filesystem_helpers.cc
 
 	src/wav/wav_file_stream.cc
 	src/wav/dr_wav.c
