@@ -147,8 +147,9 @@
       "tags": ["Effect", "Reverb"]
     },
     {
-      "slug": "TSP",
-      "name": "Basic Sample Player [TSP]",
+      "slug": "BWAVP",
+      "name": "Basic WAV Player",
+      "description": "Simple streaming .wav player optimized for microSD cards and USB drives",
       "tags": ["Sampler"]
     },
     {
