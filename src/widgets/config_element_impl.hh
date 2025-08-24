@@ -115,7 +115,8 @@ inline void do_config_element(Encoder el, const Indices &indices, const ModuleCo
 };
 
 inline void do_config_element(AltParamContinuous el, const Indices &indices, const ModuleContext_t &context) {
-	context.module->configParam(indices.param_idx, el.MinValue, el.MaxValue, el.default_value, el.short_name.data());
+	context.module->configParam(
+		indices.param_idx, el.MinValue, el.MaxValue, el.default_value, el.short_name.data(), "%", 0, 100);
 }
 
 inline void do_config_element(AltParamChoice el, const Indices &indices, const ModuleContext_t &context) {
