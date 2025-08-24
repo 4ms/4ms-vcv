@@ -51,8 +51,8 @@ private:
  * Submenu that holds all options for a single alt paramter on a module instance
  */
 
-struct AltParamChoiceLabledMenu : rack::ui::MenuItem {
-	AltParamChoiceLabledMenu(rack::Module *module_, std::size_t param_idx_, AltParamChoiceLabeled el)
+struct AltParamChoiceLabeledMenu : rack::ui::MenuItem {
+	AltParamChoiceLabeledMenu(rack::Module *module_, std::size_t param_idx_, AltParamChoiceLabeled el)
 		: module(module_)
 		, param_idx(param_idx_)
 		, element(el) {
@@ -175,7 +175,7 @@ do_render_to_menu(AltParamChoice el, rack::ui::Menu *menu, Indices &indices, con
 
 inline void
 do_render_to_menu(AltParamChoiceLabeled el, rack::ui::Menu *menu, Indices &indices, const WidgetContext_t &context) {
-	auto *item = new AltParamChoiceLabledMenu(context.module, indices.param_idx, el);
+	auto *item = new AltParamChoiceLabeledMenu(context.module, indices.param_idx, el);
 	item->text = el.short_name;
 	item->rightText = RIGHT_ARROW;
 	menu->addChild(item);
