@@ -1,5 +1,6 @@
 #pragma once
 #include "CoreModules/CoreProcessor.hh"
+#include "CoreModules/elements/element_info_view.hh"
 #include "comm/comm_jack.hh"
 
 // CommModule wraps CoreProcessors for use in VCV Rack
@@ -12,11 +13,15 @@ public:
 
 	std::string last_file_path;
 
+	MetaModule::ModuleInfoView info;
+
 private:
 	bool sampleRateChanged = true;
 
 	// Needed for converting legacy patch files (<2.0.15)
 	std::string patch_version;
+
+	std::vector<unsigned> alt_param_action_indices;
 
 protected:
 	CommModule() = default;
