@@ -119,10 +119,10 @@ struct WavFileStream::Internal {
 			// Read blocks of maximum 4kB at a time
 			unsigned frames_to_read = std::min(ReadBlockBytes / wav.fmt.blockAlign, (unsigned)num_frames);
 
-			if (auto num_free = pre_buff.num_free(); num_free == 0)
+			if (auto frames_free = (pre_buff.num_free() / wav.channels); frames_free == 0)
 				return;
-			else if (num_free < frames_to_read) {
-				frames_to_read = pre_buff.num_free() / wav.channels;
+			else if (frames_free < frames_to_read) {
+				frames_to_read = frames_free;
 				num_frames = frames_to_read; // abort after this read
 			}
 
@@ -269,7 +269,7 @@ struct WavFileStream::Internal {
 		pre_buff.set_read_pos(0);
 		next_frame_to_write = 0;
 		next_sample_to_read = 0;
-		frames_in_buffer = 0;
+		frames_in_buffer.store(0, std::memory_order_release);
 		// Need a fence because next_sample_to_read is not atomic
 		std::atomic_signal_fence(std::memory_order_seq_cst);
 	}
@@ -317,4 +317,3 @@ unsigned WavFileStream::wav_sample_rate() const{ return internal->wav_sample_rat
 // clang-format on
 
 } // namespace MetaModule
-
