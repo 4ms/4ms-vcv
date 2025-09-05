@@ -1,14 +1,15 @@
 # CHANGE LOG
 
-## v2.1.0 (WIP)
+## v2.1.0
 
-- Updated MetaModule SDK to v2.1, and using the entire SDK as a submodule (not just core-interface)
-
-- Added color logo to non-hardware modules, and tweaked artwork so screws don't cover any art/words
+- Add Basic Sample Player module
 
 - Made AltParams display directly in the context menu, instead of in a submenu
 
-- Add Basic Sample Player module
+- Added color logo to non-hardware modules, and tweaked artwork so screws don't cover any art/words
+
+- Updated MetaModule SDK to v2.1, and using the entire SDK as a submodule (not just core-interface)
+
 
 ## v2.0.15
 
