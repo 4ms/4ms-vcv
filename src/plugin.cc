@@ -1,6 +1,12 @@
 #include "plugin.hh"
+#include "thread/async_thread_control.hh"
 
 rack::Plugin *pluginInstance;
+
+namespace MetaModule
+{
+std::string last_file_path;
+}
 
 __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	pluginInstance = p;
@@ -9,6 +15,7 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	// Add models below here
 	p->addModel(modelAtvert2);
 	p->addModel(modelBPF);
+	p->addModel(modelBWAVP);
 	p->addModel(modelCLKD);
 	p->addModel(modelCLKM);
 	p->addModel(modelComplexEG);
@@ -55,16 +62,23 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelVCAM);
 	p->addModel(modelVerb);
 	p->addModel(modelMMAudioExpander);
+
+	MetaModule::Async::start_module_threads();
 }
 
-__attribute__((__visibility__("default"))) extern "C" json_t *settingsToJson() {
+extern "C" void destroy() {
+	printf("plugin destroy\n");
+	MetaModule::Async::kill_module_threads();
+}
+
+extern "C" __attribute__((__visibility__("default"))) json_t *settingsToJson() {
 	json_t *rootJ = json_object();
 	json_object_set_new(rootJ, "wifiUrl", json_string(MetaModule::wifiUrl.c_str()));
 	json_object_set_new(rootJ, "wifiPath", json_integer((unsigned)MetaModule::wifiVolume));
 	return rootJ;
 }
 
-__attribute__((__visibility__("default"))) extern "C" void settingsFromJson(json_t *rootJ) {
+extern "C" __attribute__((__visibility__("default"))) void settingsFromJson(json_t *rootJ) {
 	if (auto wifiUrlJ = json_object_get(rootJ, "wifiUrl"))
 		MetaModule::wifiUrl = json_string_value(wifiUrlJ);
 

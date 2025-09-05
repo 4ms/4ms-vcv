@@ -147,26 +147,37 @@ public:
 	}
 
 	// Mapping Alias:
-
-	void setMapAliasName(MappableObj paramObj, std::string const &newname, unsigned set_id) {
-		if (paramObj.objID < (int)num_knobs) {
-			aliases[paramObj.objID][set_id] = newname;
+	void setMapAliasName(int64_t paramID, std::string const &newname, unsigned set_id) {
+		if (paramID < (int)num_knobs) {
+			aliases[paramID][set_id] = newname;
 		}
 	}
 
-	void setMapAliasName(MappableObj paramObj, std::string const &newname) {
-		setMapAliasName(paramObj, newname, activeSetId);
+	void setMapAliasName(MappableObj paramObj, std::string const &newname, unsigned set_id) {
+		setMapAliasName(paramObj.objID, newname, set_id);
 	}
 
-	std::string getMapAliasName(MappableObj paramObj, unsigned set_id) {
-		if (paramObj.objID < (int)num_knobs) {
-			return aliases[paramObj.objID][set_id];
+	void setMapAliasName(int64_t paramID, std::string const &newname) {
+		setMapAliasName(paramID, newname, activeSetId);
+	}
+
+	void setMapAliasName(MappableObj paramObj, std::string const &newname) {
+		setMapAliasName(paramObj.objID, newname, activeSetId);
+	}
+
+	std::string getMapAliasName(int64_t paramID, unsigned set_id) {
+		if (paramID < (int)num_knobs) {
+			return aliases[paramID][set_id];
 		}
 		return "";
 	}
 
+	std::string getMapAliasName(MappableObj paramObj, unsigned set_id) {
+		return getMapAliasName(paramObj.objID, set_id);
+	}
+
 	std::string getMapAliasName(MappableObj paramObj) {
-		return getMapAliasName(paramObj, activeSetId);
+		return getMapAliasName(paramObj.objID, activeSetId);
 	}
 
 	// Add mappings to a knob in the active set:
@@ -310,7 +321,7 @@ public:
 
 							val = json_object_get(mappingJ, "AliasName");
 							std::string name = json_is_string(val) ? json_string_value(val) : "";
-							setMapAliasName({.objID = hubParamId}, name, set_i);
+							setMapAliasName(hubParamId, name, set_i);
 						}
 					}
 

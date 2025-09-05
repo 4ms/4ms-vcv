@@ -65,6 +65,15 @@ void CommModule::process(const ProcessArgs &args) {
 		light.setBrightness(core->get_led_brightness(i));
 		i++;
 	}
+
+	// Reset alt param actions after module handles them
+	for (auto i : alt_param_action_indices) {
+		auto val = core->get_param(i);
+		auto rackVal = getParamQuantity(i)->getScaledValue();
+		if (val != rackVal) {
+			getParamQuantity(i)->setScaledValue(val);
+		}
+	}
 }
 
 void CommModule::configComm(unsigned NUM_PARAMS, unsigned NUM_INPUTS, unsigned NUM_OUTPUTS, unsigned NUM_LIGHTS) {
@@ -78,6 +87,15 @@ void CommModule::configComm(unsigned NUM_PARAMS, unsigned NUM_INPUTS, unsigned N
 	}
 	core->mark_all_inputs_unpatched();
 	core->mark_all_outputs_unpatched();
+
+	// Find any AltParamAction, since we need to manually reset their values
+	alt_param_action_indices.clear();
+	for (auto i = 0u; auto const &element : info.elements) {
+		if (std::holds_alternative<MetaModule::AltParamAction>(element)) {
+			alt_param_action_indices.push_back(info.indices[i].param_idx);
+		}
+		i++;
+	}
 }
 
 json_t *CommModule::dataToJson() {

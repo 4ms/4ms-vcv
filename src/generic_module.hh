@@ -17,6 +17,7 @@ struct GenericModule {
 		Module() {
 			// Create processing core
 			core = MetaModule::ModuleFactory::create(Info::slug);
+			info = MetaModule::ModuleFactory::getModuleInfo(Info::slug);
 
 			// Register with VCV the number of elements of each type
 			auto cnt = ElementCount::count<Info>();
@@ -59,7 +60,7 @@ struct GenericModule {
 			}
 
 			// create widgets from all elements
-			MetaModule::VCVWidgetCreator<Info> creator(this, module);
+			MetaModule::VCVWidgetCreator<Info> creator(this, mainModule);
 			for (auto &element : Info::Elements) {
 				std::visit([&creator](auto &el) { creator.create(el); }, element);
 			}

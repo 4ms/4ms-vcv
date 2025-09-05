@@ -174,4 +174,24 @@ inline void do_create(RgbLight el, const Indices &indices, const WidgetContext_t
 	context.module_widget->addChild(rack::createLightCentered<LightT>(ctr_pos, context.module, indices.light_idx));
 }
 
+////// Displays
+
+inline void do_create(DynamicTextDisplay el, const Indices &indices, const WidgetContext_t &context) {
+
+	auto widget = new TextDisplayWidget(indices.light_idx, context.module, el);
+	widget->box.pos = rack::Vec(el.x_mm, el.y_mm).mult(Fix4msScaling);
+	widget->box.size = rack::Vec(el.width_mm, el.height_mm).mult(Fix4msScaling);
+
+	context.module_widget->addChild(widget);
+}
+
+inline void do_create(DynamicGraphicDisplay el, const Indices &indices, const WidgetContext_t &context) {
+
+	auto widget = new GraphicDisplayWidget(indices.light_idx, context.module);
+	widget->box.pos = rack::Vec(el.x_mm, el.y_mm).mult(Fix4msScaling);
+	widget->box.size = rack::Vec(el.width_mm, el.height_mm).mult(Fix4msScaling);
+
+	context.module_widget->addChild(widget);
+}
+
 } // namespace MetaModule::VCVImplementation::Widget
