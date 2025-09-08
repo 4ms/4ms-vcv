@@ -2,6 +2,8 @@
 #include "cable_color.hh"
 #include "console/pr_dbg.hh"
 #include "hub/hub_knob_mappings.hh"
+#include "hub/hub_module.hh"
+#include "hub/jack_alias.hh"
 #include "mapping/JackMap.hh"
 #include "mapping/ModuleID.h"
 #include "mapping/ParamMap.hh"
@@ -23,6 +25,7 @@ struct VCVPatchFileWriter {
 
 	static std::string createPatchYml(int64_t hubModuleId,
 									  HubKnobMappings<MaxMapsPerPot, MaxKnobSets> &mappings,
+									  JackAlias &jack_aliases,
 									  std::string patchName,
 									  std::string patchDesc,
 									  MappingMode mappingMode) {
@@ -173,6 +176,18 @@ struct VCVPatchFileWriter {
 		pw.setExpanders(expanders);
 		pw.setCableList(cableData);
 		pw.setParamList(paramData);
+
+		//combine hub aliases and expander aliases
+		JackAlias aliases{jack_aliases};
+		if (expanders.hasAudioExpander()) {
+			auto hub_base = dynamic_cast<MetaModuleHubBase *>(engine->getModule(expanders.getAudioExpanderId()));
+			if (hub_base) {
+				auto &e = hub_base->jack_alias;
+				aliases.in.insert(aliases.in.end(), e.in.begin(), e.in.end());
+				aliases.out.insert(aliases.out.end(), e.out.begin(), e.out.end());
+			}
+		}
+		pw.setJackAliases(aliases);
 
 		// Add module state from Module::dataToJson()
 		for (auto moduleID : engine->getModuleIds()) {
