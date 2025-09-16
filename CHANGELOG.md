@@ -1,10 +1,15 @@
 # CHANGE LOG
 
-## v2.0.16 (in progress)
+## v2.1.0
 
-- Jack aliases: Can set a custom name for mapped jacks on the hub and on the audio expander.
+- Add Basic Sample Player module
 
-- Add Button Expander module
+- Made AltParams display directly in the context menu, instead of in a submenu
+
+- Added color logo to non-hardware modules, and tweaked artwork so screws don't cover any art/words
+
+- Updated MetaModule SDK to v2.1, and using the entire SDK as a submodule (not just core-interface)
+
 
 ## v2.0.15
 

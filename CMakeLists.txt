@@ -44,6 +44,10 @@ target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	src/mapping/module_specific_fixes.cc
     src/network/network.cpp
 	src/filesystem/async_filebrowser.cc
+	src/hardware_support/memory.cc
+	src/hardware_support/random.cc
+	src/hardware_support/time.cc
+	src/hardware_support/filesystem_helpers.cc
 
 	src/wav/wav_file_stream.cc
 	src/wav/dr_wav.c
@@ -84,5 +88,5 @@ target_include_directories(${RACK_PLUGIN_LIB} PRIVATE
 )
 
 target_include_directories(CoreModules-4ms PRIVATE
-	${RACK_SDK_DIR}/dep # For osdialog_types.h
+	${RACK_SDK_DIR}/dep/include # For osdialog_types.h
 )

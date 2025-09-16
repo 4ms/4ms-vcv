@@ -17,6 +17,7 @@ struct GenericModule {
 		Module() {
 			// Create processing core
 			core = MetaModule::ModuleFactory::create(Info::slug);
+			info = MetaModule::ModuleFactory::getModuleInfo(Info::slug);
 
 			// Register with VCV the number of elements of each type
 			auto cnt = ElementCount::count<Info>();

@@ -38,7 +38,6 @@ struct MetaModuleHubBase : public rack::Module {
 
 	JackAlias jack_alias{};
 
-	// TODO: make this an array and resize to num_pots in constructor
 	std::vector<float> last_knob_val{};
 
 	// Mapping State/Progress

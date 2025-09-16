@@ -6,7 +6,7 @@
    version="1.1"
    id="svg87"
    sodipodi:docname="Verb_artwork.svg"
-   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,13 +24,13 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="2.4669018"
-     inkscape:cx="92.626306"
-     inkscape:cy="269.77158"
-     inkscape:window-width="1392"
-     inkscape:window-height="1212"
-     inkscape:window-x="50"
-     inkscape:window-y="25"
+     inkscape:zoom="0.67393597"
+     inkscape:cx="184.73565"
+     inkscape:cy="316.05376"
+     inkscape:window-width="1200"
+     inkscape:window-height="979"
+     inkscape:window-x="528"
+     inkscape:window-y="38"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg87" />
   <g
@@ -38,13 +38,10 @@
      transform="translate(-0.00107636)">
     <g
        id="g1">
-      <rect
-         x="0.13"
-         y="0.13"
-         width="143.75"
-         height="364"
+      <path
+         id="rect1"
          style="fill:#ededed;stroke-width:0px"
-         id="rect1" />
+         d="m 0.13,0.13 h 143.75 v 364 H 0.13 Z" />
       <path
          d="M 143.75,0.25 V 364 H 0.25 V 0.25 h 143.5 M 144,0 H 0 v 364.25 h 144 z"
          style="fill:#9d9d9e;stroke-width:0px"

@@ -62,7 +62,7 @@ extern rack::Model *modelPitchShift;
 extern rack::Model *modelSlew;
 extern rack::Model *modelSource;
 extern rack::Model *modelStMix;
-extern rack::Model *modelTSP;
+extern rack::Model *modelBWAVP;
 extern rack::Model *modelMPEG;
 extern rack::Model *modelMMAudioExpander;
 extern rack::Model *modelMMButtonExpander;

@@ -179,7 +179,7 @@ struct VCVPatchFileWriter {
 		pw.setCableList(cableData);
 		pw.setParamList(paramData);
 
-		//combine hub aliases and audio expander aliases
+		//combine hub aliases and expander aliases
 		JackAlias aliases{jack_aliases};
 		if (expanders.hasAudioExpander()) {
 			auto hub_base = dynamic_cast<MetaModuleHubBase *>(engine->getModule(expanders.getAudioExpanderId()));
@@ -233,7 +233,7 @@ struct VCVPatchFileWriter {
 
 				for (auto &mapsets : knob_maps) {
 					auto &map = mapsets.maps[set_i];
-					map.alias_name = mappings.getMapAliasName({.objID = panelId}, set_i);
+					map.alias_name = mappings.getMapAliasName(hubParamId, set_i);
 					if (map.module_id > 0)
 						active_maps.push_back(map);
 				}

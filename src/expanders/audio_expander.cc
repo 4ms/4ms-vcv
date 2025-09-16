@@ -36,8 +36,7 @@ struct AudioExpanderModule : MetaModuleHubBase {
 struct AudioExpanderWidget : MetaModuleHubWidget {
 	using Info = AudioExpanderModule::Info;
 
-	AudioExpanderWidget(MetaModuleHubBase *module)
-		: MetaModuleHubWidget{module} {
+	AudioExpanderWidget(AudioExpanderModule *module) {
 		using namespace rack;
 
 		setModule(module);
