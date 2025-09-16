@@ -56,23 +56,6 @@ inline void do_create(MomentaryButton el, const ElementCount::Indices &idx, cons
 		el.short_name, idx.param_idx, ctr_pos, MappableObj::Type::Button, 15.f);
 }
 
-struct HubPort : rack::PJ301MPort {
-	std::string *alias;
-
-	void appendContextMenu(rack::ui::Menu *menu) override {
-		using namespace rack;
-		menu->addChild(new MenuSeparator());
-		auto label = new MenuLabel;
-		label->text = "Alias:";
-		menu->addChild(label);
-		menu->addChild(new JackNameMenuItem{[this](unsigned, std::string const &text) { *alias = text; },
-											"alias",
-											*alias,
-											MetaModuleHubWidget::kMaxJackAliasChars});
-		menu->addChild(new MenuSeparator());
-	}
-};
-
 inline void do_create(JackInput el, const ElementCount::Indices &idx, const HubWidgetContext &ctx) {
 	// These are Input jacks as seen by VCV, but they are called "Out 1", "Out 2", etc
 	auto p = rack::createInputCentered<HubPort>(rack::mm2px({el.x_mm, el.y_mm}), ctx.module, idx.input_idx);
