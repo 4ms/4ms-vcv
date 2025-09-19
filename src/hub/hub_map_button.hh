@@ -17,8 +17,10 @@ public:
 	void onHover(const rack::event::Hover &e) override;
 	void onLeave(const rack::event::Leave &e) override;
 	void onEnter(const rack::event::Enter &e) override;
+	void onDeselect(const rack::event::Deselect &e) override;
 
 	void start_mapping();
+	void end_mapping();
 
 	MappableObj hubParamObj;
 	bool isMapped = false;

@@ -24,7 +24,8 @@ struct HubMedium : MetaModuleHubBase {
 	static constexpr auto saveButtonIndex = ElementCount::count<INFO>().num_params;
 	static constexpr auto wifiSendButtonIndex = saveButtonIndex + 1;
 
-	HubMedium() {
+	HubMedium()
+		: MetaModuleHubBase(12) {
 
 		// Register with VCV the number of elements of each type
 		auto cnt = ElementCount::count<INFO>();
@@ -99,9 +100,9 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	const std::vector<std::string> mappingModeLabels = {
 		"All", "Left & Right Only", "Right Only", "Left Only", "Connected"};
 
-	HubMediumWidget(HubMedium *module) {
+	HubMediumWidget(HubMedium *module)
+		: MetaModuleHubWidget{module} {
 		setModule(module);
-		hubModule = module;
 
 		if (hubModule != nullptr) {
 
@@ -251,7 +252,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		patchName->text = rack::system::getStem(filename);
 
-		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
+		using PatchFileWriter = VCVPatchFileWriter<HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		auto yml = PatchFileWriter::createPatchYml(hubModule->id,
 												   hubModule->mappings,
 												   hubModule->jack_alias,
@@ -269,7 +270,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			patchFileName += ".yml";
 		}
 
-		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
+		using PatchFileWriter = VCVPatchFileWriter<HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		auto yml = PatchFileWriter::createPatchYml(hubModule->id,
 												   hubModule->mappings,
 												   hubModule->jack_alias,

@@ -65,3 +65,4 @@ extern rack::Model *modelStMix;
 extern rack::Model *modelBWAVP;
 extern rack::Model *modelMPEG;
 extern rack::Model *modelMMAudioExpander;
+extern rack::Model *modelMMButtonExpander;

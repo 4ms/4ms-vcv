@@ -33,6 +33,7 @@ file(GLOB SOURCES
 target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	src/plugin.cc
 	src/expanders/audio_expander.cc
+	src/expanders/button_expander.cc
 	src/hub/hub_map_button.cc
 	src/hub/hub_jack_label.cc
 	src/hub/hub_medium.cc

@@ -281,15 +281,15 @@ void PatchFileWriter::addKnobMaps(unsigned panelKnobId, unsigned knobSetId, cons
 		pd.knob_sets.resize(knobSetId + 1);
 
 	for (const auto &m : maps) {
-		if (!idMap.contains(m.moduleId)) {
+		if (!idMap.contains(m.module_id)) {
 			pr_dbg("Skipping knob mapping to module not supported by MetaModule: %lld\n", (long long)m.moduleId);
 			continue;
 		}
 		pd.knob_sets[knobSetId].set.push_back({
 			.panel_knob_id = static_cast<uint16_t>(panelKnobId),
-			.module_id = idMap[m.moduleId],
-			.param_id = static_cast<uint16_t>(m.paramId),
-			.curve_type = 0,
+			.module_id = idMap[m.module_id],
+			.param_id = static_cast<uint16_t>(m.param_id),
+			.curve_type = m.curve_type,
 			.midi_chan = 0,
 			.min = m.range_min,
 			.max = m.range_max,

@@ -58,6 +58,34 @@ void HubMapButton::start_mapping() {
 	}
 }
 
+void HubMapButton::onDeselect(const rack::event::Deselect &e) {
+	end_mapping();
+}
+
+void HubMapButton::end_mapping() {
+	if (!hub)
+		return;
+
+	// Check if a ParamWidget was touched
+	auto touchedParam = APP->scene->rack->getTouchedParam();
+
+	if (touchedParam && touchedParam->getParamQuantity()) {
+		int param_id = touchedParam->getParamQuantity()->paramId;
+		auto m = touchedParam->module;
+
+		APP->scene->rack->setTouchedParam(nullptr);
+
+		if (m->getModel()->slug == "MMButtonExpander" || m->getModel()->slug == "HubMedium") {
+			hub->endMapping();
+		} else {
+			hub->registerMap(hubParamObj.objID, m, param_id);
+		}
+
+	} else {
+		hub->endMapping();
+	}
+}
+
 void HubMapButton::onHover(const rack::event::Hover &e) {
 	static unsigned flash = 0;
 	constexpr unsigned flash_rate = 6;

@@ -16,6 +16,11 @@ namespace MetaModule
 
 struct MetaModuleHubBase : public rack::Module {
 
+	MetaModuleHubBase(unsigned num_pots)
+		: mappings{num_pots}
+		, last_knob_val(num_pots) {
+	}
+
 	std::function<void()> updatePatchName;
 	std::string patchNameText = "";
 	std::string patchDescText = "";
@@ -26,14 +31,14 @@ struct MetaModuleHubBase : public rack::Module {
 
 	std::optional<int> inProgressMapParamId{};
 
-	static constexpr uint32_t NumPots = 12;
+	static constexpr uint32_t MaxNumPots = 12;
 	static constexpr uint32_t MaxMapsPerPot = 8;
 	static constexpr uint32_t MaxKnobSets = 8;
-	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings{NumPots};
+	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings;
 
 	JackAlias jack_alias{};
 
-	std::array<float, NumPots> last_knob_val{};
+	std::vector<float> last_knob_val{};
 
 	// Mapping State/Progress
 
@@ -85,6 +90,7 @@ struct MetaModuleHubBase : public rack::Module {
 
 		map->range_max = 1.f;
 		map->range_min = 0.0f;
+		map->curve_type = 0;
 		endMapping();
 
 		return true;
@@ -95,7 +101,8 @@ struct MetaModuleHubBase : public rack::Module {
 	void processMaps() {
 		for (int hubParamId = 0; auto &knob : mappings) {
 			if (std::fabs(last_knob_val[hubParamId] - params[hubParamId].getValue()) > 0.0001f) {
-				last_knob_val[hubParamId] = params[hubParamId].getValue();
+				auto new_val = params[hubParamId].getValue();
+				auto last_val = last_knob_val[hubParamId];
 
 				for (auto &mapset : knob) {
 
@@ -111,9 +118,27 @@ struct MetaModuleHubBase : public rack::Module {
 						continue;
 
 					auto &map = mappings.activeMap(mapset);
-					auto val = MathTools::map_value(last_knob_val[hubParamId], 0.f, 1.f, map.range_min, map.range_max);
-					paramQuantity->setScaledValue(val);
+
+					if (map.curve_type == 1) {
+						// Toggle/latching mode:
+
+						if (new_val > 0.5f && last_val < 0.5f) {
+							// if param is currently closer to min, then set it to max (and vice-versa)
+							auto cur_val = paramQuantity->getScaledValue();
+							if (std::abs(cur_val - map.range_min) < std::abs(cur_val - map.range_max)) {
+								paramQuantity->setScaledValue(map.range_max);
+							} else {
+								paramQuantity->setScaledValue(map.range_min);
+							}
+						}
+
+					} else {
+						auto val = MathTools::map_value(new_val, 0.f, 1.f, map.range_min, map.range_max);
+						paramQuantity->setScaledValue(val);
+					}
 				}
+
+				last_knob_val[hubParamId] = new_val;
 			}
 			hubParamId++;
 		}
