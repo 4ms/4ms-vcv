@@ -1,7 +1,7 @@
 {
   "slug": "4msCompany",
   "name": "4ms",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "license": "GPL-3.0-or-later",
   "brand": "4ms",
   "author": "4ms Company",
@@ -34,7 +34,7 @@
       "name": "MetaModule Button Expander (MetaButtons)",
       "description": "Expander that adds 8 momentary buttons to the MetaModule",
       "modularGridUrl": "https://modulargrid.net/e/4ms-company-metabuttons",
-      "manualUrl": "https://4mscompany.com/media/MetaModule/MetaButtons-Quick-Start.pdf",
+      "manualUrl": "https://4mscompany.com/media/MetaModule/MetaButtons-quickstart.pdf",
       "tags": ["Expander", "External"]
     },
     {
@@ -160,186 +160,217 @@
     {
       "slug": "Freeverb",
       "name": "Freeverb",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Effect", "Reverb"]
     },
     {
       "slug": "BWAVP",
       "name": "Basic WAV Player",
       "description": "Simple streaming .wav player optimized for microSD cards and USB drives",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Sampler"]
     },
     {
       "slug": "CLKM",
       "name": "Clock Multiplier",
       "description": "Outputs a clock signal at a multiple of an incoming clock signal's tempo.",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Clock modulator"]
     },
     {
       "slug": "CLKD",
       "name": "Clock Divider",
       "description": "Outputs a clock signal as a division of an incoming clock signal's tempo.",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Clock modulator"]
     },
     {
       "slug": "Seq8",
       "name": "Seq8",
       "description": "An 8-step unipolar voltage sequencer.",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Sequencer"]
     },
     {
       "slug": "Verb",
       "name": "Verb",
       "description": "Experimental reverb using comb filters and all-pass filters",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Reverb"]
     },
     {
       "slug": "StMix",
       "name": "Stereo Mixer",
       "description": "A mixer with four stereo channels and variable panning per-channel.",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Mixer", "Panning"]
     },
     {
       "slug": "PitchShift",
       "name": "PitchShift",
       "description": "PitchShift",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Effect"]
     },
     {
       "slug": "MultiLFO",
       "name": "MultiLFO",
       "description": "MultiLFO",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["LFO"]
     },
     {
       "slug": "KPLS",
       "name": "Karplus",
       "description": "Karplus-Strong string sound oscillator",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Oscillator"]
     },
     {
       "slug": "Drum",
       "name": "Drum",
       "description": "Drum",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Drum"]
     },
     {
       "slug": "Djembe",
       "name": "Djembe",
       "description": "Physically modeled Djembe based on FAUST models by Romain Michon, Pierre-Amaury Grumiaux, and Yann Orlarey",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Drum"]
     },
     {
       "slug": "Detune",
       "name": "Detune",
       "description": "Detune",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Effect"]
     },
     {
       "slug": "SH",
       "name": "Sample and Hold",
       "description": "SH",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Random", "Sample and hold"]
     },
     {
       "slug": "Switch41",
       "name": "Switch41",
       "description": "Switch 4:1",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Switch", "Quad"]
     },
     {
       "slug": "Switch14",
       "name": "Switch14",
       "description": "Switch 1:4",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Switch", "Quad"]
     },
     {
       "slug": "Prob8",
       "name": "Prob8",
       "description": "Prob8",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Clock modulator", "Sequencer"]
     },
     {
       "slug": "Octave",
       "name": "Octave",
       "description": "Octave",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Utility"]
     },
     {
       "slug": "MNMX",
       "name": "Min-Max",
       "description": "Takes in two signals and outputs the minimum and maximum voltages.",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Utility"]
     },
     {
       "slug": "Source",
       "name": "Source",
       "description": "Generates two outputs voltages based on knob positions.",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Utility"]
     },
     {
       "slug": "Slew",
       "name": "Slew",
       "description": "Slew",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Slew limiter"]
     },
     {
       "slug": "Pan",
       "name": "Pan",
       "description": "Mono-to-stereo panner.",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Panning"]
     },
     {
       "slug": "Noise",
       "name": "Noise",
       "description": "Noise",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Noise"]
     },
     {
       "slug": "HPF",
       "name": "HPF",
       "description": "HPF",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Filter"]
     },
     {
       "slug": "Gate",
       "name": "Gate",
       "description": "Gate/trigger delay with pulse width control",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Utility"]
     },
     {
       "slug": "Follow",
       "name": "Follow",
       "description": "Envelope follower with gate output",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Envelope follower"]
     },
     {
       "slug": "FM",
       "name": "FM",
       "description": "FM Oscillator",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Oscillator"]
     },
     {
       "slug": "ComplexEG",
       "name": "ComplexEG",
       "description": "ComplexEG",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Envelope Generator"]
     },
     {
       "slug": "LPG",
       "name": "LPG",
       "description": "Low-pass Gate",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Filter", "VCA", "Low-pass gate"]
     },
     {
       "slug": "BPF",
       "name": "BPF",
       "description": "Band-pass filter",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Filter"]
     },
     {
       "slug": "Atvert2",
       "name": "Atvert2",
       "description": "Two-channel attenuverter",
+	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Attenuator", "Dual", "Utility"]
     }
   ]
