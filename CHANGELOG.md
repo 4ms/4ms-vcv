@@ -1,5 +1,14 @@
 # CHANGE LOG
 
+## v2.1.1
+
+- Allow aliases for jacks
+
+- Add Button Expander module
+    - Refactor various parts of hub mapping and widgets, to support mappable buttons
+
+- Add link to manual for non-hardware modules
+
 ## v2.1.0
 
 - Add Basic Sample Player module
