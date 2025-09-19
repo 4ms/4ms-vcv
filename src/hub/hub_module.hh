@@ -1,9 +1,9 @@
 #pragma once
 #include "comm/comm_module.hh"
 #include "hub/hub_module.hh"
+#include "hub/jack_alias.hh"
 #include "hub_knob_mappings.hh"
 #include "mapping/module_directory.hh"
-#include "mapping/vcv_patch_file_writer.hh"
 #include "plugin.hh"
 #include "util/edge_detector.hh"
 #include "util/math.hh"
@@ -30,6 +30,8 @@ struct MetaModuleHubBase : public rack::Module {
 	static constexpr uint32_t MaxMapsPerPot = 8;
 	static constexpr uint32_t MaxKnobSets = 8;
 	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings{NumPots};
+
+	JackAlias jack_alias{};
 
 	std::array<float, NumPots> last_knob_val{};
 
@@ -121,6 +123,9 @@ struct MetaModuleHubBase : public rack::Module {
 	json_t *dataToJson() override {
 		json_t *rootJ = mappings.encodeJson();
 
+		json_t *aliasJ = jack_alias.encodeJson();
+		json_object_set_new(rootJ, "Alias", aliasJ);
+
 		if (updatePatchName) {
 			updatePatchName();
 			json_t *patchNameJ = json_string(patchNameText.c_str());
@@ -163,6 +168,9 @@ struct MetaModuleHubBase : public rack::Module {
 			mappingMode = MappingMode(json_integer_value(mappingModeJ));
 		}
 
+		auto aliasJ = json_object_get(rootJ, "Alias");
+		jack_alias.decodeJson(aliasJ);
+
 		mappings.decodeJson(rootJ);
 	}
 
@@ -174,6 +182,35 @@ struct MetaModuleHubBase : public rack::Module {
 		mappings.clear_all(ShouldLock::No);
 		mappings.setActiveKnobSetIdx(0);
 		mappings.refreshParamHandles(ShouldLock::No);
+	}
+
+	enum class JackDir { In, Out };
+
+	void set_jack_alias(JackDir dir, unsigned idx, std::string_view text) {
+		if (dir == JackDir::In) {
+			if (idx < jack_alias.in.size()) {
+				jack_alias.in[idx] = text;
+				inputInfos[idx]->name = text;
+			}
+		} else {
+			if (idx < jack_alias.out.size()) {
+				jack_alias.out[idx] = text;
+				outputInfos[idx]->name = text;
+			}
+		}
+	}
+
+	std::string_view get_jack_alias(JackDir dir, unsigned idx) {
+		if (dir == JackDir::In) {
+			if (idx < jack_alias.in.size())
+				return jack_alias.in[idx];
+
+		} else if (dir == JackDir::Out) {
+			if (idx < jack_alias.out.size())
+				return jack_alias.out[idx];
+		}
+
+		return "";
 	}
 };
 

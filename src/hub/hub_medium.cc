@@ -5,6 +5,7 @@
 #include "hub/hub_elements.hh"
 #include "hub/knob_set_buttons.hh"
 #include "hub_module_widget.hh"
+#include "mapping/vcv_patch_file_writer.hh"
 #include "network/network.hh"
 #include "widgets/config_element.hh"
 
@@ -28,6 +29,10 @@ struct HubMedium : MetaModuleHubBase {
 		// Register with VCV the number of elements of each type
 		auto cnt = ElementCount::count<INFO>();
 		config(cnt.num_params + num_extra_params, cnt.num_inputs, cnt.num_outputs, cnt.num_lights);
+
+		// hardware io is virtually inverted
+		jack_alias.in.resize(cnt.num_outputs);
+		jack_alias.out.resize(cnt.num_inputs);
 
 		// Configure elements with VCV
 		ConfigElement<INFO> creator{this};
@@ -247,8 +252,12 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		patchName->text = rack::system::getStem(filename);
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
-		auto yml = PatchFileWriter::createPatchYml(
-			hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubModule->mappingMode);
+		auto yml = PatchFileWriter::createPatchYml(hubModule->id,
+												   hubModule->mappings,
+												   hubModule->jack_alias,
+												   patchName->text,
+												   patchDesc->text,
+												   hubModule->mappingMode);
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -261,8 +270,12 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		}
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::NumPots, HubMedium::MaxMapsPerPot, MaxKnobSets>;
-		auto yml = PatchFileWriter::createPatchYml(
-			hubModule->id, hubModule->mappings, patchName->text, patchDesc->text, hubModule->mappingMode);
+		auto yml = PatchFileWriter::createPatchYml(hubModule->id,
+												   hubModule->mappings,
+												   hubModule->jack_alias,
+												   patchName->text,
+												   patchDesc->text,
+												   hubModule->mappingMode);
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -336,6 +349,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 				wifiVolume = Volume(index);
 				wifiConnectionLabel->text = formatWifiStatus();
 			}));
+
+		menu->addChild(new MenuSeparator());
+
+		auto jacks =
+			std::vector<JackMenuCategories>{{"Input ", MetaModuleHubBase::JackDir::In, {0, 1, 2, 3, 4, 5}},
+											{"Gate ", MetaModuleHubBase::JackDir::In, {6, 7}},
+											{"Output ", MetaModuleHubBase::JackDir::Out, {0, 1, 2, 3, 4, 5, 6, 7}}};
+		menu->addChild(createAliasSubmenu(jacks));
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel<MenuLabel>("Mapped Knob Sets"));
