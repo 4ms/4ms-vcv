@@ -77,16 +77,16 @@ private:
 };
 
 struct FileBrowseActionMenuItem : rack::ui::MenuItem {
-	rack::engine::Param *param;
+	rack::engine::ParamQuantity *paramq;
 	std::string filterext;
 
-	FileBrowseActionMenuItem(rack::Param &param, std::string_view filterext)
-		: param{&param}
+	FileBrowseActionMenuItem(rack::ParamQuantity *paramq, std::string_view filterext)
+		: paramq{paramq}
 		, filterext{filterext} {
 	}
 
 	void onAction(const ActionEvent &e) override {
-		if (param) {
+		if (paramq) {
 			// Get filters from AltParamAction element (std::string_view argument)
 			osdialog_filters *filters = nullptr;
 
@@ -99,7 +99,11 @@ struct FileBrowseActionMenuItem : rack::ui::MenuItem {
 				free(path);
 
 				// Set the param, which notifies the module that a path is available
-				param->setValue(1);
+				if (paramq->getValue() == 1) {
+					// Clear the value if it got stuck somehow
+					paramq->setImmediateValue(0);
+				}
+				paramq->setImmediateValue(1);
 			}
 
 			if (filters)
@@ -183,8 +187,8 @@ do_render_to_menu(AltParamChoiceLabeled el, rack::ui::Menu *menu, Indices &indic
 
 inline void
 do_render_to_menu(AltParamAction el, rack::ui::Menu *menu, Indices &indices, const WidgetContext_t &context) {
-	auto &param = context.module->getParam(indices.param_idx);
-	auto menu_item = new FileBrowseActionMenuItem(param, el.args[0]);
+	auto paramq = context.module->getParamQuantity(indices.param_idx);
+	auto menu_item = new FileBrowseActionMenuItem(paramq, el.args[0]);
 	menu_item->text = el.short_name.data();
 	menu->addChild(menu_item);
 }
