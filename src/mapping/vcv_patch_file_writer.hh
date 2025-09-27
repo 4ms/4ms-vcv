@@ -205,7 +205,7 @@ struct VCVPatchFileWriter {
 		}
 
 		// Go through all hub knob mappings
-		auto firstPanelKnob = 0u;
+		const auto firstPanelKnob = 0u;
 		addAllMappings(firstPanelKnob, pw, mappings);
 
 		// Go through all button expander mappings
@@ -213,7 +213,7 @@ struct VCVPatchFileWriter {
 		for (auto moduleID : button_exps) {
 			auto *module = engine->getModule(moduleID);
 			if (auto buttonExp = dynamic_cast<ButtonExpanderModule *>(module)) {
-				auto firstButtonParamId = FirstButton + (buttonExp->buttonExpanderId * ButtonsPerExpander);
+				const auto firstButtonParamId = FirstButton + (buttonExp->buttonExpanderId * ButtonsPerExpander);
 				addAllMappings(firstButtonParamId, pw, buttonExp->mappings);
 			}
 		}
@@ -233,7 +233,7 @@ struct VCVPatchFileWriter {
 
 				for (auto &mapsets : knob_maps) {
 					auto &map = mapsets.maps[set_i];
-					map.alias_name = mappings.getMapAliasName(panelId, set_i);
+					map.alias_name = mappings.getMapAliasName(panelId - startingPanelId, set_i);
 					if (map.module_id > 0)
 						active_maps.push_back(map);
 				}
