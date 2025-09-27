@@ -173,7 +173,7 @@ public:
 
 	// Mapping Alias:
 	void setMapAliasName(int64_t paramID, std::string const &newname, unsigned set_id) {
-		if (paramID < (int)num_knobs) {
+		if (paramID < (int64_t)aliases.size()) {
 			aliases[paramID][set_id] = newname;
 		}
 	}
@@ -191,10 +191,11 @@ public:
 	}
 
 	std::string getMapAliasName(int64_t paramID, unsigned set_id) {
-		if (paramID < (int)num_knobs) {
+		if (paramID < (int64_t)aliases.size()) {
 			return aliases[paramID][set_id];
+		} else {
+			return "";
 		}
-		return "";
 	}
 
 	std::string getMapAliasName(MappableObj paramObj, unsigned set_id) {
@@ -230,16 +231,16 @@ public:
 
 	// Return a reference to an array of KnobMappingSets of a knob
 	auto &getAllMappings(int hubParamId) {
-		if (hubParamId >= (int)num_knobs)
+		if (hubParamId < (int)mappings.size())
+			return mappings[hubParamId];
+		else
 			return nullmap;
-
-		return mappings[hubParamId];
 	}
 
 	unsigned getNumActiveMappings(int hubParamId) {
 		unsigned num = 0;
 
-		if (hubParamId >= (int)num_knobs)
+		if (hubParamId >= (int)mappings.size())
 			return 0;
 
 		for (auto &mapset : mappings[hubParamId]) {

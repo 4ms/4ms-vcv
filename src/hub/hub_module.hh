@@ -31,7 +31,6 @@ struct MetaModuleHubBase : public rack::Module {
 
 	std::optional<int> inProgressMapParamId{};
 
-	static constexpr uint32_t MaxNumPots = 12;
 	static constexpr uint32_t MaxMapsPerPot = 8;
 	static constexpr uint32_t MaxKnobSets = 8;
 	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings;
