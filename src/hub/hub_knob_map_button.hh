@@ -77,7 +77,7 @@ public:
 				unmapItem->paramQuantity = ph.module->paramQuantities[paramId];
 				unmapItem->unmapAction = [this] {
 					if (hub->mappings.getNumActiveMappings(hubParamObj.objID) == 0)
-						hub->mappings.setMapAliasName(hubParamObj, "");
+						hub->mappings.setMapAliasName(hubParamObj.objID, "");
 				};
 				menu->addChild(unmapItem);
 

@@ -225,6 +225,8 @@ struct VCVPatchFileWriter {
 							   PatchFileWriter &pw,
 							   HubKnobMappings<MaxMapsPerPot, MaxKnobSets> &mappings) {
 
+		mappings.updateMapsFromParamHandles();
+
 		for (unsigned set_i = 0; set_i < MaxKnobSets; set_i++) {
 			for (unsigned panelId = startingPanelId; auto &knob_maps : mappings.mappings) {
 

@@ -371,6 +371,15 @@ public:
 		}
 	}
 
+	void updateMapsFromParamHandles() {
+		for (auto &knob : mappings) {
+			for (auto &mapset : knob) {
+				mapset.maps[activeSetId].module_id = mapset.paramHandle.moduleId;
+				mapset.maps[activeSetId].param_id = mapset.paramHandle.paramId;
+			}
+		}
+	}
+
 private:
 	KnobMappingSet &nextFreeMap(unsigned hubParamId, unsigned set_idx) {
 		// Find first unused mapping slot
@@ -395,15 +404,6 @@ private:
 
 	bool is_valid(Mapping map) {
 		return map.module_id >= 0 && map.param_id >= 0;
-	}
-
-	void updateMapsFromParamHandles() {
-		for (auto &knob : mappings) {
-			for (auto &mapset : knob) {
-				mapset.maps[activeSetId].module_id = mapset.paramHandle.moduleId;
-				mapset.maps[activeSetId].param_id = mapset.paramHandle.paramId;
-			}
-		}
 	}
 
 	void updateParamHandle(
