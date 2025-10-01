@@ -9,6 +9,8 @@
 
 - Add link to manual for non-hardware modules
 
+- Fix bug where sending a patch over Wi-Fi after removing a mapping would not always send the updated patch information,,
+
 ## v2.1.0
 
 - Add Basic Sample Player module
