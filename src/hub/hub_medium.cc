@@ -360,27 +360,31 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		menu->addChild(createAliasSubmenu(jacks));
 
 		menu->addChild(new MenuSeparator());
-		menu->addChild(createMenuLabel<MenuLabel>("Mapped Knob Sets"));
 
-		for (unsigned knobset_idx = 0; knobset_idx < hubModule->MaxKnobSets; knobset_idx++) {
-			menu->addChild(new MenuSeparator());
-			menu->addChild(createCheckMenuItem(
-				string::f("Knob Set %d", knobset_idx + 1),
-				"",
-				[=, this]() { return hubModule->mappings.getActiveKnobSetIdx() == knobset_idx; },
-				[=, this]() {
-					hubModule->mappings.changeActiveKnobSet(knobset_idx, ShouldLock::Yes);
-					updateKnobSetLabel();
-				}));
+		auto knobset_menu = createSubmenuItem("Mapped Knob Sets", "", [this](Menu *menu) {
+			for (unsigned knobset_idx = 0; knobset_idx < hubModule->MaxKnobSets; knobset_idx++) {
+				if (knobset_idx)
+					menu->addChild(new MenuSeparator());
 
-			menu->addChild(new KnobSetNameMenuItem{[this](unsigned idx, std::string const &text) {
-													   hubModule->mappings.setKnobSetName(idx, text);
-													   updateKnobSetLabel();
-												   },
-												   knobset_idx,
-												   hubModule->mappings.getKnobSetName(knobset_idx),
-												   kMaxKnobSetNameChars});
-		}
+				menu->addChild(createCheckMenuItem(
+					string::f("Knob Set %d", knobset_idx + 1),
+					"",
+					[=, this]() { return hubModule->mappings.getActiveKnobSetIdx() == knobset_idx; },
+					[=, this]() {
+						hubModule->mappings.changeActiveKnobSet(knobset_idx, ShouldLock::Yes);
+						updateKnobSetLabel();
+					}));
+
+				menu->addChild(new KnobSetNameMenuItem{[this](unsigned idx, std::string const &text) {
+														   hubModule->mappings.setKnobSetName(idx, text);
+														   updateKnobSetLabel();
+													   },
+													   knobset_idx,
+													   hubModule->mappings.getKnobSetName(knobset_idx),
+													   kMaxKnobSetNameChars});
+			}
+		});
+		menu->addChild(knobset_menu);
 	}
 
 	std::string formatWifiStatus() {
