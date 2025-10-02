@@ -385,6 +385,22 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			}
 		});
 		menu->addChild(knobset_menu);
+
+		menu->addChild(new MenuSeparator());
+
+		auto sugg_samplerate = createIndexSubmenuItem(
+			"Suggested sample rate",
+			hubModule->sampleRates,
+			[this]() { return hubModule->suggested_samplerate_idx; },
+			[this](int idx) { hubModule->suggested_samplerate_idx = idx; });
+		menu->addChild(sugg_samplerate);
+
+		auto sugg_blocksize = createIndexSubmenuItem(
+			"Suggested block size",
+			hubModule->blockSizes,
+			[this]() { return hubModule->suggested_blocksize_idx; },
+			[this](int idx) { hubModule->suggested_blocksize_idx = idx; });
+		menu->addChild(sugg_blocksize);
 	}
 
 	std::string formatWifiStatus() {

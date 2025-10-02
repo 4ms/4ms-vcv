@@ -39,6 +39,13 @@ struct MetaModuleHubBase : public rack::Module {
 
 	std::vector<float> last_knob_val{};
 
+	const std::vector<std::string> sampleRates{"Any", "24kHz", "32kHz", "48kHz", "96kHz"};
+	const std::array<unsigned, 5> sampleRateNums{0, 24000, 32000, 48000, 96000};
+	const std::vector<std::string> blockSizes{"Any", "16", "32", "64", "128", "256", "512"};
+	const std::array<unsigned, 7> blockSizeNums{0, 16, 32, 64, 128, 256, 512};
+	int suggested_samplerate_idx = 0;
+	int suggested_blocksize_idx = 0;
+
 	// Mapping State/Progress
 
 	void startMappingFrom(int hubParamId) {
@@ -163,6 +170,16 @@ struct MetaModuleHubBase : public rack::Module {
 
 			json_t *mappingModeJ = json_integer(this->mappingMode);
 			json_object_set_new(rootJ, "MappingMode", mappingModeJ);
+
+			if ((size_t)suggested_samplerate_idx < sampleRateNums.size()) {
+				json_t *suggSampleRateJ = json_integer(sampleRateNums[suggested_samplerate_idx]);
+				json_object_set_new(rootJ, "SuggestedSampleRate", suggSampleRateJ);
+			}
+
+			if ((size_t)suggested_blocksize_idx < blockSizeNums.size()) {
+				json_t *suggBlockSizeJ = json_integer(blockSizeNums[suggested_blocksize_idx]);
+				json_object_set_new(rootJ, "SuggestedBlockSize", suggBlockSizeJ);
+			}
 		} else {
 			pr_err("Error: Widget has not been constructed, but dataToJson is being called\n");
 		}
@@ -190,6 +207,26 @@ struct MetaModuleHubBase : public rack::Module {
 		auto mappingModeJ = json_object_get(rootJ, "MappingMode");
 		if (json_is_integer(mappingModeJ)) {
 			mappingMode = MappingMode(json_integer_value(mappingModeJ));
+		}
+
+		auto suggSampleRateJ = json_object_get(rootJ, "SuggestedSampleRate");
+		if (json_is_integer(suggSampleRateJ)) {
+			size_t sr = json_integer_value(suggSampleRateJ);
+			if (auto it = std::ranges::find(sampleRateNums, sr); it != sampleRateNums.end()) {
+				suggested_samplerate_idx = std::distance(sampleRateNums.begin(), it);
+			} else {
+				suggested_samplerate_idx = 0;
+			}
+		}
+
+		auto suggBlockSizeJ = json_object_get(rootJ, "SuggestedBlockSize");
+		if (json_is_integer(suggBlockSizeJ)) {
+			size_t bs = json_integer_value(suggBlockSizeJ);
+			if (auto it = std::ranges::find(blockSizeNums, bs); it != blockSizeNums.end()) {
+				suggested_blocksize_idx = std::distance(blockSizeNums.begin(), it);
+			} else {
+				suggested_blocksize_idx = 0;
+			}
 		}
 
 		auto aliasJ = json_object_get(rootJ, "Alias");
