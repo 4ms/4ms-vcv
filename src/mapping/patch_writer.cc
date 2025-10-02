@@ -454,6 +454,11 @@ void PatchFileWriter::mapMidiCCJack(CableMap &cable, unsigned midi_chan) {
 	}
 }
 
+void PatchFileWriter::setSuggestedSamplerateBlocksize(unsigned sample_rate, unsigned block_size) {
+	pd.suggested_samplerate = sample_rate;
+	pd.suggested_blocksize = block_size;
+}
+
 std::string PatchFileWriter::printPatchYAML() {
 	return patch_to_yaml_string(pd);
 }

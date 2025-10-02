@@ -24,13 +24,26 @@ namespace MetaModule
 // Adapts VCVRack-format of patch data to a format PatchFileWriter can use
 template<size_t MaxMapsPerPot, size_t MaxKnobSets>
 struct VCVPatchFileWriter {
+	struct FileFields {
+		int64_t hubModuleId;
+		HubKnobMappings<MaxMapsPerPot, MaxKnobSets> &mappings;
+		JackAlias &jack_aliases;
+		std::string &patchName;
+		std::string &patchDesc;
+		MappingMode mappingMode;
+		unsigned suggested_samplerate;
+		unsigned suggested_blocksize;
+	};
 
-	static std::string createPatchYml(int64_t hubModuleId,
-									  HubKnobMappings<MaxMapsPerPot, MaxKnobSets> &mappings,
-									  JackAlias &jack_aliases,
-									  std::string patchName,
-									  std::string patchDesc,
-									  MappingMode mappingMode) {
+	static std::string createPatchYml(FileFields data) {
+		auto hubModuleId = data.hubModuleId;
+		auto &mappings = data.mappings;
+		auto &jack_aliases = data.jack_aliases;
+		auto &patchName = data.patchName;
+		auto &patchDesc = data.patchDesc;
+		auto mappingMode = data.mappingMode;
+		auto suggested_samplerate = data.suggested_samplerate;
+		auto suggested_blocksize = data.suggested_blocksize;
 
 		auto context = rack::contextGet();
 		auto engine = context->engine;
@@ -178,6 +191,7 @@ struct VCVPatchFileWriter {
 		pw.setExpanders(expanders);
 		pw.setCableList(cableData);
 		pw.setParamList(paramData);
+		pw.setSuggestedSamplerateBlocksize(suggested_samplerate, suggested_blocksize);
 
 		//combine hub aliases and expander aliases
 		JackAlias aliases{jack_aliases};

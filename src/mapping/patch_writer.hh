@@ -29,6 +29,8 @@ public:
 	void setExpanders(ExpanderMappings const &exp);
 	void addModuleStateJson(rack::Module *module);
 
+	void setSuggestedSamplerateBlocksize(unsigned sample_rate, unsigned blocksize);
+
 	void addKnobMaps(unsigned panelKnobId, unsigned knobSetId, const std::span<const Mapping> maps);
 	void addKnobMapSet(unsigned knobSetId, std::string_view knobSetName);
 

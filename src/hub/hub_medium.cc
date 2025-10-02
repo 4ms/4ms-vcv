@@ -253,12 +253,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		patchName->text = rack::system::getStem(filename);
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::MaxMapsPerPot, MaxKnobSets>;
-		auto yml = PatchFileWriter::createPatchYml(hubModule->id,
-												   hubModule->mappings,
-												   hubModule->jack_alias,
-												   patchName->text,
-												   patchDesc->text,
-												   hubModule->mappingMode);
+		auto yml = PatchFileWriter::createPatchYml({hubModule->id,
+													hubModule->mappings,
+													hubModule->jack_alias,
+													patchName->text,
+													patchDesc->text,
+													hubModule->mappingMode,
+													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
+													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx]});
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -271,12 +273,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		}
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::MaxMapsPerPot, MaxKnobSets>;
-		auto yml = PatchFileWriter::createPatchYml(hubModule->id,
-												   hubModule->mappings,
-												   hubModule->jack_alias,
-												   patchName->text,
-												   patchDesc->text,
-												   hubModule->mappingMode);
+		auto yml = PatchFileWriter::createPatchYml({hubModule->id,
+													hubModule->mappings,
+													hubModule->jack_alias,
+													patchName->text,
+													patchDesc->text,
+													hubModule->mappingMode,
+													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
+													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx]});
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
