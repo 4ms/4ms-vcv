@@ -57,6 +57,7 @@ protected:
 		std::string category_name;
 		MetaModuleHubBase::JackDir dir;
 		std::vector<unsigned> jack_indices;
+		unsigned disp_offset = 0;
 	};
 
 	rack::ui::MenuItem *createAliasSubmenu(std::vector<JackMenuCategories> const &jack_categories) {
@@ -69,12 +70,13 @@ protected:
 				for (auto i = 0u; i < jack_cat.jack_indices.size(); i++) {
 					auto jack_idx = jack_cat.jack_indices[i];
 					menu->addChild(new MenuSeparator());
-					menu->addChild(new JackNameMenuItem{[=, this](unsigned, std::string const &text) {
-															hubModule->set_jack_alias(jack_cat.dir, jack_idx, text);
-														},
-														jack_cat.category_name + std::to_string(i + 1),
-														hubModule->get_jack_alias(jack_cat.dir, jack_idx),
-														kMaxJackAliasChars});
+					menu->addChild(
+						new JackNameMenuItem{[=, this](unsigned, std::string const &text) {
+												 hubModule->set_jack_alias(jack_cat.dir, jack_idx, text);
+											 },
+											 jack_cat.category_name + std::to_string(i + jack_cat.disp_offset + 1),
+											 hubModule->get_jack_alias(jack_cat.dir, jack_idx),
+											 kMaxJackAliasChars});
 				}
 			}
 		});

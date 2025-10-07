@@ -57,8 +57,8 @@ struct AudioExpanderWidget : MetaModuleHubWidget {
 		menu->addChild(new MenuSeparator());
 
 		auto jacks =
-			std::vector<JackMenuCategories>{{"Input ", MetaModuleHubBase::JackDir::In, {0, 1, 2, 3, 4, 5}},
-											{"Output ", MetaModuleHubBase::JackDir::Out, {0, 1, 2, 3, 4, 5, 6, 7}}};
+			std::vector<JackMenuCategories>{{"Input ", MetaModuleHubBase::JackDir::In, {0, 1, 2, 3, 4, 5}, 6},
+											{"Output ", MetaModuleHubBase::JackDir::Out, {0, 1, 2, 3, 4, 5, 6, 7}, 8}};
 		menu->addChild(createAliasSubmenu(jacks));
 	}
 };
