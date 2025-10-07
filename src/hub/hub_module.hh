@@ -214,12 +214,14 @@ struct MetaModuleHubBase : public rack::Module {
 		if (dir == JackDir::In) {
 			if (idx < jack_alias.in.size()) {
 				jack_alias.in[idx] = text;
-				inputInfos[idx]->name = text;
+				// jacks are virtually reversed: Ins are seen as Outs in VCV
+				outputInfos[idx]->name = text;
 			}
 		} else {
 			if (idx < jack_alias.out.size()) {
 				jack_alias.out[idx] = text;
-				outputInfos[idx]->name = text;
+				// jacks are virtually reversed: Ins are seen as Outs in VCV
+				inputInfos[idx]->name = text;
 			}
 		}
 	}
