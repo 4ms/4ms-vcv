@@ -44,7 +44,7 @@ private:
 	void mapOutputJack(CableMap &map);
 	void mapMidiCVJack(CableMap &map, uint32_t midi_chan);
 	void mapMidiGateJack(CableMap &map, unsigned midi_chan);
-	void mapMidiCCJack(CableMap &cable, unsigned midi_chan);
+	void mapMidiCCJack(CableMap &cable, MIDI::MidiCCCVSettings const &cccv_settings);
 
 	void mapMidiCVPolySplitJack(CableMap &cable, unsigned monoJackId, unsigned midi_chan);
 

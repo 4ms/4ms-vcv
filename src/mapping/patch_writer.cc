@@ -76,7 +76,7 @@ void PatchFileWriter::setModuleList(std::vector<BrandModule> &modules) {
 		return a.y < b.y || (a.y == b.y && a.x < b.x);
 	});
 
-	// Reserved for PANEL
+	// Reserved for Hub
 	vcv_mod_ids.push_back(-1);
 	pd.module_slugs.push_back("");
 
@@ -89,9 +89,10 @@ void PatchFileWriter::setModuleList(std::vector<BrandModule> &modules) {
 			vcv_mod_ids.push_back(mod.id);
 		}
 	}
-	if (vcv_mod_ids[0] < 0)
+	if (vcv_mod_ids[0] < 0) {
+		// error: no hub!
 		return;
-	// error: no panel!
+	}
 
 	idMap = squash_ids(vcv_mod_ids);
 }
@@ -150,7 +151,7 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 
 		for (auto const &cccv_module : midiSettings.CCCV) {
 			if (cable.outputModuleId == cccv_module.module_id) {
-				mapMidiCCJack(cable, cccv_module.midi_chan);
+				mapMidiCCJack(cable, cccv_module);
 				handled = true;
 			}
 		}
@@ -302,37 +303,45 @@ void PatchFileWriter::addKnobMaps(unsigned panelKnobId, unsigned knobSetId, cons
 // the hub we're using or a known expander,
 // and the jack ids are valid, and the receivedModuleId is in our module list
 void PatchFileWriter::mapInputJack(CableMap &map) {
-	if (expanders.isKnownJackExpander(map.outputModuleId))
-		expanders.setExpanderInputJackId(&map);
+	uint16_t inputModuleId = 0;
 
-	if (expanders.isKnownJackExpander(map.inputModuleId))
+	if (expanders.isKnownJackExpander(map.inputModuleId)) {
 		expanders.setExpanderOutputJackId(&map);
+		inputModuleId = 0; // Jack Expander appears as the Hub (module #0)
+	} else if (idMap.contains(map.inputModuleId)) {
+		inputModuleId = idMap[map.inputModuleId];
+	} else {
+		WARN("MetaModule found cable with unknown module\n");
+		return;
+	}
 
-	if (idMap.contains(map.inputModuleId)) {
-		// Look for an existing entry to this panel input jack
-		auto found = std::find_if(pd.mapped_ins.begin(), pd.mapped_ins.end(), [=](const auto &x) {
-			return x.panel_jack_id == (uint32_t)map.outputJackId;
+	if (expanders.isKnownJackExpander(map.outputModuleId)) {
+		expanders.setExpanderInputJackId(&map);
+	}
+
+	// Look for an existing entry to this panel input jack
+	auto found = std::find_if(pd.mapped_ins.begin(), pd.mapped_ins.end(), [=](const auto &x) {
+		return x.panel_jack_id == (uint32_t)map.outputJackId;
+	});
+
+	if (found != pd.mapped_ins.end()) {
+		// If we already have an entry for this panel jack, append a new module input jack to the ins vector
+		found->ins.push_back({
+			.module_id = inputModuleId,
+			.jack_id = static_cast<uint16_t>(map.inputJackId),
 		});
-
-		if (found != pd.mapped_ins.end()) {
-			// If we already have an entry for this panel jack, append a new module input jack to the ins vector
-			found->ins.push_back({
-				.module_id = static_cast<uint16_t>(idMap[map.inputModuleId]),
-				.jack_id = static_cast<uint16_t>(map.inputJackId),
-			});
-		} else {
-			// Make a new entry:
-			pd.mapped_ins.push_back({
-				.panel_jack_id = static_cast<uint32_t>(map.outputJackId),
-				.ins = {{
-					{
-						.module_id = static_cast<uint16_t>(idMap[map.inputModuleId]),
-						.jack_id = static_cast<uint16_t>(map.inputJackId),
-					},
-				}},
-				.alias_name = "",
-			});
-		}
+	} else {
+		// Make a new entry:
+		pd.mapped_ins.push_back({
+			.panel_jack_id = static_cast<uint32_t>(map.outputJackId),
+			.ins = {{
+				{
+					.module_id = inputModuleId,
+					.jack_id = static_cast<uint16_t>(map.inputJackId),
+				},
+			}},
+			.alias_name = "",
+		});
 	}
 }
 
@@ -443,15 +452,17 @@ void PatchFileWriter::mapMidiGateJack(CableMap &cable, unsigned midi_chan) {
 	}
 }
 
-void PatchFileWriter::mapMidiCCJack(CableMap &cable, unsigned midi_chan) {
-	for (auto const &cccv_module : midiSettings.CCCV) {
-		if (cable.outputJackId <= (int)cccv_module.CCnums.size()) {
-			auto ccnum = cccv_module.CCnums[cable.outputJackId];
+void PatchFileWriter::mapMidiCCJack(CableMap &cable, MIDI::MidiCCCVSettings const &cccv_settings) {
+	if (cable.outputJackId >= (int)cccv_settings.CCnums.size())
+		return;
 
-			cable.outputJackId = MetaModule::Midi::set_midi_channel(MidiCC0 + ccnum, midi_chan);
-			mapInputJack(cable);
-		}
-	}
+	// Get the CC number that the user set on the CCCV module for this jack
+	auto ccnum = cccv_settings.CCnums[cable.outputJackId];
+
+	// Set the output jack ID to be the encoded MIDI CC number + channel
+	cable.outputJackId = MetaModule::Midi::set_midi_channel(MidiCC0 + ccnum, cccv_settings.midi_chan);
+
+	mapInputJack(cable);
 }
 
 void PatchFileWriter::setSuggestedSamplerateBlocksize(unsigned sample_rate, unsigned block_size) {
