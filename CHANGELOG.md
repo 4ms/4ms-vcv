@@ -1,5 +1,17 @@
 # CHANGE LOG
 
+## v2.1.2
+
+- MetaAIO: Show correct output jack name (Out 9 - 16, not Out 1 - 8)
+
+- MetaAIO: Fix crash when editing jack alias name for Outs 15 and 16 when using module's context menu
+
+- Hub: Move Knob Set names to submenu
+
+- Add Suggested Audio Settings to context menu (sample rate and block size)
+
+- Fix MIDI CC -> CV jacks not mapping to MetaAIO outputs
+
 ## v2.1.1
 
 - Allow aliases for jacks
