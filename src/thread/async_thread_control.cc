@@ -14,6 +14,8 @@ namespace
 
 static FixedVector<Async::Task, 64> tasks;
 
+std::atomic<bool> is_running = false;
+
 std::atomic<bool> kill_signal = false;
 
 struct SafeWrapper {
@@ -51,7 +53,7 @@ std::optional<uint32_t> create_task(CoreProcessor *module) {
 
 void destroy_task(uint32_t id) {
 	if (auto idx = task_index(id)) {
-		printf("Erase task id %u (index %u)\n", (unsigned)id, (unsigned)(*idx));
+		pr_trace("Erase task id %u (index %u)\n", (unsigned)id, (unsigned)(*idx));
 		tasks.erase(*idx);
 	}
 }
@@ -62,48 +64,56 @@ Async::Task *get_task(unsigned id) {
 	else
 		return nullptr;
 }
+
 void start_module_threads() {
-	pr_trace("Starting module async thread\n");
+	bool expected = false;
+	if (is_running.compare_exchange_strong(expected, true)) {
+		pr_trace("Starting module async thread\n");
 
-	runner.async_task_runner = std::thread([=]() {
-		while (true) {
-			if (kill_signal) {
-				printf("Got kill signal\n");
-				return;
-			}
+		runner.async_task_runner = std::thread([=]() {
+			while (true) {
+				if (kill_signal) {
+					pr_trace("Got kill signal\n");
+					return;
+				}
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-			for (auto &task : tasks) {
-				if (task.enabled /*&& !pause_signal*/) {
-					task.action();
+				for (auto &task : tasks) {
+					if (task.enabled /*&& !pause_signal*/) {
+						task.action();
 
-					if (task.one_shot)
-						task.enabled = false;
+						if (task.one_shot)
+							task.enabled = false;
+					}
 				}
 			}
-		}
-		pr_trace("Module async thread ending\n");
-	});
+			pr_trace("Module async thread ending\n");
+		});
+	}
 }
 
 void kill_module_threads() {
-	printf("Killing threads...\n");
+	if (is_running) {
+		pr_trace("Killing threads...\n");
 
-	kill_signal = true;
+		kill_signal = true;
 
-	auto start = std::chrono::steady_clock::now().time_since_epoch().count() / 1'000'000LL;
+		auto start = std::chrono::steady_clock::now().time_since_epoch().count() / 1'000'000LL;
 
-	while (true) {
-		if (runner.async_task_runner.joinable()) {
-			runner.async_task_runner.join();
-			return;
+		while (true) {
+			if (runner.async_task_runner.joinable()) {
+				runner.async_task_runner.join();
+				return;
+			}
+
+			auto now = std::chrono::steady_clock::now().time_since_epoch().count() / 1'000'000LL;
+			if (now - start > 3000) {
+				return; //thread crashed, so we just crash on exit?!
+			}
 		}
 
-		auto now = std::chrono::steady_clock::now().time_since_epoch().count() / 1'000'000LL;
-		if (now - start > 3000) {
-			return; //thread crashed, so we just crash on exit?!
-		}
+		is_running = false;
 	}
 }
 

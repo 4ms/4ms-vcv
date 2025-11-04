@@ -1,4 +1,5 @@
 #include "plugin.hh"
+#include "console/pr_dbg.hh"
 #include "thread/async_thread_control.hh"
 
 rack::Plugin *pluginInstance;
@@ -63,12 +64,10 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelVerb);
 	p->addModel(modelMMAudioExpander);
 	p->addModel(modelMMButtonExpander);
-
-	MetaModule::Async::start_module_threads();
 }
 
 extern "C" void destroy() {
-	printf("plugin destroy\n");
+	// This does nothing if threads were never started:
 	MetaModule::Async::kill_module_threads();
 }
 
