@@ -283,7 +283,7 @@ void PatchFileWriter::addKnobMaps(unsigned panelKnobId, unsigned knobSetId, cons
 
 	for (const auto &m : maps) {
 		if (!idMap.contains(m.module_id)) {
-			pr_dbg("Skipping knob mapping to module not supported by MetaModule: %lld\n", (long long)m.moduleId);
+			pr_dbg("Skipping knob mapping to module not supported by MetaModule: %lld\n", (long long)m.module_id);
 			continue;
 		}
 		pd.knob_sets[knobSetId].set.push_back({

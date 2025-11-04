@@ -11,7 +11,7 @@ namespace MetaModule
 namespace
 {
 void print_message(auto... args) {
-	constexpr bool WAV_FILE_STREAM_PRINT_ERRORS = true;
+	constexpr bool WAV_FILE_STREAM_PRINT_ERRORS = false;
 	if constexpr (WAV_FILE_STREAM_PRINT_ERRORS)
 		printf("%s", args...);
 }
