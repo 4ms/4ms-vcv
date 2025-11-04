@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## v2.1.3
+
+- Async threads are lazily initialized and killed, in order to reduce impact on Rack startup/quit time if no 4ms modules were used in a patch
+
 ## v2.1.2
 
 - MetaAIO: Show correct output jack name (Out 9 - 16, not Out 1 - 8)
