@@ -21,6 +21,19 @@ ButtonExpanderModule::ButtonExpanderModule()
 	for (auto &element : Info::Elements) {
 		std::visit([&creator](auto &el) { creator.config_element(el); }, element);
 	}
+
+	//try to guess the active knob set
+	auto moduleids = APP->engine->getModuleIds();
+	for (auto id : moduleids) {
+		if (auto module = APP->engine->getModule(id)) {
+			if (module->getModel()->slug == "HubMedium") {
+				if (auto hub = dynamic_cast<MetaModuleHubBase *>(module)) {
+					auto idx = hub->mappings.getActiveKnobSetIdx();
+					mappings.setActiveKnobSetIdx(idx);
+				}
+			}
+		}
+	}
 }
 
 static bool checkUniqueAddress(unsigned addr, int64_t thisModuleId) {

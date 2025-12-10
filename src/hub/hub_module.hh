@@ -165,9 +165,6 @@ struct MetaModuleHubBase : public rack::Module {
 			json_t *patchDescJ = json_string(patchDescText.c_str());
 			json_object_set_new(rootJ, "PatchDesc", patchDescJ);
 
-			json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
-			json_object_set_new(rootJ, "DefaultKnobSet", defaultKnobSetJ);
-
 			json_t *mappingModeJ = json_integer(this->mappingMode);
 			json_object_set_new(rootJ, "MappingMode", mappingModeJ);
 
@@ -183,6 +180,9 @@ struct MetaModuleHubBase : public rack::Module {
 		} else {
 			pr_err("Error: Widget has not been constructed, but dataToJson is being called\n");
 		}
+
+		json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
+		json_object_set_new(rootJ, "DefaultKnobSet", defaultKnobSetJ);
 		return rootJ;
 	}
 
@@ -274,6 +274,19 @@ struct MetaModuleHubBase : public rack::Module {
 		}
 
 		return "";
+	}
+
+	static void change_button_expander_knobset(unsigned idx, ShouldLock do_lock) {
+		auto moduleids = APP->engine->getModuleIds();
+		for (auto id : moduleids) {
+			if (auto module = APP->engine->getModule(id)) {
+				if (module->getModel()->slug == "MMButtonExpander") {
+					if (auto button_exp = dynamic_cast<MetaModuleHubBase *>(module)) {
+						button_exp->mappings.changeActiveKnobSet(idx, do_lock);
+					}
+				}
+			}
+		}
 	}
 };
 

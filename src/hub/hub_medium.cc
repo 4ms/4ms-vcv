@@ -164,6 +164,9 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		knobSetButtons = new KnobSetButtonGroup(
 			[this](unsigned idx) {
 				hubModule->mappings.changeActiveKnobSet(idx, ShouldLock::Yes);
+				// scan patch for button expanders
+				hubModule->change_button_expander_knobset(idx, ShouldLock::Yes);
+
 				updateKnobSetLabel();
 			},
 			rack::mm2px(rack::Vec(39.5, 57.5)));
@@ -376,6 +379,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 					[=, this]() { return hubModule->mappings.getActiveKnobSetIdx() == knobset_idx; },
 					[=, this]() {
 						hubModule->mappings.changeActiveKnobSet(knobset_idx, ShouldLock::Yes);
+						hubModule->change_button_expander_knobset(knobset_idx, ShouldLock::Yes);
 						updateKnobSetLabel();
 					}));
 
