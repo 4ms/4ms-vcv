@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+## v2.1.4 (in progress)
+
+- Button Expanders (MetaButtons) now change knobset when a Hub changes knobsets.
+  - Note that if a patch contains multiple Hubs, all Button Expanders will change knob sets when any Hub changes knobsets. 
+  - The right-click menu of the module shows the current knob set.
+
+
 ## v2.1.3
 
 - Async threads are lazily initialized and killed, in order to reduce impact on Rack startup/quit time if no 4ms modules were used in a patch

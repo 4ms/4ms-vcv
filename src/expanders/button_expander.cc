@@ -143,6 +143,10 @@ void ButtonExpanderWidget::appendContextMenu(rack::Menu *menu) {
 	menu->addChild(createIndexPtrSubmenuItem("Address:", {"1", "2", "3", "4"}, &buttonExpModule->buttonExpanderId));
 	menu->addChild(new MenuSeparator());
 
+	auto item = new MenuLabel;
+	item->text = "Knob Set: " + std::to_string(buttonExpModule->mappings.getActiveKnobSetIdx() + 1);
+	menu->addChild(item);
+
 	MetaModuleHubWidget::appendContextMenu(menu);
 }
 
