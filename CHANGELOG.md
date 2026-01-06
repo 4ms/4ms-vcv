@@ -1,6 +1,6 @@
 # CHANGE LOG
 
-## v2.1.4 (in progress)
+## v2.1.4
 
 - Button Expanders (MetaButtons) now change knobset when a Hub changes knobsets.
   - Note that if a patch contains multiple Hubs, all Button Expanders will change knob sets when any Hub changes knobsets. 
