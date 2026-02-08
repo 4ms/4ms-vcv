@@ -28,6 +28,7 @@ public:
 	void setMidiSettings(MIDI::Settings const &settings);
 	void setExpanders(ExpanderMappings const &exp);
 	void addModuleStateJson(rack::Module *module);
+	void addBypassedModule(rack::Module *module);
 
 	void setSuggestedSamplerateBlocksize(unsigned sample_rate, unsigned blocksize);
 

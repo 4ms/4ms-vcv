@@ -206,10 +206,12 @@ struct VCVPatchFileWriter {
 		pw.setJackAliases(aliases);
 
 		// Add module state from Module::dataToJson()
+		// Add bypass state from Module::isBypassed()
 		for (auto moduleID : engine->getModuleIds()) {
 			auto *module = engine->getModule(moduleID);
 			if (ModuleDirectory::isRegularModule(module)) {
 				pw.addModuleStateJson(module);
+				pw.addBypassedModule(module);
 			}
 		}
 

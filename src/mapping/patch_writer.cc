@@ -271,6 +271,14 @@ void PatchFileWriter::addModuleStateJson(rack::Module *module) {
 	}
 }
 
+void PatchFileWriter::addBypassedModule(rack::Module *module) {
+	if (!module || !module->isBypassed())
+		return;
+	if (!idMap.contains(module->id))
+		return;
+	pd.bypassed_modules.push_back(idMap[module->id]);
+}
+
 void PatchFileWriter::addKnobMapSet(unsigned knobSetId, std::string_view knobSetName) {
 	if (knobSetId >= pd.knob_sets.size())
 		pd.knob_sets.resize(knobSetId + 1);
