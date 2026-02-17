@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## v2.1.5 (in progress)
+
+- Save bypass state of each module in patch yaml file. Thanks to @gabriel-roth
+
 ## v2.1.4
 
 - Button Expanders (MetaButtons) now change knobset when a Hub changes knobsets.
