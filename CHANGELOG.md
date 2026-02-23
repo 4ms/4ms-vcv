@@ -3,6 +3,7 @@
 ## v2.1.5 (in progress)
 
 - Save bypass state of each module in patch yaml file. Thanks to @gabriel-roth
+- Implement bypassing for all 4ms modules
 
 ## v2.1.4
 
