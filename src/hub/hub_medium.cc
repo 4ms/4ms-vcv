@@ -140,6 +140,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		patchDesc->placeholder = "Patch Description";
 		patchDesc->color = rack::color::BLACK;
 		patchDesc->box.size = {rack::mm2px(rack::math::Vec(57.7f, 31.3f))};
+		patchDesc->multiline = true;
 		patchDesc->cursor = 0;
 		// addChild(patchDesc);
 
