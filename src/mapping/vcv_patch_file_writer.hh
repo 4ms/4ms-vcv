@@ -193,6 +193,33 @@ struct VCVPatchFileWriter {
 		pw.setParamList(paramData);
 		pw.setSuggestedSamplerateBlocksize(suggested_samplerate, suggested_blocksize);
 
+		// Read GLUE module labels as module aliases.
+		// If multiple GLUE instances label the same module, the last one wins.
+		std::map<int64_t, std::string> moduleAliases;
+		for (auto moduleID : engine->getModuleIds()) {
+			auto *module = engine->getModule(moduleID);
+			if (isGlueModule(module)) {
+				if (auto *jsonData = module->dataToJson()) {
+					if (auto *labels = json_object_get(jsonData, "labels")) {
+						size_t i;
+						json_t *label;
+						json_array_foreach(labels, i, label) {
+							auto *textVal = json_object_get(label, "text");
+							auto *idVal = json_object_get(label, "moduleId");
+							if (textVal && idVal && json_is_string(textVal) && json_is_integer(idVal)
+							&& json_string_value(textVal)[0] != '\0') {
+								int64_t vcv_mod_id = json_integer_value(idVal);
+								moduleAliases[vcv_mod_id] = json_string_value(textVal);
+							}
+						}
+					}
+					json_decref(jsonData);
+				}
+			}
+		}
+		for (auto const &[vcv_id, text] : moduleAliases)
+			pw.setModuleAlias(vcv_id, text);
+
 		//combine hub aliases and expander aliases
 		JackAlias aliases{jack_aliases};
 		if (expanders.hasAudioExpander()) {
@@ -262,6 +289,12 @@ struct VCVPatchFileWriter {
 				panelId++;
 			}
 		}
+	}
+
+	static bool isGlueModule(rack::Module *module) {
+		if (!module || !module->model || !module->model->plugin)
+			return false;
+		return module->model->plugin->slug == "Stoermelder-P1" && module->model->slug == "Glue";
 	}
 
 	static void addHubModuleToMapping(auto *module, std::vector<BrandModule> &moduleData) {

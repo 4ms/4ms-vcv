@@ -1,6 +1,8 @@
 #include "doctest.h"
 #include "mapping/patch_writer.hh"
 
+using namespace MetaModule;
+
 TEST_CASE("squash_ids() works") {
 	SUBCASE("y = id[x]  transforms to squashed[y] = x") {
 		std::vector<int64_t> ids = {1, 6, 25, 30, 9, 0, 2};
@@ -60,4 +62,22 @@ TEST_CASE("ids are re-arranged properly") {
 		CHECK(pw.get_data().static_knobs[3].module_id == 3); // 0 = D -> 3
 		CHECK(pw.get_data().static_knobs[4].module_id == 0); // 30 = PANEL -> 0
 	}
+}
+
+TEST_CASE("setModuleAlias maps VCV IDs to patch IDs") {
+	std::vector<BrandModule> modules;
+	int64_t hub_id = 30;
+	modules.push_back({11, "A"});
+	modules.push_back({6, "B"});
+	modules.push_back({30, "HubMedium"});
+
+	PatchFileWriter pw{modules, hub_id};
+
+	pw.setModuleAlias(11, "Lead");
+	pw.setModuleAlias(6, "Pad");
+	pw.setModuleAlias(999, "Unknown"); // unknown VCV ID, should be silently ignored
+
+	CHECK(pw.get_data().get_module_alias(1) == "Lead"); // 11 -> idx 1
+	CHECK(pw.get_data().get_module_alias(2) == "Pad");  // 6  -> idx 2
+	CHECK(pw.get_data().module_aliases.size() == 2);    // unknown ID not added
 }

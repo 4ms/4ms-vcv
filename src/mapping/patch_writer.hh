@@ -29,6 +29,7 @@ public:
 	void setExpanders(ExpanderMappings const &exp);
 	void addModuleStateJson(rack::Module *module);
 	void addBypassedModule(rack::Module *module);
+	void setModuleAlias(int64_t vcvModuleId, std::string_view text);
 
 	void setSuggestedSamplerateBlocksize(unsigned sample_rate, unsigned blocksize);
 
