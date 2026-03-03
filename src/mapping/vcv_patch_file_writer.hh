@@ -194,8 +194,9 @@ struct VCVPatchFileWriter {
 		pw.setSuggestedSamplerateBlocksize(suggested_samplerate, suggested_blocksize);
 
 		// Read GLUE module labels as module aliases.
-		// If multiple GLUE instances label the same module, the last one wins.
-		std::map<int64_t, std::string> moduleAliases;
+		// If multiple GLUE labels target the same module, pick the one with the highest
+		// vertical position (lowest y coordinate) on the rack.
+		std::map<int64_t, std::pair<std::string, float>> moduleAliases; // {text, y}
 		for (auto moduleID : engine->getModuleIds()) {
 			auto *module = engine->getModule(moduleID);
 			if (isGlueModule(module)) {
@@ -206,10 +207,14 @@ struct VCVPatchFileWriter {
 						json_array_foreach(labels, i, label) {
 							auto *textVal = json_object_get(label, "text");
 							auto *idVal = json_object_get(label, "moduleId");
+							auto *yVal = json_object_get(label, "y");
 							if (textVal && idVal && json_is_string(textVal) && json_is_integer(idVal)
 							&& json_string_value(textVal)[0] != '\0') {
 								int64_t vcv_mod_id = json_integer_value(idVal);
-								moduleAliases[vcv_mod_id] = json_string_value(textVal);
+								float y = yVal ? (float)json_number_value(yVal) : 0.f;
+								auto it = moduleAliases.find(vcv_mod_id);
+								if (it == moduleAliases.end() || y < it->second.second)
+									moduleAliases[vcv_mod_id] = {json_string_value(textVal), y};
 							}
 						}
 					}
@@ -217,8 +222,8 @@ struct VCVPatchFileWriter {
 				}
 			}
 		}
-		for (auto const &[vcv_id, text] : moduleAliases)
-			pw.setModuleAlias(vcv_id, text);
+		for (auto const &[vcv_id, text_y] : moduleAliases)
+			pw.setModuleAlias(vcv_id, text_y.first);
 
 		//combine hub aliases and expander aliases
 		JackAlias aliases{jack_aliases};
