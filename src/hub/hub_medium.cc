@@ -72,6 +72,51 @@ private:
 std::string wifiUrl = "";
 Volume wifiVolume = Volume::Card;
 
+struct ModuleAliasTextBox : rack::ui::TextField {
+	using CallbackT = std::function<void(int64_t, std::string const &)>;
+	CallbackT onChangeCallback;
+	int64_t moduleId;
+	static constexpr unsigned kMaxChars = 32;
+
+	ModuleAliasTextBox(CallbackT &&callback, int64_t moduleId)
+		: onChangeCallback{callback}
+		, moduleId{moduleId} {}
+
+	void onChange(const rack::event::Change &e) override {
+		if (text.size() >= kMaxChars)
+			text = text.substr(0, kMaxChars);
+		onChangeCallback(moduleId, text);
+		if (cursor > (int)text.size())
+			cursor = text.size();
+		if (selection > (int)text.size())
+			selection = text.size();
+	}
+};
+
+struct ModuleAliasMenuItem : rack::widget::Widget {
+	ModuleAliasTextBox *txt;
+	std::string label;
+
+	ModuleAliasMenuItem(ModuleAliasTextBox::CallbackT &&onChangeCallback,
+						int64_t moduleId,
+						std::string const &label,
+						std::string const &initialText)
+		: label{label} {
+		box.pos = {0, 0};
+		box.size = {300, BND_WIDGET_HEIGHT};
+		txt = new ModuleAliasTextBox{std::move(onChangeCallback), moduleId};
+		txt->box.pos = {160, 0};
+		txt->box.size = {140, BND_WIDGET_HEIGHT};
+		txt->text = initialText;
+		addChild(txt);
+	}
+
+	void draw(const DrawArgs &args) override {
+		bndMenuLabel(args.vg, 0.0, 0.0, box.size.x, box.size.y, -1, label.c_str());
+		Widget::draw(args);
+	}
+};
+
 struct HubMediumWidget : MetaModuleHubWidget {
 
 	using INFO = HubMediumInfo;
@@ -396,6 +441,116 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			}
 		});
 		menu->addChild(knobset_menu);
+
+		menu->addChild(new MenuSeparator());
+
+		auto module_alias_menu = createSubmenuItem("Module Aliases", "", [this](Menu *menu) {
+			auto engine = APP->engine;
+
+			struct ModuleEntry {
+				rack::app::ModuleWidget *widget;
+				rack::Module *module;
+			};
+			std::vector<ModuleEntry> entries;
+
+			auto addIfRegular = [&](rack::Module *module) {
+				if (!ModuleDirectory::isRegularModule(module))
+					return;
+				auto *mw = APP->scene->rack->getModule(module->getId());
+				if (mw)
+					entries.push_back({mw, module});
+			};
+
+			if (hubModule->mappingMode == MappingMode::ALL) {
+				for (auto id : engine->getModuleIds())
+					addIfRegular(engine->getModule(id));
+
+			} else if (hubModule->mappingMode == MappingMode::CONNECTED) {
+				std::set<int64_t> connected;
+				connected.insert(hubModule->id);
+				auto cable_ids = engine->getCableIds();
+				unsigned num_found = 0;
+				while (connected.size() != num_found) {
+					num_found = connected.size();
+					for (auto cable_id : cable_ids) {
+						auto *cable = engine->getCable(cable_id);
+						if (cable->inputModule && cable->outputModule) {
+							auto in_id = cable->inputModule->getId();
+							auto out_id = cable->outputModule->getId();
+							if (connected.count(in_id))
+								connected.insert(out_id);
+							else if (connected.count(out_id))
+								connected.insert(in_id);
+						}
+					}
+				}
+				for (auto id : connected)
+					addIfRegular(engine->getModule(id));
+
+			} else {
+				if (hubModule->mappingMode == MappingMode::LEFTRIGHT || hubModule->mappingMode == MappingMode::LEFT) {
+					auto *module = engine->getModule(hubModule->id);
+					while (module) {
+						addIfRegular(module);
+						if (module->leftExpander.moduleId < 0)
+							break;
+						module = module->leftExpander.module;
+					}
+				}
+				if (hubModule->mappingMode == MappingMode::LEFTRIGHT || hubModule->mappingMode == MappingMode::RIGHT) {
+					auto *module = engine->getModule(hubModule->id);
+					while (module) {
+						addIfRegular(module);
+						if (module->rightExpander.moduleId < 0)
+							break;
+						module = module->rightExpander.module;
+					}
+				}
+			}
+
+			std::sort(entries.begin(), entries.end(), [](auto &a, auto &b) {
+				auto pa = a.widget->getBox().pos;
+				auto pb = b.widget->getBox().pos;
+				if (pa.x != pb.x)
+					return pa.x < pb.x;
+				return pa.y < pb.y;
+			});
+
+			if (entries.empty()) {
+				menu->addChild(createMenuLabel("No modules in patch"));
+				return;
+			}
+
+			std::map<std::string, int> nameCount;
+			for (auto &e : entries)
+				nameCount[e.module->model->plugin->name + " " + e.module->model->name]++;
+
+			std::map<std::string, int> nameIdx;
+			for (auto &e : entries) {
+				int64_t moduleId = e.module->getId();
+				std::string baseName = e.module->model->plugin->name + " " + e.module->model->name;
+				nameIdx[baseName]++;
+				std::string label = baseName;
+				if (nameCount[baseName] > 1 && nameIdx[baseName] > 1)
+					label += " " + std::to_string(nameIdx[baseName]);
+
+				std::string currentAlias;
+				if (auto it = hubModule->module_aliases.find(moduleId); it != hubModule->module_aliases.end())
+					currentAlias = it->second;
+
+				menu->addChild(new ModuleAliasMenuItem{
+					[this](int64_t id, std::string const &text) {
+						if (text.empty())
+							hubModule->module_aliases.erase(id);
+						else
+							hubModule->module_aliases[id] = text;
+					},
+					moduleId,
+					label,
+					currentAlias});
+			}
+		});
+		menu->addChild(module_alias_menu);
 
 		menu->addChild(new MenuSeparator());
 
