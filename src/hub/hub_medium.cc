@@ -95,14 +95,14 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 	ModuleAliasLabelWidget(int64_t moduleId, std::string const &text, int colorIdx = 0)
 		: moduleId{moduleId}
 		, text{text}
-		, colorIdx{colorIdx} {}
+		, colorIdx{colorIdx} {
+		box.size = Vec(kWidth, kHeight);
+	}
 
 	void step() override {
 		auto *mw = APP->scene->rack->getModule(moduleId);
-		if (!mw)
-			return;
-		box.size = Vec(kWidth, kHeight);
-		box.pos = mw->box.pos.plus(Vec((mw->box.size.x - kWidth) / 2.f, 1.f));
+		if (mw)
+			box.pos = mw->box.pos.plus(Vec((mw->box.size.x - kWidth) / 2.f, 1.f));
 		TransparentWidget::step();
 	}
 
@@ -231,7 +231,7 @@ struct ModuleAliasMenuItem : rack::widget::Widget {
 	}
 
 	void draw(const DrawArgs &args) override {
-		bndMenuLabel(args.vg, 0.0, 0.0, box.size.x, box.size.y, -1, "Name:");
+		bndMenuLabel(args.vg, 0.f, 0.f, box.size.x, box.size.y, -1, "Name:");
 		Widget::draw(args);
 	}
 };
@@ -442,7 +442,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
 													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
 													hubModule->use_glue_labels,
-												hubModule->module_aliases});
+													hubModule->module_aliases});
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -464,7 +464,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
 													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
 													hubModule->use_glue_labels,
-												hubModule->module_aliases});
+													hubModule->module_aliases});
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";

@@ -34,7 +34,7 @@ struct VCVPatchFileWriter {
 		unsigned suggested_samplerate;
 		unsigned suggested_blocksize;
 		bool use_glue_labels = true;
-		std::map<int64_t, std::string> module_aliases;
+		const std::map<int64_t, std::string> &module_aliases;
 	};
 
 	static std::string createPatchYml(FileFields data) {
@@ -46,6 +46,8 @@ struct VCVPatchFileWriter {
 		auto mappingMode = data.mappingMode;
 		auto suggested_samplerate = data.suggested_samplerate;
 		auto suggested_blocksize = data.suggested_blocksize;
+		auto use_glue_labels = data.use_glue_labels;
+		auto &module_aliases = data.module_aliases;
 
 		auto context = rack::contextGet();
 		auto engine = context->engine;
@@ -198,7 +200,7 @@ struct VCVPatchFileWriter {
 		// Read GLUE module labels as module aliases.
 		// If multiple GLUE labels target the same module, pick the one with the highest
 		// vertical position (lowest y coordinate) on the rack.
-		if (data.use_glue_labels) {
+		if (use_glue_labels) {
 			std::map<int64_t, std::pair<std::string, float>> moduleAliases; // {text, y}
 			for (auto moduleID : engine->getModuleIds()) {
 				auto *module = engine->getModule(moduleID);
@@ -230,7 +232,7 @@ struct VCVPatchFileWriter {
 		}
 
 		// Manual aliases take precedence over GLUE labels
-		for (auto const &[vcv_id, alias] : data.module_aliases)
+		for (auto const &[vcv_id, alias] : module_aliases)
 			pw.setModuleAlias(vcv_id, alias);
 
 		//combine hub aliases and expander aliases
