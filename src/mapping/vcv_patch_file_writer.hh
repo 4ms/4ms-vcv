@@ -34,6 +34,7 @@ struct VCVPatchFileWriter {
 		unsigned suggested_samplerate;
 		unsigned suggested_blocksize;
 		bool use_glue_labels = true;
+		std::map<int64_t, std::string> module_aliases;
 	};
 
 	static std::string createPatchYml(FileFields data) {
@@ -227,6 +228,10 @@ struct VCVPatchFileWriter {
 			for (auto const &[vcv_id, text_y] : moduleAliases)
 				pw.setModuleAlias(vcv_id, text_y.first);
 		}
+
+		// Manual aliases take precedence over GLUE labels
+		for (auto const &[vcv_id, alias] : data.module_aliases)
+			pw.setModuleAlias(vcv_id, alias);
 
 		//combine hub aliases and expander aliases
 		JackAlias aliases{jack_aliases};

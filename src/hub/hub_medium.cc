@@ -444,7 +444,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->mappingMode,
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
 													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
-													hubModule->use_glue_labels});
+													hubModule->use_glue_labels,
+												hubModule->module_aliases});
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -465,7 +466,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->mappingMode,
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
 													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
-													hubModule->use_glue_labels});
+													hubModule->use_glue_labels,
+												hubModule->module_aliases});
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -645,9 +647,9 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			std::sort(entries.begin(), entries.end(), [](auto &a, auto &b) {
 				auto pa = a.widget->getBox().pos;
 				auto pb = b.widget->getBox().pos;
-				if (pa.x != pb.x)
-					return pa.x < pb.x;
-				return pa.y < pb.y;
+				if (pa.y != pb.y)
+					return pa.y < pb.y;
+				return pa.x < pb.x;
 			});
 
 			if (entries.empty()) {
@@ -665,7 +667,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 				std::string baseName = e.module->model->plugin->name + " " + e.module->model->name;
 				nameIdx[baseName]++;
 				std::string label = baseName;
-				if (nameCount[baseName] > 1 && nameIdx[baseName] > 1)
+				if (nameCount[baseName] > 1)
 					label += " " + std::to_string(nameIdx[baseName]);
 
 				std::string currentAlias;
@@ -693,7 +695,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		menu->addChild(new MenuSeparator());
 
 		menu->addChild(createCheckMenuItem(
-			"Use stoermelder GLUE labels for module names",
+			"Use stoermelder GLUE labels for module aliases",
 			"",
 			[this]() { return hubModule->use_glue_labels; },
 			[this]() { hubModule->use_glue_labels = !hubModule->use_glue_labels; }));
