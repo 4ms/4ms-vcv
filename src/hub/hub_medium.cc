@@ -217,24 +217,21 @@ struct ModuleAliasTextBox : rack::ui::TextField {
 
 struct ModuleAliasMenuItem : rack::widget::Widget {
 	ModuleAliasTextBox *txt;
-	std::string label;
 
 	ModuleAliasMenuItem(ModuleAliasTextBox::CallbackT &&onChangeCallback,
 						int64_t moduleId,
-						std::string const &label,
-						std::string const &initialText)
-		: label{label} {
+						std::string const &initialText) {
 		box.pos = {0, 0};
-		box.size = {300, BND_WIDGET_HEIGHT};
+		box.size = {250, BND_WIDGET_HEIGHT};
 		txt = new ModuleAliasTextBox{std::move(onChangeCallback), moduleId};
-		txt->box.pos = {160, 0};
-		txt->box.size = {140, BND_WIDGET_HEIGHT};
+		txt->box.pos = {45, 0};
+		txt->box.size = {205, BND_WIDGET_HEIGHT};
 		txt->text = initialText;
 		addChild(txt);
 	}
 
 	void draw(const DrawArgs &args) override {
-		bndMenuLabel(args.vg, 0.0, 0.0, box.size.x, box.size.y, -1, label.c_str());
+		bndMenuLabel(args.vg, 0.0, 0.0, box.size.x, box.size.y, -1, "Name:");
 		Widget::draw(args);
 	}
 };
@@ -662,6 +659,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 				nameCount[e.module->model->plugin->name + " " + e.module->model->name]++;
 
 			std::map<std::string, int> nameIdx;
+			bool first = true;
 			for (auto &e : entries) {
 				int64_t moduleId = e.module->getId();
 				std::string baseName = e.module->model->plugin->name + " " + e.module->model->name;
@@ -673,6 +671,12 @@ struct HubMediumWidget : MetaModuleHubWidget {
 				std::string currentAlias;
 				if (auto it = hubModule->module_aliases.find(moduleId); it != hubModule->module_aliases.end())
 					currentAlias = it->second;
+
+				if (!first)
+					menu->addChild(new MenuSeparator());
+				first = false;
+
+				menu->addChild(createMenuLabel(label));
 
 				menu->addChild(new ModuleAliasMenuItem{
 					[this](int64_t id, std::string const &text) {
@@ -686,13 +690,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 						}
 					},
 					moduleId,
-					label,
 					currentAlias});
 			}
 		});
 		menu->addChild(module_alias_menu);
-
-		menu->addChild(new MenuSeparator());
 
 		menu->addChild(createCheckMenuItem(
 			"Use stoermelder GLUE labels for module aliases",
