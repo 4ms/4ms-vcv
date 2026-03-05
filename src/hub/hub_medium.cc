@@ -72,6 +72,128 @@ private:
 std::string wifiUrl = "";
 Volume wifiVolume = Volume::Card;
 
+struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
+	int64_t moduleId;
+	std::string text;
+	int colorIdx = 0;
+
+	static constexpr float kWidth = 80.f;
+	static constexpr float kHeight = 16.f;
+
+	static NVGcolor labelColor(int idx) {
+		static const NVGcolor kColors[] = {
+			nvgRGB(255, 0,   0),
+			nvgRGB(255, 255, 0),
+			nvgRGB(0,   255, 255),
+			nvgRGB(255, 0,   255),
+			nvgRGB(255, 145, 0),
+			nvgRGB(0,   255, 0),
+		};
+		return kColors[idx % 6];
+	}
+
+	ModuleAliasLabelWidget(int64_t moduleId, std::string const &text, int colorIdx = 0)
+		: moduleId{moduleId}
+		, text{text}
+		, colorIdx{colorIdx} {}
+
+	void step() override {
+		auto *mw = APP->scene->rack->getModule(moduleId);
+		if (!mw)
+			return;
+		box.size = Vec(kWidth, kHeight);
+		box.pos = mw->box.pos.plus(Vec((mw->box.size.x - kWidth) / 2.f, 1.f));
+		TransparentWidget::step();
+	}
+
+	void draw(const DrawArgs &args) override {
+		Rect d = Rect(Vec(0.f, 0.f), Vec(kWidth, kHeight));
+
+		// Shadow (matches GLUE LabelDrawWidget)
+		nvgBeginPath(args.vg);
+		float r = 4.f, c = 4.f;
+		Vec b = Vec(-2.f, -2.f);
+		nvgRect(args.vg, d.pos.x + b.x - r, d.pos.y + b.y - r,
+			d.size.x - 2 * b.x + 2 * r, d.size.y - 2 * b.y + 2 * r);
+		nvgFillPaint(args.vg, nvgBoxGradient(args.vg,
+			d.pos.x + b.x, d.pos.y + b.y, d.size.x - 2 * b.x, d.size.y - 2 * b.y,
+			c, r, nvgRGBAf(0.f, 0.f, 0.f, 0.1f), nvgRGBAf(0.f, 0.f, 0.f, 0.f)));
+		nvgFill(args.vg);
+
+		// Background
+		nvgBeginPath(args.vg);
+		nvgRect(args.vg, d.pos.x, d.pos.y, d.size.x, d.size.y);
+		nvgFillColor(args.vg, labelColor(colorIdx));
+		nvgFill(args.vg);
+
+		// Text
+		if (!text.empty()) {
+			auto font = APP->window->loadFont(asset::system("res/fonts/DejaVuSans.ttf"));
+			if (font) {
+				nvgFontSize(args.vg, kHeight);
+				nvgFontFaceId(args.vg, font->handle);
+				nvgTextLetterSpacing(args.vg, 0.f);
+				nvgTextAlign(args.vg, NVG_ALIGN_CENTER | NVG_ALIGN_TOP);
+				nvgFillColor(args.vg, nvgRGB(0x08, 0x08, 0x08));
+				NVGtextRow textRow;
+				nvgTextBreakLines(args.vg, text.c_str(), nullptr, d.size.x, &textRow, 1);
+				nvgTextBox(args.vg, d.pos.x, d.pos.y + 0.2f, d.size.x, textRow.start, textRow.end);
+			}
+		}
+	}
+};
+
+struct ModuleAliasContainer : rack::widget::Widget {
+	MetaModuleHubBase *hubModule;
+
+	ModuleAliasContainer(MetaModuleHubBase *hubModule)
+		: hubModule{hubModule} {}
+
+	void step() override {
+		Widget::step();
+		if (!hubModule)
+			return;
+
+		auto &aliases = hubModule->module_aliases;
+
+		// Remove children for cleared aliases or gone modules
+		std::vector<Widget *> toRemove;
+		for (auto *child : children) {
+			auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
+			if (!lw)
+				continue;
+			bool inAliases = aliases.count(lw->moduleId) > 0;
+			bool moduleExists = APP->scene->rack->getModule(lw->moduleId) != nullptr;
+			if (!inAliases || !moduleExists)
+				toRemove.push_back(child);
+		}
+		for (auto *w : toRemove) {
+			removeChild(w);
+			delete w;
+		}
+
+		// Add/update children for each alias
+		for (auto &[id, alias] : aliases) {
+			int colorIdx = 0;
+			if (auto it = hubModule->module_alias_colors.find(id); it != hubModule->module_alias_colors.end())
+				colorIdx = it->second;
+
+			bool found = false;
+			for (auto *child : children) {
+				auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
+				if (lw && lw->moduleId == id) {
+					lw->text = alias;
+					lw->colorIdx = colorIdx;
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				addChild(new ModuleAliasLabelWidget{id, alias, colorIdx});
+		}
+	}
+};
+
 struct ModuleAliasTextBox : rack::ui::TextField {
 	using CallbackT = std::function<void(int64_t, std::string const &)>;
 	CallbackT onChangeCallback;
@@ -137,6 +259,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 	HubSaveButton *saveButton;
 
+	ModuleAliasContainer *aliasContainer = nullptr;
+
 	std::string lastPatchFilePath;
 
 	std::string wifiConnectionText;
@@ -157,6 +281,9 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			};
 
 			wifiConnectionText = formatWifiStatus();
+
+			aliasContainer = new ModuleAliasContainer(hubModule);
+			APP->scene->rack->addChild(aliasContainer);
 		}
 
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/modules/HubMedium_artwork.svg")));
@@ -257,6 +384,13 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		addChild(wifiConnectionLabel);
 		addChild(patchDesc);
 		wifiSendButton->setLabels(wifiConnectionLabel, patchDesc);
+	}
+
+	~HubMediumWidget() {
+		if (aliasContainer) {
+			APP->scene->rack->removeChild(aliasContainer);
+			delete aliasContainer;
+		}
 	}
 
 	std::string cleanupPatchName(std::string patchnm) {
@@ -540,10 +674,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 				menu->addChild(new ModuleAliasMenuItem{
 					[this](int64_t id, std::string const &text) {
-						if (text.empty())
+						if (text.empty()) {
 							hubModule->module_aliases.erase(id);
-						else
+							hubModule->module_alias_colors.erase(id);
+						} else {
+							if (!hubModule->module_alias_colors.count(id))
+								hubModule->module_alias_colors[id] = hubModule->module_alias_colors.size() % 6;
 							hubModule->module_aliases[id] = text;
+						}
 					},
 					moduleId,
 					label,

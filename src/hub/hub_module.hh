@@ -40,6 +40,7 @@ struct MetaModuleHubBase : public rack::Module {
 
 	bool use_glue_labels = true;
 	std::map<int64_t, std::string> module_aliases;
+	std::map<int64_t, int> module_alias_colors;
 
 	std::vector<float> last_knob_val{};
 
@@ -195,6 +196,11 @@ struct MetaModuleHubBase : public rack::Module {
 			json_object_set_new(moduleAliasesJ, std::to_string(id).c_str(), json_string(alias.c_str()));
 		json_object_set_new(rootJ, "ModuleAliases", moduleAliasesJ);
 
+		json_t *moduleAliasColorsJ = json_object();
+		for (auto const &[id, color] : module_alias_colors)
+			json_object_set_new(moduleAliasColorsJ, std::to_string(id).c_str(), json_integer(color));
+		json_object_set_new(rootJ, "ModuleAliasColors", moduleAliasColorsJ);
+
 		return rootJ;
 	}
 
@@ -260,6 +266,18 @@ struct MetaModuleHubBase : public rack::Module {
 			}
 		}
 
+		auto moduleAliasColorsJ = json_object_get(rootJ, "ModuleAliasColors");
+		if (json_is_object(moduleAliasColorsJ)) {
+			module_alias_colors.clear();
+			const char *key;
+			json_t *val;
+			json_object_foreach(moduleAliasColorsJ, key, val) {
+				if (json_is_integer(val)) {
+					try { module_alias_colors[std::stoll(key)] = json_integer_value(val); } catch (...) {}
+				}
+			}
+		}
+
 		mappings.decodeJson(rootJ);
 	}
 
@@ -270,6 +288,7 @@ struct MetaModuleHubBase : public rack::Module {
 		mappingMode = MetaModule::MappingMode::ALL;
 		use_glue_labels = true;
 		module_aliases.clear();
+		module_alias_colors.clear();
 		mappings.clear_all(ShouldLock::No);
 		mappings.setActiveKnobSetIdx(0);
 		mappings.refreshParamHandles(ShouldLock::No);
