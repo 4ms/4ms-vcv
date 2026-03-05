@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+## v2.1.6 (in progress)
+
+- Fix QCD div/mult knob: wrong values at certain knob positions (see issue #56)
+
+
 ## v2.1.5
 
 - Save bypass state of each module in patch yaml file. Thanks to @gabriel-roth
