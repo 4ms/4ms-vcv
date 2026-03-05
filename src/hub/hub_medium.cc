@@ -264,7 +264,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													patchDesc->text,
 													hubModule->mappingMode,
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
-													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx]});
+													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
+													hubModule->use_glue_labels});
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -284,7 +285,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													patchDesc->text,
 													hubModule->mappingMode,
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
-													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx]});
+													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
+													hubModule->use_glue_labels});
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -394,6 +396,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			}
 		});
 		menu->addChild(knobset_menu);
+
+		menu->addChild(new MenuSeparator());
+
+		menu->addChild(createCheckMenuItem(
+			"Use stoermelder GLUE labels for module names",
+			"",
+			[this]() { return hubModule->use_glue_labels; },
+			[this]() { hubModule->use_glue_labels = !hubModule->use_glue_labels; }));
 
 		menu->addChild(new MenuSeparator());
 

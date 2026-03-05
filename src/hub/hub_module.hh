@@ -37,6 +37,8 @@ struct MetaModuleHubBase : public rack::Module {
 
 	JackAlias jack_alias{};
 
+	bool use_glue_labels = true;
+
 	std::vector<float> last_knob_val{};
 
 	const std::vector<std::string> sampleRates{"Any", "24kHz", "32kHz", "48kHz", "96kHz"};
@@ -183,6 +185,9 @@ struct MetaModuleHubBase : public rack::Module {
 
 		json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
 		json_object_set_new(rootJ, "DefaultKnobSet", defaultKnobSetJ);
+
+		json_object_set_new(rootJ, "UseGlueLabels", json_boolean(use_glue_labels));
+
 		return rootJ;
 	}
 
@@ -232,6 +237,10 @@ struct MetaModuleHubBase : public rack::Module {
 		auto aliasJ = json_object_get(rootJ, "Alias");
 		jack_alias.decodeJson(aliasJ);
 
+		auto useGlueLabelsJ = json_object_get(rootJ, "UseGlueLabels");
+		if (json_is_boolean(useGlueLabelsJ))
+			use_glue_labels = json_boolean_value(useGlueLabelsJ);
+
 		mappings.decodeJson(rootJ);
 	}
 
@@ -240,6 +249,7 @@ struct MetaModuleHubBase : public rack::Module {
 		patchNameText = "";
 		patchDescText = "";
 		mappingMode = MetaModule::MappingMode::ALL;
+		use_glue_labels = true;
 		mappings.clear_all(ShouldLock::No);
 		mappings.setActiveKnobSetIdx(0);
 		mappings.refreshParamHandles(ShouldLock::No);

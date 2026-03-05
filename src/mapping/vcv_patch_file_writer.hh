@@ -33,6 +33,7 @@ struct VCVPatchFileWriter {
 		MappingMode mappingMode;
 		unsigned suggested_samplerate;
 		unsigned suggested_blocksize;
+		bool use_glue_labels = true;
 	};
 
 	static std::string createPatchYml(FileFields data) {
@@ -196,34 +197,36 @@ struct VCVPatchFileWriter {
 		// Read GLUE module labels as module aliases.
 		// If multiple GLUE labels target the same module, pick the one with the highest
 		// vertical position (lowest y coordinate) on the rack.
-		std::map<int64_t, std::pair<std::string, float>> moduleAliases; // {text, y}
-		for (auto moduleID : engine->getModuleIds()) {
-			auto *module = engine->getModule(moduleID);
-			if (isGlueModule(module)) {
-				if (auto *jsonData = module->dataToJson()) {
-					if (auto *labels = json_object_get(jsonData, "labels")) {
-						size_t i;
-						json_t *label;
-						json_array_foreach(labels, i, label) {
-							auto *textVal = json_object_get(label, "text");
-							auto *idVal = json_object_get(label, "moduleId");
-							auto *yVal = json_object_get(label, "y");
-							if (textVal && idVal && json_is_string(textVal) && json_is_integer(idVal)
-							&& json_string_value(textVal)[0] != '\0') {
-								int64_t vcv_mod_id = json_integer_value(idVal);
-								float y = yVal ? (float)json_number_value(yVal) : 0.f;
-								auto it = moduleAliases.find(vcv_mod_id);
-								if (it == moduleAliases.end() || y < it->second.second)
-									moduleAliases[vcv_mod_id] = {json_string_value(textVal), y};
+		if (data.use_glue_labels) {
+			std::map<int64_t, std::pair<std::string, float>> moduleAliases; // {text, y}
+			for (auto moduleID : engine->getModuleIds()) {
+				auto *module = engine->getModule(moduleID);
+				if (isGlueModule(module)) {
+					if (auto *jsonData = module->dataToJson()) {
+						if (auto *labels = json_object_get(jsonData, "labels")) {
+							size_t i;
+							json_t *label;
+							json_array_foreach(labels, i, label) {
+								auto *textVal = json_object_get(label, "text");
+								auto *idVal = json_object_get(label, "moduleId");
+								auto *yVal = json_object_get(label, "y");
+								if (textVal && idVal && json_is_string(textVal) && json_is_integer(idVal)
+								&& json_string_value(textVal)[0] != '\0') {
+									int64_t vcv_mod_id = json_integer_value(idVal);
+									float y = yVal ? (float)json_number_value(yVal) : 0.f;
+									auto it = moduleAliases.find(vcv_mod_id);
+									if (it == moduleAliases.end() || y < it->second.second)
+										moduleAliases[vcv_mod_id] = {json_string_value(textVal), y};
+								}
 							}
 						}
+						json_decref(jsonData);
 					}
-					json_decref(jsonData);
 				}
 			}
+			for (auto const &[vcv_id, text_y] : moduleAliases)
+				pw.setModuleAlias(vcv_id, text_y.first);
 		}
-		for (auto const &[vcv_id, text_y] : moduleAliases)
-			pw.setModuleAlias(vcv_id, text_y.first);
 
 		//combine hub aliases and expander aliases
 		JackAlias aliases{jack_aliases};
