@@ -513,7 +513,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 					menu->addChild(new MenuSeparator());
 				first = false;
 
-				menu->addChild(createMenuLabel(label));
+				menu->addChild(new ModuleAliasHeaderLabel{label, moduleId, aliasContainer});
 
 				menu->addChild(new ModuleAliasMenuItem{
 					[this](int64_t id, std::string const &text) {
@@ -522,12 +522,13 @@ struct HubMediumWidget : MetaModuleHubWidget {
 							hubModule->module_alias_colors.erase(id);
 						} else {
 							if (!hubModule->module_alias_colors.count(id))
-								hubModule->module_alias_colors[id] = hubModule->module_alias_colors.size() % 6;
+								hubModule->module_alias_colors[id] = hubModule->module_alias_colors.size();
 							hubModule->module_aliases[id] = text;
 						}
 					},
 					moduleId,
-					currentAlias});
+					currentAlias, 
+					aliasContainer});
 			}
 		});
 		menu->addChild(module_alias_menu);
