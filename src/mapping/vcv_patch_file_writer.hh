@@ -33,6 +33,8 @@ struct VCVPatchFileWriter {
 		MappingMode mappingMode;
 		unsigned suggested_samplerate;
 		unsigned suggested_blocksize;
+		bool use_glue_labels = true;
+		const std::map<int64_t, std::string> &module_aliases;
 	};
 
 	static std::string createPatchYml(FileFields data) {
@@ -44,6 +46,8 @@ struct VCVPatchFileWriter {
 		auto mappingMode = data.mappingMode;
 		auto suggested_samplerate = data.suggested_samplerate;
 		auto suggested_blocksize = data.suggested_blocksize;
+		auto use_glue_labels = data.use_glue_labels;
+		auto &module_aliases = data.module_aliases;
 
 		auto context = rack::contextGet();
 		auto engine = context->engine;
@@ -193,6 +197,44 @@ struct VCVPatchFileWriter {
 		pw.setParamList(paramData);
 		pw.setSuggestedSamplerateBlocksize(suggested_samplerate, suggested_blocksize);
 
+		// Read GLUE module labels as module aliases.
+		// If multiple GLUE labels target the same module, pick the one with the highest
+		// vertical position (lowest y coordinate) on the rack.
+		if (use_glue_labels) {
+			std::map<int64_t, std::pair<std::string, float>> moduleAliases; // {text, y}
+			for (auto moduleID : engine->getModuleIds()) {
+				auto *module = engine->getModule(moduleID);
+				if (isGlueModule(module)) {
+					if (auto *jsonData = module->dataToJson()) {
+						if (auto *labels = json_object_get(jsonData, "labels")) {
+							size_t i;
+							json_t *label;
+							json_array_foreach(labels, i, label) {
+								auto *textVal = json_object_get(label, "text");
+								auto *idVal = json_object_get(label, "moduleId");
+								auto *yVal = json_object_get(label, "y");
+								if (textVal && idVal && json_is_string(textVal) && json_is_integer(idVal)
+								&& json_string_value(textVal)[0] != '\0') {
+									int64_t vcv_mod_id = json_integer_value(idVal);
+									float y = yVal ? (float)json_number_value(yVal) : 0.f;
+									auto it = moduleAliases.find(vcv_mod_id);
+									if (it == moduleAliases.end() || y < it->second.second)
+										moduleAliases[vcv_mod_id] = {json_string_value(textVal), y};
+								}
+							}
+						}
+						json_decref(jsonData);
+					}
+				}
+			}
+			for (auto const &[vcv_id, text_y] : moduleAliases)
+				pw.setModuleAlias(vcv_id, text_y.first);
+		}
+
+		// Manual aliases take precedence over GLUE labels
+		for (auto const &[vcv_id, alias] : module_aliases)
+			pw.setModuleAlias(vcv_id, alias);
+
 		//combine hub aliases and expander aliases
 		JackAlias aliases{jack_aliases};
 		if (expanders.hasAudioExpander()) {
@@ -262,6 +304,12 @@ struct VCVPatchFileWriter {
 				panelId++;
 			}
 		}
+	}
+
+	static bool isGlueModule(rack::Module *module) {
+		if (!module || !module->model || !module->model->plugin)
+			return false;
+		return module->model->plugin->slug == "Stoermelder-P1" && module->model->slug == "Glue";
 	}
 
 	static void addHubModuleToMapping(auto *module, std::vector<BrandModule> &moduleData) {

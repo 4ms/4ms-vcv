@@ -279,6 +279,11 @@ void PatchFileWriter::addBypassedModule(rack::Module *module) {
 	pd.bypassed_modules.push_back(idMap[module->id]);
 }
 
+void PatchFileWriter::setModuleAlias(int64_t vcvModuleId, std::string_view text) {
+	if (idMap.contains(vcvModuleId))
+		pd.set_module_alias(idMap[vcvModuleId], text);
+}
+
 void PatchFileWriter::addKnobMapSet(unsigned knobSetId, std::string_view knobSetName) {
 	if (knobSetId >= pd.knob_sets.size())
 		pd.knob_sets.resize(knobSetId + 1);

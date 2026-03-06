@@ -8,6 +8,7 @@
 #include "util/edge_detector.hh"
 #include "util/math.hh"
 #include "util/string_util.hh"
+#include <map>
 #include <osdialog.h>
 #include <span>
 
@@ -36,6 +37,10 @@ struct MetaModuleHubBase : public rack::Module {
 	HubKnobMappings<MaxMapsPerPot, MaxKnobSets> mappings;
 
 	JackAlias jack_alias{};
+
+	bool use_glue_labels = true;
+	std::map<int64_t, std::string> module_aliases;
+	std::map<int64_t, int> module_alias_colors;
 
 	std::vector<float> last_knob_val{};
 
@@ -183,6 +188,19 @@ struct MetaModuleHubBase : public rack::Module {
 
 		json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
 		json_object_set_new(rootJ, "DefaultKnobSet", defaultKnobSetJ);
+
+		json_object_set_new(rootJ, "UseGlueLabels", json_boolean(use_glue_labels));
+
+		json_t *moduleAliasesJ = json_object();
+		for (auto const &[id, alias] : module_aliases)
+			json_object_set_new(moduleAliasesJ, std::to_string(id).c_str(), json_string(alias.c_str()));
+		json_object_set_new(rootJ, "ModuleAliases", moduleAliasesJ);
+
+		json_t *moduleAliasColorsJ = json_object();
+		for (auto const &[id, color] : module_alias_colors)
+			json_object_set_new(moduleAliasColorsJ, std::to_string(id).c_str(), json_integer(color));
+		json_object_set_new(rootJ, "ModuleAliasColors", moduleAliasColorsJ);
+
 		return rootJ;
 	}
 
@@ -232,6 +250,34 @@ struct MetaModuleHubBase : public rack::Module {
 		auto aliasJ = json_object_get(rootJ, "Alias");
 		jack_alias.decodeJson(aliasJ);
 
+		auto useGlueLabelsJ = json_object_get(rootJ, "UseGlueLabels");
+		if (json_is_boolean(useGlueLabelsJ))
+			use_glue_labels = json_boolean_value(useGlueLabelsJ);
+
+		auto moduleAliasesJ = json_object_get(rootJ, "ModuleAliases");
+		if (json_is_object(moduleAliasesJ)) {
+			module_aliases.clear();
+			const char *key;
+			json_t *val;
+			json_object_foreach(moduleAliasesJ, key, val) {
+				if (json_is_string(val)) {
+					try { module_aliases[std::stoll(key)] = json_string_value(val); } catch (...) {}
+				}
+			}
+		}
+
+		auto moduleAliasColorsJ = json_object_get(rootJ, "ModuleAliasColors");
+		if (json_is_object(moduleAliasColorsJ)) {
+			module_alias_colors.clear();
+			const char *key;
+			json_t *val;
+			json_object_foreach(moduleAliasColorsJ, key, val) {
+				if (json_is_integer(val)) {
+					try { module_alias_colors[std::stoll(key)] = json_integer_value(val); } catch (...) {}
+				}
+			}
+		}
+
 		mappings.decodeJson(rootJ);
 	}
 
@@ -240,6 +286,9 @@ struct MetaModuleHubBase : public rack::Module {
 		patchNameText = "";
 		patchDescText = "";
 		mappingMode = MetaModule::MappingMode::ALL;
+		use_glue_labels = true;
+		module_aliases.clear();
+		module_alias_colors.clear();
 		mappings.clear_all(ShouldLock::No);
 		mappings.setActiveKnobSetIdx(0);
 		mappings.refreshParamHandles(ShouldLock::No);

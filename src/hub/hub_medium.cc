@@ -4,6 +4,7 @@
 #include "hub/buttons.hh"
 #include "hub/hub_elements.hh"
 #include "hub/knob_set_buttons.hh"
+#include "hub/module_alias.hh"
 #include "hub_module_widget.hh"
 #include "mapping/vcv_patch_file_writer.hh"
 #include "network/network.hh"
@@ -92,6 +93,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 	HubSaveButton *saveButton;
 
+	ModuleAliasContainer *aliasContainer = nullptr;
+
 	std::string lastPatchFilePath;
 
 	std::string wifiConnectionText;
@@ -112,6 +115,9 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			};
 
 			wifiConnectionText = formatWifiStatus();
+
+			aliasContainer = new ModuleAliasContainer(hubModule);
+			APP->scene->rack->addChild(aliasContainer);
 		}
 
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/modules/HubMedium_artwork.svg")));
@@ -214,6 +220,13 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		wifiSendButton->setLabels(wifiConnectionLabel, patchDesc);
 	}
 
+	~HubMediumWidget() {
+		if (aliasContainer) {
+			APP->scene->rack->removeChild(aliasContainer);
+			delete aliasContainer;
+		}
+	}
+
 	std::string cleanupPatchName(std::string patchnm) {
 		if (patchnm == "" || patchnm == "Enter Patch Name") {
 			patchnm = "Untitled Patch " + std::to_string(MathTools::randomNumber<unsigned int>(100, 999));
@@ -264,7 +277,9 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													patchDesc->text,
 													hubModule->mappingMode,
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
-													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx]});
+													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
+													hubModule->use_glue_labels,
+													hubModule->module_aliases});
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -284,7 +299,9 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													patchDesc->text,
 													hubModule->mappingMode,
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
-													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx]});
+													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
+													hubModule->use_glue_labels,
+													hubModule->module_aliases});
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -394,6 +411,132 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			}
 		});
 		menu->addChild(knobset_menu);
+
+		menu->addChild(new MenuSeparator());
+
+		auto module_alias_menu = createSubmenuItem("Module Aliases", "", [this](Menu *menu) {
+			auto engine = APP->engine;
+
+			struct ModuleEntry {
+				rack::app::ModuleWidget *widget;
+				rack::Module *module;
+			};
+			std::vector<ModuleEntry> entries;
+
+			auto addIfRegular = [&](rack::Module *module) {
+				if (!ModuleDirectory::isRegularModule(module))
+					return;
+				auto *mw = APP->scene->rack->getModule(module->getId());
+				if (mw)
+					entries.push_back({mw, module});
+			};
+
+			if (hubModule->mappingMode == MappingMode::ALL) {
+				for (auto id : engine->getModuleIds())
+					addIfRegular(engine->getModule(id));
+
+			} else if (hubModule->mappingMode == MappingMode::CONNECTED) {
+				std::set<int64_t> connected;
+				connected.insert(hubModule->id);
+				auto cable_ids = engine->getCableIds();
+				unsigned num_found = 0;
+				while (connected.size() != num_found) {
+					num_found = connected.size();
+					for (auto cable_id : cable_ids) {
+						auto *cable = engine->getCable(cable_id);
+						if (cable->inputModule && cable->outputModule) {
+							auto in_id = cable->inputModule->getId();
+							auto out_id = cable->outputModule->getId();
+							if (connected.count(in_id))
+								connected.insert(out_id);
+							else if (connected.count(out_id))
+								connected.insert(in_id);
+						}
+					}
+				}
+				for (auto id : connected)
+					addIfRegular(engine->getModule(id));
+
+			} else {
+				if (hubModule->mappingMode == MappingMode::LEFTRIGHT || hubModule->mappingMode == MappingMode::LEFT) {
+					auto *module = engine->getModule(hubModule->id);
+					while (module) {
+						addIfRegular(module);
+						if (module->leftExpander.moduleId < 0)
+							break;
+						module = module->leftExpander.module;
+					}
+				}
+				if (hubModule->mappingMode == MappingMode::LEFTRIGHT || hubModule->mappingMode == MappingMode::RIGHT) {
+					auto *module = engine->getModule(hubModule->id);
+					while (module) {
+						addIfRegular(module);
+						if (module->rightExpander.moduleId < 0)
+							break;
+						module = module->rightExpander.module;
+					}
+				}
+			}
+
+			std::sort(entries.begin(), entries.end(), [](auto &a, auto &b) {
+				auto pa = a.widget->getBox().pos;
+				auto pb = b.widget->getBox().pos;
+				if (pa.y != pb.y)
+					return pa.y < pb.y;
+				return pa.x < pb.x;
+			});
+
+			if (entries.empty()) {
+				menu->addChild(createMenuLabel("No modules in patch"));
+				return;
+			}
+
+			std::map<std::string, int> nameCount;
+			for (auto &e : entries)
+				nameCount[e.module->model->plugin->name + " " + e.module->model->name]++;
+
+			std::map<std::string, int> nameIdx;
+			bool first = true;
+			for (auto &e : entries) {
+				int64_t moduleId = e.module->getId();
+				std::string baseName = e.module->model->plugin->name + " " + e.module->model->name;
+				nameIdx[baseName]++;
+				std::string label = baseName;
+				if (nameCount[baseName] > 1)
+					label += " " + std::to_string(nameIdx[baseName]);
+
+				std::string currentAlias;
+				if (auto it = hubModule->module_aliases.find(moduleId); it != hubModule->module_aliases.end())
+					currentAlias = it->second;
+
+				if (!first)
+					menu->addChild(new MenuSeparator());
+				first = false;
+
+				menu->addChild(createMenuLabel(label));
+
+				menu->addChild(new ModuleAliasMenuItem{
+					[this](int64_t id, std::string const &text) {
+						if (text.empty()) {
+							hubModule->module_aliases.erase(id);
+							hubModule->module_alias_colors.erase(id);
+						} else {
+							if (!hubModule->module_alias_colors.count(id))
+								hubModule->module_alias_colors[id] = hubModule->module_alias_colors.size() % 6;
+							hubModule->module_aliases[id] = text;
+						}
+					},
+					moduleId,
+					currentAlias});
+			}
+		});
+		menu->addChild(module_alias_menu);
+
+		menu->addChild(createCheckMenuItem(
+			"Use stoermelder GLUE labels for module aliases",
+			"",
+			[this]() { return hubModule->use_glue_labels; },
+			[this]() { hubModule->use_glue_labels = !hubModule->use_glue_labels; }));
 
 		menu->addChild(new MenuSeparator());
 
