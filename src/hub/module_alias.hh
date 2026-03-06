@@ -84,10 +84,19 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 struct ModuleAliasContainer : rack::widget::Widget {
 	MetaModuleHubBase *hubModule;
 	int64_t flashModuleId = -1;
-	ModuleAliasLabelWidget *flashLabel = nullptr;
+	ModuleAliasLabelWidget *tempFlashLabel = nullptr;
 
 	ModuleAliasContainer(MetaModuleHubBase *hubModule)
 		: hubModule{hubModule} {}
+
+	void removeTempLabelIfPresent() {
+		// Remove temporary flash label if present
+		if (tempFlashLabel) {
+			removeChild(tempFlashLabel);
+			delete tempFlashLabel;
+			tempFlashLabel = nullptr;
+		}
+	}
 
 	void step() override {
 		Widget::step();
@@ -100,7 +109,7 @@ struct ModuleAliasContainer : rack::widget::Widget {
 		std::vector<Widget *> toRemove;
 		for (auto *child : children) {
 			auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
-			if (!lw || lw == flashLabel)
+			if (!lw || lw == tempFlashLabel)
 				continue;
 			bool inAliases = aliases.count(lw->moduleId) > 0;
 			bool moduleExists = APP->scene->rack->getModule(lw->moduleId) != nullptr;
@@ -118,74 +127,63 @@ struct ModuleAliasContainer : rack::widget::Widget {
 			if (auto it = hubModule->module_alias_colors.find(id); it != hubModule->module_alias_colors.end())
 				colorIdx = it->second;
 
-			bool found = false;
-			for (auto *child : children) {
+			auto found = std::find_if(children.begin(), children.end(), [&](auto *child) {
 				auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
-				if (lw && lw != flashLabel && lw->moduleId == id) {
-					lw->text = alias;
-					lw->colorIdx = colorIdx;
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-				addChild(new ModuleAliasLabelWidget{id, alias, colorIdx});
-
-			// Reset flashing on all permanent labels
-			for (auto *child : children) {
-				auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
-				if (lw && lw != flashLabel)
-					lw->flashing = false;
-			}
-
-			// Handle flash highlight
-			if (flashModuleId >= 0) {
-				// Check if a permanent label exists for the flashed module
-				ModuleAliasLabelWidget *permanentLabel = nullptr;
-				for (auto *child : children) {
-					auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
-					if (lw && lw != flashLabel && lw->moduleId == flashModuleId) {
-						permanentLabel = lw;
-						break;
-					}
-				}
-
-				if (permanentLabel) {
-					// Flash the existing label
-					permanentLabel->flashing = true;
-					// Remove temporary flash label if present
-					if (flashLabel) {
-						removeChild(flashLabel);
-						delete flashLabel;
-						flashLabel = nullptr;
-					}
-				} else {
-					// Create or update temporary flash label
-					if (!flashLabel || flashLabel->moduleId != flashModuleId) {
-						if (flashLabel) {
-							removeChild(flashLabel);
-							delete flashLabel;
-						}
-						int colorIdx = 0;
-						if (auto it = hubModule->module_alias_colors.find(flashModuleId);
-							it != hubModule->module_alias_colors.end())
-							colorIdx = it->second;
-						flashLabel = new ModuleAliasLabelWidget{flashModuleId, "", colorIdx};
-						flashLabel->flashing = true;
-						addChild(flashLabel);
-					}
-					flashLabel->flashing = true;
-				}
+				return (lw && lw != tempFlashLabel && lw->moduleId == id);
+			});
+			if (found != children.end()) {
+				auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(*found);
+				lw->text = alias;
+				lw->colorIdx = colorIdx;
 			} else {
-				// No flash active — remove temporary label
-				if (flashLabel) {
-					removeChild(flashLabel);
-					delete flashLabel;
-					flashLabel = nullptr;
-				}
+				addChild(new ModuleAliasLabelWidget{id, alias, colorIdx});
 			}
 
 		}
+
+		// Reset flashing on all permanent labels
+		for (auto *child : children) {
+			auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
+			if (lw && lw != tempFlashLabel)
+				lw->flashing = false;
+		}
+
+
+		// Handle flash highlight
+		if (flashModuleId >= 0) {
+
+			// Check if a permanent label exists for the flashed module
+			auto found = std::find_if(children.begin(), children.end(), [&](auto *child) {
+				auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
+				return (lw && lw != tempFlashLabel && lw->moduleId == flashModuleId);
+			});
+
+			if (found != children.end()) {
+				if (auto *permanentLabel = dynamic_cast<ModuleAliasLabelWidget *>(*found)) {
+					// Flash the existing label
+					permanentLabel->flashing = true;
+					removeTempLabelIfPresent();
+				}
+			} else {
+				// Create or update temporary flash label
+				if (!tempFlashLabel || tempFlashLabel->moduleId != flashModuleId) {
+					removeTempLabelIfPresent();
+
+					int colorIdx = 0;
+					if (auto it = hubModule->module_alias_colors.find(flashModuleId);
+						it != hubModule->module_alias_colors.end())
+						colorIdx = it->second;
+					tempFlashLabel = new ModuleAliasLabelWidget{flashModuleId, "", colorIdx};
+					tempFlashLabel->flashing = true;
+					addChild(tempFlashLabel);
+				}
+				tempFlashLabel->flashing = true;
+			}
+		} else {
+			// No flash active — remove temporary label
+			removeTempLabelIfPresent();
+		}
+
 	}
 };
 
