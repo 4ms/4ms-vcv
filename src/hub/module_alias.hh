@@ -1,5 +1,6 @@
 #pragma once
 #include "hub/hub_module.hh"
+#include "mapping/map_palette.hh"
 #include <rack.hpp>
 
 namespace MetaModule
@@ -14,18 +15,6 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 
 	static constexpr float kWidth = 80.f;
 	static constexpr float kHeight = 16.f;
-
-	static NVGcolor labelColor(int idx) {
-		static const NVGcolor kColors[] = {
-			nvgRGB(255, 0,   0),
-			nvgRGB(255, 255, 0),
-			nvgRGB(0,   255, 255),
-			nvgRGB(255, 0,   255),
-			nvgRGB(255, 145, 0),
-			nvgRGB(0,   255, 0),
-		};
-		return kColors[idx % 6];
-	}
 
 	ModuleAliasLabelWidget(int64_t moduleId, std::string const &text, int colorIdx = 0)
 		: moduleId{moduleId}
@@ -58,7 +47,7 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 		// Background
 		nvgBeginPath(args.vg);
 		nvgRect(args.vg, d.pos.x, d.pos.y, d.size.x, d.size.y);
-		nvgFillColor(args.vg, labelColor(colorIdx));
+		nvgFillColor(args.vg, PaletteHub::color(colorIdx));
 		nvgFill(args.vg);
 
 		// Text
