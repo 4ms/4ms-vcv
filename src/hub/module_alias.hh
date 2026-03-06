@@ -16,6 +16,10 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 	static constexpr float kWidth = 80.f;
 	static constexpr float kHeight = 16.f;
 
+	bool flashing = false;
+	unsigned flashPhase = 0;
+	constexpr static unsigned flashRate = 6;
+
 	ModuleAliasLabelWidget(int64_t moduleId, std::string const &text, int colorIdx = 0)
 		: moduleId{moduleId}
 		, text{text}
@@ -27,10 +31,12 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 		auto *mw = APP->scene->rack->getModule(moduleId);
 		if (mw)
 			box.pos = mw->box.pos.plus(Vec((mw->box.size.x - kWidth) / 2.f, 1.f));
+		flashPhase = flashPhase ? flashPhase - 1 : flashRate;
 		TransparentWidget::step();
 	}
 
 	void draw(const DrawArgs &args) override {
+		nvgSave(args.vg);
 		Rect d = Rect(Vec(0.f, 0.f), Vec(kWidth, kHeight));
 
 		// Shadow (matches GLUE LabelDrawWidget)
@@ -49,6 +55,12 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 		nvgRect(args.vg, d.pos.x, d.pos.y, d.size.x, d.size.y);
 		nvgFillColor(args.vg, PaletteHub::color(colorIdx));
 		nvgFill(args.vg);
+		if (flashing) {
+			float alpha = (flashPhase > flashRate / 2);
+			nvgStrokeWidth(args.vg, 2);
+			nvgStrokeColor(args.vg, nvgRGBAf(0, 0, 0, alpha));
+			nvgStroke(args.vg);
+		}
 
 		// Text
 		if (!text.empty()) {
@@ -64,11 +76,15 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 				nvgTextBox(args.vg, d.pos.x, d.pos.y + 0.2f, d.size.x, textRow.start, textRow.end);
 			}
 		}
+
+		nvgRestore(args.vg);
 	}
 };
 
 struct ModuleAliasContainer : rack::widget::Widget {
 	MetaModuleHubBase *hubModule;
+	int64_t flashModuleId = -1;
+	ModuleAliasLabelWidget *flashLabel = nullptr;
 
 	ModuleAliasContainer(MetaModuleHubBase *hubModule)
 		: hubModule{hubModule} {}
@@ -84,7 +100,7 @@ struct ModuleAliasContainer : rack::widget::Widget {
 		std::vector<Widget *> toRemove;
 		for (auto *child : children) {
 			auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
-			if (!lw)
+			if (!lw || lw == flashLabel)
 				continue;
 			bool inAliases = aliases.count(lw->moduleId) > 0;
 			bool moduleExists = APP->scene->rack->getModule(lw->moduleId) != nullptr;
@@ -105,7 +121,7 @@ struct ModuleAliasContainer : rack::widget::Widget {
 			bool found = false;
 			for (auto *child : children) {
 				auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
-				if (lw && lw->moduleId == id) {
+				if (lw && lw != flashLabel && lw->moduleId == id) {
 					lw->text = alias;
 					lw->colorIdx = colorIdx;
 					found = true;
@@ -114,6 +130,61 @@ struct ModuleAliasContainer : rack::widget::Widget {
 			}
 			if (!found)
 				addChild(new ModuleAliasLabelWidget{id, alias, colorIdx});
+
+			// Reset flashing on all permanent labels
+			for (auto *child : children) {
+				auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
+				if (lw && lw != flashLabel)
+					lw->flashing = false;
+			}
+
+			// Handle flash highlight
+			if (flashModuleId >= 0) {
+				// Check if a permanent label exists for the flashed module
+				ModuleAliasLabelWidget *permanentLabel = nullptr;
+				for (auto *child : children) {
+					auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
+					if (lw && lw != flashLabel && lw->moduleId == flashModuleId) {
+						permanentLabel = lw;
+						break;
+					}
+				}
+
+				if (permanentLabel) {
+					// Flash the existing label
+					permanentLabel->flashing = true;
+					// Remove temporary flash label if present
+					if (flashLabel) {
+						removeChild(flashLabel);
+						delete flashLabel;
+						flashLabel = nullptr;
+					}
+				} else {
+					// Create or update temporary flash label
+					if (!flashLabel || flashLabel->moduleId != flashModuleId) {
+						if (flashLabel) {
+							removeChild(flashLabel);
+							delete flashLabel;
+						}
+						int colorIdx = 0;
+						if (auto it = hubModule->module_alias_colors.find(flashModuleId);
+							it != hubModule->module_alias_colors.end())
+							colorIdx = it->second;
+						flashLabel = new ModuleAliasLabelWidget{flashModuleId, "", colorIdx};
+						flashLabel->flashing = true;
+						addChild(flashLabel);
+					}
+					flashLabel->flashing = true;
+				}
+			} else {
+				// No flash active — remove temporary label
+				if (flashLabel) {
+					removeChild(flashLabel);
+					delete flashLabel;
+					flashLabel = nullptr;
+				}
+			}
+
 		}
 	}
 };
@@ -122,11 +193,30 @@ struct ModuleAliasTextBox : rack::ui::TextField {
 	using CallbackT = std::function<void(int64_t, std::string const &)>;
 	CallbackT onChangeCallback;
 	int64_t moduleId;
+	ModuleAliasContainer *container = nullptr;
 	static constexpr unsigned kMaxChars = 32;
 
-	ModuleAliasTextBox(CallbackT &&callback, int64_t moduleId)
+	ModuleAliasTextBox(CallbackT &&callback, int64_t moduleId, ModuleAliasContainer *container)
 		: onChangeCallback{callback}
-		, moduleId{moduleId} {}
+		, moduleId{moduleId}
+		, container{container} {}
+
+	~ModuleAliasTextBox() {
+		if (container && container->flashModuleId == moduleId)
+			container->flashModuleId = -1;
+	}
+
+	void onEnter(const EnterEvent &e) override {
+		if (container)
+			container->flashModuleId = moduleId;
+		TextField::onEnter(e);
+	}
+
+	void onLeave(const LeaveEvent &e) override {
+		if (container && container->flashModuleId == moduleId)
+			container->flashModuleId = -1;
+		TextField::onLeave(e);
+	}
 
 	void onChange(const rack::event::Change &e) override {
 		if (text.size() >= kMaxChars)
@@ -144,10 +234,11 @@ struct ModuleAliasMenuItem : rack::widget::Widget {
 
 	ModuleAliasMenuItem(ModuleAliasTextBox::CallbackT &&onChangeCallback,
 						int64_t moduleId,
-						std::string const &initialText) {
+						std::string const &initialText,
+						ModuleAliasContainer *container = nullptr) {
 		box.pos = {0, 0};
 		box.size = {250, BND_WIDGET_HEIGHT};
-		txt = new ModuleAliasTextBox{std::move(onChangeCallback), moduleId};
+		txt = new ModuleAliasTextBox{std::move(onChangeCallback), moduleId, container};
 		txt->box.pos = {45, 0};
 		txt->box.size = {205, BND_WIDGET_HEIGHT};
 		txt->text = initialText;
@@ -159,5 +250,38 @@ struct ModuleAliasMenuItem : rack::widget::Widget {
 		Widget::draw(args);
 	}
 };
+
+struct ModuleAliasHeaderLabel : rack::ui::MenuLabel {
+	ModuleAliasContainer *container = nullptr;
+	int64_t moduleId = -1;
+
+	ModuleAliasHeaderLabel(std::string const &text, int64_t moduleId, ModuleAliasContainer *container)
+		: container{container}
+		, moduleId{moduleId} {
+		this->text = text;
+	}
+
+	~ModuleAliasHeaderLabel() {
+		if (container && container->flashModuleId == moduleId)
+			container->flashModuleId = -1;
+	}
+
+	void onHover(const HoverEvent &e) override {
+		e.consume(this);
+	}
+
+	void onEnter(const EnterEvent &e) override {
+		if (container)
+			container->flashModuleId = moduleId;
+		MenuLabel::onEnter(e);
+	}
+
+	void onLeave(const LeaveEvent &e) override {
+		if (container && container->flashModuleId == moduleId)
+			container->flashModuleId = -1;
+		MenuLabel::onLeave(e);
+	}
+};
+
 
 } // namespace MetaModule
