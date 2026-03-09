@@ -515,20 +515,17 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 				menu->addChild(new ModuleAliasHeaderLabel{label, moduleId, aliasContainer});
 
-				menu->addChild(new ModuleAliasMenuItem{
-					[this](int64_t id, std::string const &text) {
-						if (text.empty()) {
-							hubModule->module_aliases.erase(id);
-							hubModule->module_alias_colors.erase(id);
-						} else {
-							if (!hubModule->module_alias_colors.count(id))
-								hubModule->module_alias_colors[id] = hubModule->module_alias_colors.size();
-							hubModule->module_aliases[id] = text;
-						}
-					},
-					moduleId,
-					currentAlias, 
-					aliasContainer});
+				menu->addChild(new ModuleAliasMenuItem{[this](int64_t id, std::string const &text) {
+														   if (!hubModule->module_alias_colors.count(id))
+															   hubModule->module_alias_colors[id] =
+																   hubModule->module_alias_colors.size();
+														   hubModule->module_aliases[id] = text;
+													   },
+													   moduleId,
+													   currentAlias,
+													   aliasContainer});
+
+				menu->addChild(new ModuleAliasColorMenuItem{moduleId, hubModule, aliasContainer});
 			}
 		});
 		menu->addChild(module_alias_menu);

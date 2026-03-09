@@ -8,10 +8,13 @@ namespace MetaModule
 
 using namespace rack;
 
-struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
+struct ModuleAliasContainer;
+
+struct ModuleAliasLabelWidget : rack::widget::OpaqueWidget {
 	int64_t moduleId;
 	std::string text;
 	int colorIdx = 0;
+	ModuleAliasContainer *container = nullptr;
 
 	static constexpr float kWidth = 80.f;
 	static constexpr float kHeight = 16.f;
@@ -20,11 +23,26 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 	unsigned flashPhase = 0;
 	constexpr static unsigned flashRate = 6;
 
-	ModuleAliasLabelWidget(int64_t moduleId, std::string const &text, int colorIdx = 0)
+	ModuleAliasLabelWidget(int64_t moduleId,
+						   std::string const &text,
+						   int colorIdx = 0,
+						   ModuleAliasContainer *container = nullptr)
 		: moduleId{moduleId}
 		, text{text}
-		, colorIdx{colorIdx} {
+		, colorIdx{colorIdx}
+		, container{container} {
 		box.size = Vec(kWidth, kHeight);
+	}
+
+	void createContextMenu();
+
+	void onButton(const ButtonEvent &e) override {
+		if (e.action == GLFW_PRESS && e.button == GLFW_MOUSE_BUTTON_RIGHT) {
+			createContextMenu();
+			e.consume(this);
+			return;
+		}
+		OpaqueWidget::onButton(e);
 	}
 
 	void step() override {
@@ -32,7 +50,7 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 		if (mw)
 			box.pos = mw->box.pos.plus(Vec((mw->box.size.x - kWidth) / 2.f, 1.f));
 		flashPhase = flashPhase ? flashPhase - 1 : flashRate;
-		TransparentWidget::step();
+		OpaqueWidget::step();
 	}
 
 	void draw(const DrawArgs &args) override {
@@ -43,11 +61,17 @@ struct ModuleAliasLabelWidget : rack::widget::TransparentWidget {
 		nvgBeginPath(args.vg);
 		float r = 4.f, c = 4.f;
 		Vec b = Vec(-2.f, -2.f);
-		nvgRect(args.vg, d.pos.x + b.x - r, d.pos.y + b.y - r,
-			d.size.x - 2 * b.x + 2 * r, d.size.y - 2 * b.y + 2 * r);
-		nvgFillPaint(args.vg, nvgBoxGradient(args.vg,
-			d.pos.x + b.x, d.pos.y + b.y, d.size.x - 2 * b.x, d.size.y - 2 * b.y,
-			c, r, nvgRGBAf(0.f, 0.f, 0.f, 0.1f), nvgRGBAf(0.f, 0.f, 0.f, 0.f)));
+		nvgRect(args.vg, d.pos.x + b.x - r, d.pos.y + b.y - r, d.size.x - 2 * b.x + 2 * r, d.size.y - 2 * b.y + 2 * r);
+		nvgFillPaint(args.vg,
+					 nvgBoxGradient(args.vg,
+									d.pos.x + b.x,
+									d.pos.y + b.y,
+									d.size.x - 2 * b.x,
+									d.size.y - 2 * b.y,
+									c,
+									r,
+									nvgRGBAf(0.f, 0.f, 0.f, 0.1f),
+									nvgRGBAf(0.f, 0.f, 0.f, 0.f)));
 		nvgFill(args.vg);
 
 		// Background
@@ -85,9 +109,12 @@ struct ModuleAliasContainer : rack::widget::Widget {
 	MetaModuleHubBase *hubModule;
 	int64_t flashModuleId = -1;
 	ModuleAliasLabelWidget *tempFlashLabel = nullptr;
+	int64_t previewColorModuleId = -1;
+	int previewColorIdx = -1;
 
 	ModuleAliasContainer(MetaModuleHubBase *hubModule)
-		: hubModule{hubModule} {}
+		: hubModule{hubModule} {
+	}
 
 	void removeTempLabelIfPresent() {
 		// Remove temporary flash label if present
@@ -126,6 +153,8 @@ struct ModuleAliasContainer : rack::widget::Widget {
 			int colorIdx = 0;
 			if (auto it = hubModule->module_alias_colors.find(id); it != hubModule->module_alias_colors.end())
 				colorIdx = it->second;
+			if (previewColorModuleId == id && previewColorIdx >= 0)
+				colorIdx = previewColorIdx;
 
 			auto found = std::find_if(children.begin(), children.end(), [&](auto *child) {
 				auto *lw = dynamic_cast<ModuleAliasLabelWidget *>(child);
@@ -136,9 +165,8 @@ struct ModuleAliasContainer : rack::widget::Widget {
 				lw->text = alias;
 				lw->colorIdx = colorIdx;
 			} else {
-				addChild(new ModuleAliasLabelWidget{id, alias, colorIdx});
+				addChild(new ModuleAliasLabelWidget{id, alias, colorIdx, this});
 			}
-
 		}
 
 		// Reset flashing on all permanent labels
@@ -147,7 +175,6 @@ struct ModuleAliasContainer : rack::widget::Widget {
 			if (lw && lw != tempFlashLabel)
 				lw->flashing = false;
 		}
-
 
 		// Handle flash highlight
 		if (flashModuleId >= 0) {
@@ -171,17 +198,18 @@ struct ModuleAliasContainer : rack::widget::Widget {
 
 					// Use next color
 					int colorIdx = hubModule->module_alias_colors.size();
-					tempFlashLabel = new ModuleAliasLabelWidget{flashModuleId, "", colorIdx};
+					tempFlashLabel = new ModuleAliasLabelWidget{flashModuleId, "", colorIdx, this};
 					tempFlashLabel->flashing = true;
 					addChild(tempFlashLabel);
 				}
+				if (previewColorModuleId == flashModuleId && previewColorIdx >= 0)
+					tempFlashLabel->colorIdx = previewColorIdx;
 				tempFlashLabel->flashing = true;
 			}
 		} else {
 			// No flash active — remove temporary label
 			removeTempLabelIfPresent();
 		}
-
 	}
 };
 
@@ -195,11 +223,22 @@ struct ModuleAliasTextBox : rack::ui::TextField {
 	ModuleAliasTextBox(CallbackT &&callback, int64_t moduleId, ModuleAliasContainer *container)
 		: onChangeCallback{callback}
 		, moduleId{moduleId}
-		, container{container} {}
+		, container{container} {
+	}
 
 	~ModuleAliasTextBox() {
-		if (container && container->flashModuleId == moduleId)
-			container->flashModuleId = -1;
+		if (container) {
+			if (container->flashModuleId == moduleId)
+				container->flashModuleId = -1;
+			// Clean up empty aliases when menu closes
+			if (container->hubModule) {
+				auto &aliases = container->hubModule->module_aliases;
+				if (auto it = aliases.find(moduleId); it != aliases.end() && it->second.empty()) {
+					aliases.erase(it);
+					container->hubModule->module_alias_colors.erase(moduleId);
+				}
+			}
+		}
 	}
 
 	void onEnter(const EnterEvent &e) override {
@@ -247,6 +286,127 @@ struct ModuleAliasMenuItem : rack::widget::Widget {
 	}
 };
 
+struct ModuleAliasColorMenuItem : rack::widget::Widget {
+	int64_t moduleId;
+	MetaModuleHubBase *hubModule;
+	ModuleAliasContainer *container;
+	int hoveredIdx = -1;
+
+	static constexpr float kSwatchSize = 14.f;
+	static constexpr float kSwatchSpacing = 2.f;
+	static constexpr float kLabelWidth = 45.f;
+	static constexpr unsigned kNumColors = 12;
+
+	ModuleAliasColorMenuItem(int64_t moduleId, MetaModuleHubBase *hubModule, ModuleAliasContainer *container)
+		: moduleId{moduleId}
+		, hubModule{hubModule}
+		, container{container} {
+		box.size = {kLabelWidth + kNumColors * (kSwatchSize + kSwatchSpacing), BND_WIDGET_HEIGHT};
+	}
+
+	~ModuleAliasColorMenuItem() {
+		clearPreview();
+	}
+
+	int swatchAtPos(Vec pos) {
+		float x = pos.x - kLabelWidth;
+		if (x < 0)
+			return -1;
+		int idx = (int)(x / (kSwatchSize + kSwatchSpacing));
+		float localX = x - idx * (kSwatchSize + kSwatchSpacing);
+		if (idx >= 0 && idx < (int)kNumColors && localX <= kSwatchSize)
+			return idx;
+		return -1;
+	}
+
+	void setPreviewColor(int colorIdx) {
+		if (!container)
+			return;
+		container->previewColorModuleId = moduleId;
+		container->previewColorIdx = colorIdx;
+	}
+
+	void clearPreview() {
+		if (container && container->previewColorModuleId == moduleId) {
+			container->previewColorModuleId = -1;
+			container->previewColorIdx = -1;
+		}
+	}
+
+	int currentColorIdx() {
+		if (auto it = hubModule->module_alias_colors.find(moduleId); it != hubModule->module_alias_colors.end())
+			return it->second;
+		return -1;
+	}
+
+	void onHover(const HoverEvent &e) override {
+		e.consume(this);
+		int idx = swatchAtPos(e.pos);
+		if (idx != hoveredIdx) {
+			if (idx >= 0) {
+				setPreviewColor(idx);
+			} else {
+				clearPreview();
+			}
+			hoveredIdx = idx;
+		}
+	}
+
+	void onEnter(const EnterEvent &e) override {
+		if (container)
+			container->flashModuleId = moduleId;
+	}
+
+	void onLeave(const LeaveEvent &e) override {
+		clearPreview();
+		hoveredIdx = -1;
+		if (container && container->flashModuleId == moduleId)
+			container->flashModuleId = -1;
+	}
+
+	void onButton(const ButtonEvent &e) override {
+		if (e.action == GLFW_PRESS && e.button == GLFW_MOUSE_BUTTON_LEFT) {
+			int idx = swatchAtPos(e.pos);
+			if (idx >= 0) {
+				hubModule->module_alias_colors[moduleId] = idx;
+				e.consume(this);
+			}
+		}
+	}
+
+	void draw(const DrawArgs &args) override {
+		bndMenuLabel(args.vg, 0.f, 0.f, box.size.x, box.size.y, -1, "Color:");
+
+		int selected = currentColorIdx();
+		float y = (box.size.y - kSwatchSize) / 2.f;
+
+		for (unsigned i = 0; i < kNumColors; i++) {
+			float x = kLabelWidth + i * (kSwatchSize + kSwatchSpacing);
+
+			nvgBeginPath(args.vg);
+			nvgRect(args.vg, x, y, kSwatchSize, kSwatchSize);
+			nvgFillColor(args.vg, PaletteHub::color(i));
+			nvgFill(args.vg);
+
+			// Highlight the currently selected color
+			if (selected >= 0 && (int)i == selected % (int)kNumColors) {
+				nvgStrokeWidth(args.vg, 2.f);
+				nvgStrokeColor(args.vg, nvgRGB(0xff, 0xff, 0xff));
+				nvgStroke(args.vg);
+			}
+
+			// Hover outline
+			if ((int)i == hoveredIdx) {
+				nvgStrokeWidth(args.vg, 1.5f);
+				nvgStrokeColor(args.vg, nvgRGB(0xcc, 0xcc, 0xcc));
+				nvgStroke(args.vg);
+			}
+		}
+
+		Widget::draw(args);
+	}
+};
+
 struct ModuleAliasHeaderLabel : rack::ui::MenuLabel {
 	ModuleAliasContainer *container = nullptr;
 	int64_t moduleId = -1;
@@ -279,5 +439,28 @@ struct ModuleAliasHeaderLabel : rack::ui::MenuLabel {
 	}
 };
 
+inline void ModuleAliasLabelWidget::createContextMenu() {
+	if (!container || !container->hubModule)
+		return;
+	auto *hubModule = container->hubModule;
+
+	auto *menu = rack::createMenu();
+
+	std::string currentAlias;
+	if (auto it = hubModule->module_aliases.find(moduleId); it != hubModule->module_aliases.end())
+		currentAlias = it->second;
+
+	menu->addChild(new ModuleAliasMenuItem{[hubModule](int64_t id, std::string const &text) {
+											   if (!hubModule->module_alias_colors.count(id))
+												   hubModule->module_alias_colors[id] =
+													   hubModule->module_alias_colors.size();
+											   hubModule->module_aliases[id] = text;
+										   },
+										   moduleId,
+										   currentAlias,
+										   container});
+
+	menu->addChild(new ModuleAliasColorMenuItem{moduleId, hubModule, container});
+}
 
 } // namespace MetaModule
