@@ -169,10 +169,8 @@ struct ModuleAliasContainer : rack::widget::Widget {
 				if (!tempFlashLabel || tempFlashLabel->moduleId != flashModuleId) {
 					removeTempLabelIfPresent();
 
-					int colorIdx = 0;
-					if (auto it = hubModule->module_alias_colors.find(flashModuleId);
-						it != hubModule->module_alias_colors.end())
-						colorIdx = it->second;
+					// Use next color
+					int colorIdx = hubModule->module_alias_colors.size();
 					tempFlashLabel = new ModuleAliasLabelWidget{flashModuleId, "", colorIdx};
 					tempFlashLabel->flashing = true;
 					addChild(tempFlashLabel);
