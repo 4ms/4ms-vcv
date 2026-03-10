@@ -1,11 +1,11 @@
 # CHANGE LOG
 
-## v2.1.6 (in progress)
+## v2.1.6
 
 - Fix QCD div/mult knob: wrong values at certain knob positions (see issue #56)
 - Add Module Aliases (Thanks @gabriel-roth!):
-   - Right-click menu of Hub module lets you type a text alias for any module in the patch
-   - Module's label flashes when mousing over the right-click menu item
+   - Right-click menu of Hub module lets you add a text alias and choose a color for any module in the patch
+   - Right-click on the text alias to change the name or color
    - Alternative workflow is to use Stoermelder's Glue module to label the modules
        - Right-click menu on Hub has option to enable/disable this
    - In case of conflict, if a module has both a Hub alias and a Glue alias, Hub alias will be used
