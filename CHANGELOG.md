@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## v2.1.7
+- Fix EnOsc switches not being in the right position when loading a patch (fixes issue #59)
+
 ## v2.1.6
 
 - Fix QCD div/mult knob: wrong values at certain knob positions (see issue #56)
