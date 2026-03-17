@@ -12,3 +12,4 @@
 .cache
 .vscode
 tests/build/obj/runtests
+**/settings.local.json
