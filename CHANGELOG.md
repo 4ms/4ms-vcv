@@ -2,6 +2,7 @@
 
 ## v2.1.7
 - Fix EnOsc switches not being in the right position when loading a patch (fixes issue #59)
+- Fix QCD tempo getting the wrong value when a patch is loaded and the sample rate is not 48kHz
 
 ## v2.1.6
 
