@@ -368,32 +368,17 @@ void PatchFileWriter::mapOutputJack(CableMap &map) {
 	if (expanders.isKnownJackExpander(map.inputModuleId))
 		expanders.setExpanderOutputJackId(&map);
 
-	// Update the mapped_outs entry if there already is one with the same panel_jack_id (Note that this is
-	// an error, since we can't have multiple outs assigned to a net, but we're going to roll with it).
-	// otherwise push it to the vector
-
 	if (idMap.contains(map.outputModuleId)) {
-		// Look for an existing entry:
-		auto found = std::find_if(pd.mapped_outs.begin(), pd.mapped_outs.end(), [=](const auto &x) {
-			return x.panel_jack_id == (uint32_t)map.inputJackId;
+		// Always add a new entry (multiple virtual module outs -> panel out jack get multiple entries)
+		pd.mapped_outs.push_back({
+			.panel_jack_id = static_cast<uint32_t>(map.inputJackId),
+			.out =
+				{
+					.module_id = static_cast<uint16_t>(idMap[map.outputModuleId]),
+					.jack_id = static_cast<uint16_t>(map.outputJackId),
+				},
+			.alias_name = "",
 		});
-
-		if (found != pd.mapped_outs.end()) {
-			found->out.module_id = static_cast<uint16_t>(idMap[map.outputModuleId]);
-			found->out.jack_id = static_cast<uint16_t>(map.outputJackId);
-			// Todo: Log error: multiple module outputs mapped to same panel output jack
-		} else {
-			// Make a new entry:
-			pd.mapped_outs.push_back({
-				.panel_jack_id = static_cast<uint32_t>(map.inputJackId),
-				.out =
-					{
-						.module_id = static_cast<uint16_t>(idMap[map.outputModuleId]),
-						.jack_id = static_cast<uint16_t>(map.outputJackId),
-					},
-				.alias_name = "",
-			});
-		}
 	}
 }
 
