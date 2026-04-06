@@ -426,7 +426,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			std::vector<ModuleEntry> entries;
 
 			auto addIfRegular = [&](rack::Module *module) {
-				if (!ModuleDirectory::isRegularModule(module))
+				if (!ModuleDirectory::isRegularModule(module, hubModule->use_builtin_midi))
 					return;
 				auto *mw = APP->scene->rack->getModule(module->getId());
 				if (mw)
