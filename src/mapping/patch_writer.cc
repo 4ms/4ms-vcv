@@ -132,7 +132,18 @@ void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {
 				handled = true;
 
 			} else if (cable.outputModuleId == cv_module.module_id) {
-				mapMidiCVJack(cable, cv_module.midi_chan);
+				// Check if cable goes to a Split module (handled by split path above)
+				bool goesToSplit = (cable.inputModuleId == cv_module.voctSplitModuleId ||
+								   cable.inputModuleId == cv_module.gateSplitModuleId ||
+								   cable.inputModuleId == cv_module.velSplitModuleId ||
+								   cable.inputModuleId == cv_module.aftSplitModuleId ||
+								   cable.inputModuleId == cv_module.retrigSplitModuleId);
+				if (goesToSplit) {
+					// MIDICV→Split cable: skip, outputs from Split are handled above
+				} else {
+					// Direct MIDICV→virtual module: use poly mapping for poly-capable jacks
+					mapMidiCVPolyJack(cable, cv_module.midi_chan);
+				}
 				handled = true;
 			}
 		}
@@ -380,6 +391,34 @@ void PatchFileWriter::mapOutputJack(CableMap &map) {
 			.alias_name = "",
 		});
 	}
+}
+
+void PatchFileWriter::mapMidiCVPolyJack(CableMap &cable, uint32_t midi_chan) {
+	using enum MIDI::CoreMidiJacks;
+
+	if (cable.outputJackId == VoctJack)
+		cable.outputJackId = MidiNotePolyJack;
+
+	else if (cable.outputJackId == GateJack)
+		cable.outputJackId = MidiGatePolyJack;
+
+	else if (cable.outputJackId == VelJack)
+		cable.outputJackId = MidiVelPolyJack;
+
+	else if (cable.outputJackId == AftJack)
+		cable.outputJackId = MidiAftPolyJack;
+
+	else if (cable.outputJackId == RetrigJack)
+		cable.outputJackId = MidiRetrigPolyJack;
+
+	else {
+		// Non-poly jacks (PW, MW, Clock, etc.) use existing mono mapping
+		mapMidiCVJack(cable, midi_chan);
+		return;
+	}
+
+	cable.outputJackId = MetaModule::Midi::set_midi_channel(cable.outputJackId, midi_chan);
+	mapInputJack(cable);
 }
 
 void PatchFileWriter::mapMidiCVPolySplitJack(CableMap &cable, unsigned monoJackId, unsigned midi_chan) {
