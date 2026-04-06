@@ -34,6 +34,7 @@ struct VCVPatchFileWriter {
 		unsigned suggested_samplerate;
 		unsigned suggested_blocksize;
 		bool use_glue_labels = true;
+		bool use_builtin_midi = true;
 		const std::map<int64_t, std::string> &module_aliases;
 	};
 
@@ -47,6 +48,7 @@ struct VCVPatchFileWriter {
 		auto suggested_samplerate = data.suggested_samplerate;
 		auto suggested_blocksize = data.suggested_blocksize;
 		auto use_glue_labels = data.use_glue_labels;
+		auto use_builtin_midi = data.use_builtin_midi;
 		auto &module_aliases = data.module_aliases;
 
 		auto context = rack::contextGet();
