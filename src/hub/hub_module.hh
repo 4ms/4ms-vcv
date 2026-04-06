@@ -39,6 +39,7 @@ struct MetaModuleHubBase : public rack::Module {
 	JackAlias jack_alias{};
 
 	bool use_glue_labels = true;
+	bool use_builtin_midi = true;
 	std::map<int64_t, std::string> module_aliases;
 	std::map<int64_t, int> module_alias_colors;
 
@@ -190,6 +191,7 @@ struct MetaModuleHubBase : public rack::Module {
 		json_object_set_new(rootJ, "DefaultKnobSet", defaultKnobSetJ);
 
 		json_object_set_new(rootJ, "UseGlueLabels", json_boolean(use_glue_labels));
+		json_object_set_new(rootJ, "UseBuiltinMidi", json_boolean(use_builtin_midi));
 
 		json_t *moduleAliasesJ = json_object();
 		for (auto const &[id, alias] : module_aliases)
@@ -254,6 +256,10 @@ struct MetaModuleHubBase : public rack::Module {
 		if (json_is_boolean(useGlueLabelsJ))
 			use_glue_labels = json_boolean_value(useGlueLabelsJ);
 
+		auto useBuiltinMidiJ = json_object_get(rootJ, "UseBuiltinMidi");
+		if (json_is_boolean(useBuiltinMidiJ))
+			use_builtin_midi = json_boolean_value(useBuiltinMidiJ);
+
 		auto moduleAliasesJ = json_object_get(rootJ, "ModuleAliases");
 		if (json_is_object(moduleAliasesJ)) {
 			module_aliases.clear();
@@ -287,6 +293,7 @@ struct MetaModuleHubBase : public rack::Module {
 		patchDescText = "";
 		mappingMode = MetaModule::MappingMode::ALL;
 		use_glue_labels = true;
+		use_builtin_midi = true;
 		module_aliases.clear();
 		module_alias_colors.clear();
 		mappings.clear_all(ShouldLock::No);
