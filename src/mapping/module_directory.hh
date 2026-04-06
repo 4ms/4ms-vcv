@@ -137,6 +137,20 @@ struct ModuleDirectory {
 
 	// MIDI
 
+	static bool isCoreSplitMerge(rack::Module *module) {
+		if (!isValid(module))
+			return false;
+
+		if (module->model->plugin->slug == "Core") {
+			if (module->model->slug == "Split")
+				return true;
+			if (module->model->slug == "Merge")
+				return true;
+		}
+
+		return false;
+	}
+
 	static bool isCoreMIDI(rack::Module *module) {
 		if (!isValid(module))
 			return false;
