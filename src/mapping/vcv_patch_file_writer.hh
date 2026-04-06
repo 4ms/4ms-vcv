@@ -164,14 +164,13 @@ struct VCVPatchFileWriter {
 			auto in = cable->inputModule;
 
 			// The output module must be in the patch, or a Core MIDI module, or a Split module connected to a Core MIDI module.
-			bool isKnownOutModule = ModuleDirectory::isRegularModule(out) || ModuleDirectory::isHubOrExpander(out) ||
-									ModuleDirectory::isCoreMIDI(out) || midimodules.isPolySplitModule(out) ||
-									(!use_builtin_midi && ModuleDirectory::isCoreSplitMerge(out));
+			bool isKnownOutModule = ModuleDirectory::isRegularModule(out, use_builtin_midi) ||
+									ModuleDirectory::isHubOrExpander(out) || ModuleDirectory::isCoreMIDI(out) ||
+									midimodules.isPolySplitModule(out);
 
 			// The input module must be in the patch
 			bool isKnownInputModule =
-				ModuleDirectory::isRegularModule(in) || ModuleDirectory::isHubOrExpander(in) ||
-				(!use_builtin_midi && (ModuleDirectory::isCoreMIDI(in) || ModuleDirectory::isCoreSplitMerge(in)));
+				ModuleDirectory::isRegularModule(in, use_builtin_midi) || ModuleDirectory::isHubOrExpander(in);
 
 			if (isKnownOutModule || isKnownInputModule) {
 
@@ -261,10 +260,7 @@ struct VCVPatchFileWriter {
 			auto *module = engine->getModule(moduleID);
 
 			// Make sure the module is a regular module OR we are including MIDI modules
-			if (ModuleDirectory::isRegularModule(module) ||
-				(!use_builtin_midi &&
-				 (ModuleDirectory::isCoreMIDI(module) || ModuleDirectory::isCoreSplitMerge(module))))
-			{
+			if (ModuleDirectory::isRegularModule(module, use_builtin_midi)) {
 				pw.addModuleStateJson(module);
 				pw.addBypassedModule(module);
 			}
@@ -345,11 +341,18 @@ struct VCVPatchFileWriter {
 								   ExpanderMappings &expanders,
 								   bool use_builtin_midi = true) {
 
-		if (ModuleDirectory::isRegularModule(module)) {
+		if (ModuleDirectory::isRegularModule(module, use_builtin_midi)) {
 			int64_t moduleID = module->getId();
-			auto brand_module = ModuleDirectory::convertSlugs(module);
 			auto moduleWidget = APP->scene->rack->getModule(moduleID);
 			if (moduleWidget) {
+
+				std::string brand_module;
+				// RackCore mode: add MIDI/Split/Merge as regular modules
+				if (use_builtin_midi || !ModuleDirectory::isCoreMIDI(module))
+					brand_module = ModuleDirectory::convertSlugs(module);
+				else
+					brand_module = std::string("RackCore:") + module->getModel()->slug;
+
 				moduleData.push_back({moduleID,
 									  brand_module.c_str(),
 									  moduleWidget->getBox().getLeft(),
@@ -367,28 +370,7 @@ struct VCVPatchFileWriter {
 			}
 		}
 
-		if (!use_builtin_midi && (ModuleDirectory::isCoreMIDI(module) || ModuleDirectory::isCoreSplitMerge(module))) {
-			// RackCore mode: add MIDI/Split/Merge as regular modules
-			int64_t moduleID = module->getId();
-			auto moduleWidget = APP->scene->rack->getModule(moduleID);
-			if (moduleWidget) {
-				std::string brand_module;
-				if (ModuleDirectory::isCoreMIDI(module))
-					brand_module = std::string("RackCore:") + module->getModel()->slug;
-				else
-					brand_module = ModuleDirectory::convertSlugs(module);
-
-				moduleData.push_back({moduleID,
-									  brand_module.c_str(),
-									  moduleWidget->getBox().getLeft(),
-									  moduleWidget->getBox().getTop()});
-			}
-
-			for (size_t i = 0; i < module->paramQuantities.size(); i++) {
-				float val = module->getParamQuantity(i)->getScaledValue();
-				paramData.push_back({.value = val, .paramID = (int)i, .moduleID = moduleID});
-			}
-		} else {
+		if (use_builtin_midi) {
 			midimodules.addMidiModule(module);
 		}
 

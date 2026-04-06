@@ -9,12 +9,18 @@ struct ModuleDirectory {
 	// We exclude modules which users would not expect to have
 	// running on hardware, like modules that do MIDI Mappings,
 	// notes, blanks, scope modules, etc.
-	static bool isRegularModule(rack::Module *module) {
+	static bool isRegularModule(rack::Module *module, bool use_builtin_midi) {
 		if (!isValid(module))
 			return false;
 
 		if (isHubOrExpander(module))
 			return false;
+
+		// When using RackCore MIDI, treat Split, Merge, and Core::MIDI* modules as normal regular modules
+		if (!use_builtin_midi) {
+			if (isCoreSplitMerge(module) || isCoreMIDI(module))
+				return true;
+		}
 
 		std::array blacklist = {"AudioInterface2",
 								"AudioInterface",
@@ -29,9 +35,7 @@ struct ModuleDirectory {
 								"MIDITriggerToCVInterface",
 								"MIDICCToCVInterface",
 								"Split",
-								"Merge"
-
-		};
+								"Merge"};
 
 		for (auto slug : blacklist) {
 			if (module->model->slug == slug)
