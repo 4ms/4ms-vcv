@@ -561,6 +561,18 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			[this]() { return hubModule->auto_map_audio_outs; },
 			[this]() { hubModule->auto_map_audio_outs = !hubModule->auto_map_audio_outs; }));
 		menu->addChild(new MenuSeparator());
+
+		menu->addChild(createCheckMenuItem(
+			"Use built-in MIDI",
+			"",
+			[this]() { return hubModule->use_builtin_midi; },
+			[this]() { hubModule->use_builtin_midi = true; }));
+		menu->addChild(createCheckMenuItem(
+			"Use RackCore MIDI",
+			"",
+			[this]() { return !hubModule->use_builtin_midi; },
+			[this]() { hubModule->use_builtin_midi = false; }));
+		menu->addChild(new MenuSeparator());
 	}
 
 	std::string formatWifiStatus() {
