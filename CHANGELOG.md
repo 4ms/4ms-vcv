@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## v2.1.8
+- Add support for summed input jacks on the Hub panel (i.e. patching multiple module output jacks to a Hub "Out" jack)
+
 ## v2.1.7
 - Fix EnOsc switches not being in the right position when loading a patch (fixes issue #59)
 - Fix QCD tempo getting the wrong value when a patch is loaded and the sample rate is not 48kHz
