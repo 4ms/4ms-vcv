@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## v2.1.9 (in progress)
+- Add context-menu option to automatically map the source of AudioInterface module inputs to unmapped Panel Outs
+- Do not add Stoermelder Glue module to patch files
+
 ## v2.1.8
 - Add support for summed input jacks on the Hub panel (i.e. patching multiple module output jacks to a Hub "Out" jack)
 
