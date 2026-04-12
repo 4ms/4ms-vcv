@@ -35,6 +35,7 @@ struct VCVPatchFileWriter {
 		unsigned suggested_blocksize;
 		bool use_glue_labels = true;
 		const std::map<int64_t, std::string> &module_aliases;
+		bool auto_map_audio_outs = false;
 	};
 
 	static std::string createPatchYml(FileFields data) {
@@ -48,6 +49,7 @@ struct VCVPatchFileWriter {
 		auto suggested_blocksize = data.suggested_blocksize;
 		auto use_glue_labels = data.use_glue_labels;
 		auto &module_aliases = data.module_aliases;
+		auto auto_map_audio_outs = data.auto_map_audio_outs;
 
 		auto context = rack::contextGet();
 		auto engine = context->engine;
@@ -188,6 +190,43 @@ struct VCVPatchFileWriter {
 			}
 		}
 
+		// Auto-map source of AudioInterface inputs to unpatched Hub panel outs
+		if (auto_map_audio_outs) {
+			for (auto cableWidget : APP->scene->rack->getCompleteCables()) {
+				auto cable = cableWidget->cable;
+				auto *out = cable->outputModule;
+				auto *in = cable->inputModule;
+
+				// regular module out -> AudioInterface In
+				if (ModuleDirectory::isAudioInterface(in) && ModuleDirectory::isRegularModule(out)) {
+
+					bool hasPanelOutCable = false;
+					for (auto const &c : cableData) {
+						// Check if hub has a cable on that jack
+						if ((c.inputModuleId == hubModuleId) && c.inputJackId == cable->inputId) {
+							hasPanelOutCable = true;
+							break;
+						}
+						// Check if audio expander has a cable on that jack
+						if (expanders.isKnownJackExpander(c.inputModuleId) && (c.inputJackId + 8) == cable->inputId) {
+							hasPanelOutCable = true;
+							break;
+						}
+					}
+					if (!hasPanelOutCable) {
+						CableMap synthesized{
+							.outputJackId = cable->outputId,
+							.inputJackId = cable->inputId,
+							.outputModuleId = out->getId(),
+							.inputModuleId = hubModuleId,
+							.lv_color_full = cable_color_rgb565(cableWidget),
+						};
+						cableData.push_back(synthesized);
+					}
+				}
+			}
+		}
+
 		PatchFileWriter pw{moduleData, hubModuleId};
 		pw.setMidiSettings(midimodules.settings);
 		pw.setPatchName(patchName);
@@ -213,8 +252,9 @@ struct VCVPatchFileWriter {
 								auto *textVal = json_object_get(label, "text");
 								auto *idVal = json_object_get(label, "moduleId");
 								auto *yVal = json_object_get(label, "y");
-								if (textVal && idVal && json_is_string(textVal) && json_is_integer(idVal)
-								&& json_string_value(textVal)[0] != '\0') {
+								if (textVal && idVal && json_is_string(textVal) && json_is_integer(idVal) &&
+									json_string_value(textVal)[0] != '\0')
+								{
 									int64_t vcv_mod_id = json_integer_value(idVal);
 									float y = yVal ? (float)json_number_value(yVal) : 0.f;
 									auto it = moduleAliases.find(vcv_mod_id);

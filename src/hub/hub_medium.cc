@@ -279,7 +279,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
 													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
 													hubModule->use_glue_labels,
-													hubModule->module_aliases});
+													hubModule->module_aliases,
+													hubModule->auto_map_audio_outs});
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -301,7 +302,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
 													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
 													hubModule->use_glue_labels,
-													hubModule->module_aliases});
+													hubModule->module_aliases,
+													hubModule->auto_map_audio_outs});
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -551,6 +553,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			[this]() { return hubModule->suggested_blocksize_idx; },
 			[this](int idx) { hubModule->suggested_blocksize_idx = idx; });
 		menu->addChild(sugg_blocksize);
+        
+		menu->addChild(new MenuSeparator());
+		menu->addChild(createCheckMenuItem(
+			"Automatically map AudioInterface to panel outs",
+			"",
+			[this]() { return hubModule->auto_map_audio_outs; },
+			[this]() { hubModule->auto_map_audio_outs = !hubModule->auto_map_audio_outs; }));
+		menu->addChild(new MenuSeparator());
 	}
 
 	std::string formatWifiStatus() {
