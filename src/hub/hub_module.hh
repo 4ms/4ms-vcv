@@ -40,6 +40,7 @@ struct MetaModuleHubBase : public rack::Module {
 
 	bool use_glue_labels = true;
 	bool use_builtin_midi = true;
+	bool auto_map_audio_outs = false;
 	std::map<int64_t, std::string> module_aliases;
 	std::map<int64_t, int> module_alias_colors;
 
@@ -192,6 +193,7 @@ struct MetaModuleHubBase : public rack::Module {
 
 		json_object_set_new(rootJ, "UseGlueLabels", json_boolean(use_glue_labels));
 		json_object_set_new(rootJ, "UseBuiltinMidi", json_boolean(use_builtin_midi));
+		json_object_set_new(rootJ, "AutoMapAudioOuts", json_boolean(auto_map_audio_outs));
 
 		json_t *moduleAliasesJ = json_object();
 		for (auto const &[id, alias] : module_aliases)
@@ -260,6 +262,10 @@ struct MetaModuleHubBase : public rack::Module {
 		if (json_is_boolean(useBuiltinMidiJ))
 			use_builtin_midi = json_boolean_value(useBuiltinMidiJ);
 
+		auto autoMapAudioOutsJ = json_object_get(rootJ, "AutoMapAudioOuts");
+		if (json_is_boolean(autoMapAudioOutsJ))
+			auto_map_audio_outs = json_boolean_value(autoMapAudioOutsJ);
+
 		auto moduleAliasesJ = json_object_get(rootJ, "ModuleAliases");
 		if (json_is_object(moduleAliasesJ)) {
 			module_aliases.clear();
@@ -294,6 +300,7 @@ struct MetaModuleHubBase : public rack::Module {
 		mappingMode = MetaModule::MappingMode::ALL;
 		use_glue_labels = true;
 		use_builtin_midi = true;
+		auto_map_audio_outs = false;
 		module_aliases.clear();
 		module_alias_colors.clear();
 		mappings.clear_all(ShouldLock::No);

@@ -36,6 +36,7 @@ struct VCVPatchFileWriter {
 		bool use_glue_labels = true;
 		bool use_builtin_midi = true;
 		const std::map<int64_t, std::string> &module_aliases;
+		bool auto_map_audio_outs = false;
 	};
 
 	static std::string createPatchYml(FileFields data) {
@@ -50,6 +51,7 @@ struct VCVPatchFileWriter {
 		auto use_glue_labels = data.use_glue_labels;
 		auto use_builtin_midi = data.use_builtin_midi;
 		auto &module_aliases = data.module_aliases;
+		auto auto_map_audio_outs = data.auto_map_audio_outs;
 
 		auto context = rack::contextGet();
 		auto engine = context->engine;
@@ -190,6 +192,43 @@ struct VCVPatchFileWriter {
 						.inputModuleId = in->getId(),
 						.lv_color_full = cable_color_rgb565(cableWidget),
 					});
+				}
+			}
+		}
+
+		// Auto-map source of AudioInterface inputs to unpatched Hub panel outs
+		if (auto_map_audio_outs) {
+			for (auto cableWidget : APP->scene->rack->getCompleteCables()) {
+				auto cable = cableWidget->cable;
+				auto *out = cable->outputModule;
+				auto *in = cable->inputModule;
+
+				// regular module out -> AudioInterface In
+				if (ModuleDirectory::isAudioInterface(in) && ModuleDirectory::isRegularModule(out, use_builtin_midi)) {
+
+					bool hasPanelOutCable = false;
+					for (auto const &c : cableData) {
+						// Check if hub has a cable on that jack
+						if ((c.inputModuleId == hubModuleId) && c.inputJackId == cable->inputId) {
+							hasPanelOutCable = true;
+							break;
+						}
+						// Check if audio expander has a cable on that jack
+						if (expanders.isKnownJackExpander(c.inputModuleId) && (c.inputJackId + 8) == cable->inputId) {
+							hasPanelOutCable = true;
+							break;
+						}
+					}
+					if (!hasPanelOutCable) {
+						CableMap synthesized{
+							.outputJackId = cable->outputId,
+							.inputJackId = cable->inputId,
+							.outputModuleId = out->getId(),
+							.inputModuleId = hubModuleId,
+							.lv_color_full = cable_color_rgb565(cableWidget),
+						};
+						cableData.push_back(synthesized);
+					}
 				}
 			}
 		}

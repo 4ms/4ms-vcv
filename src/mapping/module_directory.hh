@@ -155,6 +155,17 @@ struct ModuleDirectory {
 		return false;
 	}
 
+	static bool isAudioInterface(rack::Module *module) {
+		if (!isValid(module))
+			return false;
+
+		if (module->model->plugin->slug != "Core")
+			return false;
+
+		auto const &slug = module->model->slug;
+		return slug == "AudioInterface" || slug == "AudioInterface2" || slug == "AudioInterface16";
+	}
+
 	static bool isCoreMIDI(rack::Module *module) {
 		if (!isValid(module))
 			return false;
