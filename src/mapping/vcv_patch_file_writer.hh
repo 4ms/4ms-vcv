@@ -330,6 +330,8 @@ struct VCVPatchFileWriter {
 								   std::vector<ParamMap> &paramData,
 								   MIDI::Modules &midimodules,
 								   ExpanderMappings &expanders) {
+		if (isGlueModule(module))
+			return;
 
 		if (ModuleDirectory::isRegularModule(module)) {
 			int64_t moduleID = module->getId();
