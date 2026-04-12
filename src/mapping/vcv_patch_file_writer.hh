@@ -340,6 +340,8 @@ struct VCVPatchFileWriter {
 								   MIDI::Modules &midimodules,
 								   ExpanderMappings &expanders,
 								   bool use_builtin_midi = true) {
+		if (isGlueModule(module))
+			return;
 
 		if (ModuleDirectory::isRegularModule(module, use_builtin_midi)) {
 			int64_t moduleID = module->getId();
