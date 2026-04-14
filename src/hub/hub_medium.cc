@@ -573,7 +573,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			"",
 			[this]() { return hubModule->auto_map_audio_outs; },
 			[this]() { hubModule->auto_map_audio_outs = !hubModule->auto_map_audio_outs; }));
-		menu->addChild(new MenuSeparator());
 	}
 
 	std::string formatWifiStatus() {
