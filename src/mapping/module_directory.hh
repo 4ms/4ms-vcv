@@ -16,9 +16,11 @@ struct ModuleDirectory {
 		if (isHubOrExpander(module))
 			return false;
 
-		// When using RackCore MIDI, treat Split, Merge, and Core::MIDI* modules as normal regular modules
+		// When using RackCore MIDI, treat Core::MIDI* modules as normal regular modules
+		// (Split and Merge are always regular modules; poly-split Splits are filtered later
+		// using MIDI::Modules::isPolySplitModule in built-in MIDI mode.)
 		if (!use_builtin_midi) {
-			if (isCoreSplitMerge(module) || isCoreMIDI(module))
+			if (isCoreMIDI(module))
 				return true;
 		}
 
@@ -33,9 +35,7 @@ struct ModuleDirectory {
 								"MIDIToCVInterface",
 								"MIDI-Map",
 								"MIDITriggerToCVInterface",
-								"MIDICCToCVInterface",
-								"Split",
-								"Merge"};
+								"MIDICCToCVInterface"};
 
 		for (auto slug : blacklist) {
 			if (module->model->slug == slug)
