@@ -155,6 +155,13 @@ struct VCVPatchFileWriter {
 			for (auto cable : cables) {
 				midimodules.addPolySplitCable(cable);
 			}
+
+			// Remove Split modules that are directly connected to a MIDIToCVInterface:
+			// their outputs are replaced by virtual MIDI->downstream mappings.
+			std::erase_if(moduleData,
+						  [&](BrandModule const &m) { return midimodules.isPolySplitModule(m.id); });
+			std::erase_if(paramData,
+						  [&](ParamMap const &p) { return midimodules.isPolySplitModule(p.moduleID); });
 		}
 
 		// Scan cables
@@ -204,7 +211,8 @@ struct VCVPatchFileWriter {
 				auto *in = cable->inputModule;
 
 				// regular module out -> AudioInterface In
-				if (ModuleDirectory::isAudioInterface(in) && ModuleDirectory::isRegularModule(out, use_builtin_midi)) {
+				if (ModuleDirectory::isAudioInterface(in) && ModuleDirectory::isRegularModule(out, use_builtin_midi) &&
+					!(use_builtin_midi && midimodules.isPolySplitModule(out))) {
 
 					bool hasPanelOutCable = false;
 					for (auto const &c : cableData) {
@@ -300,6 +308,8 @@ struct VCVPatchFileWriter {
 
 			// Make sure the module is a regular module OR we are including MIDI modules
 			if (ModuleDirectory::isRegularModule(module, use_builtin_midi)) {
+				if (use_builtin_midi && midimodules.isPolySplitModule(module))
+					continue;
 				pw.addModuleStateJson(module);
 				pw.addBypassedModule(module);
 			}

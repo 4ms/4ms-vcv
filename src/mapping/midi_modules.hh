@@ -80,6 +80,7 @@ struct Modules {
 	void addMidiModule(rack::Module *module);
 	void addPolySplitCable(rack::Cable *cable);
 	bool isPolySplitModule(rack::Module *module);
+	bool isPolySplitModule(int64_t module_id);
 };
 
 } // namespace MetaModule::MIDI
