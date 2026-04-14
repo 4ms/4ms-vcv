@@ -553,7 +553,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			[this]() { return hubModule->suggested_blocksize_idx; },
 			[this](int idx) { hubModule->suggested_blocksize_idx = idx; });
 		menu->addChild(sugg_blocksize);
-        
+
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createCheckMenuItem(
 			"Automatically map AudioInterface to panel outs",
@@ -572,7 +572,6 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			"",
 			[this]() { return !hubModule->use_builtin_midi; },
 			[this]() { hubModule->use_builtin_midi = false; }));
-		menu->addChild(new MenuSeparator());
 	}
 
 	std::string formatWifiStatus() {

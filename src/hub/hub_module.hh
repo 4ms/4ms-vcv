@@ -273,7 +273,10 @@ struct MetaModuleHubBase : public rack::Module {
 			json_t *val;
 			json_object_foreach(moduleAliasesJ, key, val) {
 				if (json_is_string(val)) {
-					try { module_aliases[std::stoll(key)] = json_string_value(val); } catch (...) {}
+					try {
+						module_aliases[std::stoll(key)] = json_string_value(val);
+					} catch (...) {
+					}
 				}
 			}
 		}
@@ -285,7 +288,10 @@ struct MetaModuleHubBase : public rack::Module {
 			json_t *val;
 			json_object_foreach(moduleAliasColorsJ, key, val) {
 				if (json_is_integer(val)) {
-					try { module_alias_colors[std::stoll(key)] = json_integer_value(val); } catch (...) {}
+					try {
+						module_alias_colors[std::stoll(key)] = json_integer_value(val);
+					} catch (...) {
+					}
 				}
 			}
 		}

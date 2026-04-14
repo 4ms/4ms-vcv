@@ -141,7 +141,6 @@ struct ModuleDirectory {
 
 	// MIDI
 
-
 	static bool isAudioInterface(rack::Module *module) {
 		if (!isValid(module))
 			return false;
