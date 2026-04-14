@@ -34,6 +34,7 @@ struct VCVPatchFileWriter {
 		unsigned suggested_samplerate;
 		unsigned suggested_blocksize;
 		bool use_glue_labels = true;
+		bool use_builtin_midi = true;
 		const std::map<int64_t, std::string> &module_aliases;
 		bool auto_map_audio_outs = false;
 	};
@@ -48,6 +49,7 @@ struct VCVPatchFileWriter {
 		auto suggested_samplerate = data.suggested_samplerate;
 		auto suggested_blocksize = data.suggested_blocksize;
 		auto use_glue_labels = data.use_glue_labels;
+		auto use_builtin_midi = data.use_builtin_midi;
 		auto &module_aliases = data.module_aliases;
 		auto auto_map_audio_outs = data.auto_map_audio_outs;
 
@@ -74,7 +76,7 @@ struct VCVPatchFileWriter {
 
 				auto *module = engine->getModule(moduleID);
 
-				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
+				addModuleToMapping(module, moduleData, paramData, midimodules, expanders, use_builtin_midi);
 			}
 		}
 
@@ -108,7 +110,7 @@ struct VCVPatchFileWriter {
 
 			for (auto module_id : connected_modules) {
 				if (auto *module = engine->getModule(module_id))
-					addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
+					addModuleToMapping(module, moduleData, paramData, midimodules, expanders, use_builtin_midi);
 			}
 		}
 
@@ -117,7 +119,7 @@ struct VCVPatchFileWriter {
 			// Add modules joined to the left of the hub module
 			auto *module = engine->getModule(hubModuleId);
 			while (module) {
-				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
+				addModuleToMapping(module, moduleData, paramData, midimodules, expanders, use_builtin_midi);
 
 				if (module->leftExpander.moduleId < 0)
 					break;
@@ -131,7 +133,7 @@ struct VCVPatchFileWriter {
 			// Add modules joined to the right of the hub module
 			auto *module = engine->getModule(hubModuleId);
 			while (module) {
-				addModuleToMapping(module, moduleData, paramData, midimodules, expanders);
+				addModuleToMapping(module, moduleData, paramData, midimodules, expanders, use_builtin_midi);
 
 				if (module->rightExpander.moduleId < 0)
 					break;
@@ -148,9 +150,18 @@ struct VCVPatchFileWriter {
 			cables.push_back(engine->getCable(id));
 		}
 
-		// Scan cables for MIDICV -> Split connections
-		for (auto cable : cables) {
-			midimodules.addPolySplitCable(cable);
+		// Scan cables for MIDICV -> Split connections (Built-In mode only)
+		if (use_builtin_midi) {
+			for (auto cable : cables) {
+				midimodules.addPolySplitCable(cable);
+			}
+
+			// Remove Split modules that are directly connected to a MIDIToCVInterface:
+			// their outputs are replaced by virtual MIDI->downstream mappings.
+			std::erase_if(moduleData,
+						  [&](BrandModule const &m) { return midimodules.isPolySplitModule(m.id); });
+			std::erase_if(paramData,
+						  [&](ParamMap const &p) { return midimodules.isPolySplitModule(p.moduleID); });
 		}
 
 		// Scan cables
@@ -162,11 +173,13 @@ struct VCVPatchFileWriter {
 			auto in = cable->inputModule;
 
 			// The output module must be in the patch, or a Core MIDI module, or a Split module connected to a Core MIDI module.
-			bool isKnownOutModule = ModuleDirectory::isRegularModule(out) || ModuleDirectory::isHubOrExpander(out) ||
-									ModuleDirectory::isCoreMIDI(out) || midimodules.isPolySplitModule(out);
+			bool isKnownOutModule = ModuleDirectory::isRegularModule(out, use_builtin_midi) ||
+									ModuleDirectory::isHubOrExpander(out) || ModuleDirectory::isCoreMIDI(out) ||
+									midimodules.isPolySplitModule(out);
 
 			// The input module must be in the patch
-			bool isKnownInputModule = ModuleDirectory::isRegularModule(in) || ModuleDirectory::isHubOrExpander(in);
+			bool isKnownInputModule =
+				ModuleDirectory::isRegularModule(in, use_builtin_midi) || ModuleDirectory::isHubOrExpander(in);
 
 			if (isKnownOutModule || isKnownInputModule) {
 
@@ -198,7 +211,8 @@ struct VCVPatchFileWriter {
 				auto *in = cable->inputModule;
 
 				// regular module out -> AudioInterface In
-				if (ModuleDirectory::isAudioInterface(in) && ModuleDirectory::isRegularModule(out)) {
+				if (ModuleDirectory::isAudioInterface(in) && ModuleDirectory::isRegularModule(out, use_builtin_midi) &&
+					!(use_builtin_midi && midimodules.isPolySplitModule(out))) {
 
 					bool hasPanelOutCable = false;
 					for (auto const &c : cableData) {
@@ -291,7 +305,11 @@ struct VCVPatchFileWriter {
 		// Add bypass state from Module::isBypassed()
 		for (auto moduleID : engine->getModuleIds()) {
 			auto *module = engine->getModule(moduleID);
-			if (ModuleDirectory::isRegularModule(module)) {
+
+			// Make sure the module is a regular module OR we are including MIDI modules
+			if (ModuleDirectory::isRegularModule(module, use_builtin_midi)) {
+				if (use_builtin_midi && midimodules.isPolySplitModule(module))
+					continue;
 				pw.addModuleStateJson(module);
 				pw.addBypassedModule(module);
 			}
@@ -369,15 +387,23 @@ struct VCVPatchFileWriter {
 								   std::vector<BrandModule> &moduleData,
 								   std::vector<ParamMap> &paramData,
 								   MIDI::Modules &midimodules,
-								   ExpanderMappings &expanders) {
+								   ExpanderMappings &expanders,
+								   bool use_builtin_midi = true) {
 		if (isGlueModule(module))
 			return;
 
-		if (ModuleDirectory::isRegularModule(module)) {
+		if (ModuleDirectory::isRegularModule(module, use_builtin_midi)) {
 			int64_t moduleID = module->getId();
-			auto brand_module = ModuleDirectory::convertSlugs(module);
 			auto moduleWidget = APP->scene->rack->getModule(moduleID);
 			if (moduleWidget) {
+
+				std::string brand_module;
+				// RackCore mode: add MIDI/Split/Merge as regular modules
+				if (use_builtin_midi || !ModuleDirectory::isCoreMIDI(module))
+					brand_module = ModuleDirectory::convertSlugs(module);
+				else
+					brand_module = std::string("RackCore:") + module->getModel()->slug;
+
 				moduleData.push_back({moduleID,
 									  brand_module.c_str(),
 									  moduleWidget->getBox().getLeft(),
@@ -394,7 +420,11 @@ struct VCVPatchFileWriter {
 				}
 			}
 		}
-		midimodules.addMidiModule(module);
+
+		if (use_builtin_midi) {
+			midimodules.addMidiModule(module);
+		}
+
 		expanders.addModule(module);
 	}
 

@@ -9,12 +9,20 @@ struct ModuleDirectory {
 	// We exclude modules which users would not expect to have
 	// running on hardware, like modules that do MIDI Mappings,
 	// notes, blanks, scope modules, etc.
-	static bool isRegularModule(rack::Module *module) {
+	static bool isRegularModule(rack::Module *module, bool use_builtin_midi) {
 		if (!isValid(module))
 			return false;
 
 		if (isHubOrExpander(module))
 			return false;
+
+		// When using RackCore MIDI, treat Core::MIDI* modules as normal regular modules
+		// (Split and Merge are always regular modules; poly-split Splits are filtered later
+		// using MIDI::Modules::isPolySplitModule in built-in MIDI mode.)
+		if (!use_builtin_midi) {
+			if (isCoreMIDI(module))
+				return true;
+		}
 
 		std::array blacklist = {"AudioInterface2",
 								"AudioInterface",
@@ -27,11 +35,7 @@ struct ModuleDirectory {
 								"MIDIToCVInterface",
 								"MIDI-Map",
 								"MIDITriggerToCVInterface",
-								"MIDICCToCVInterface",
-								"Split",
-								"Merge"
-
-		};
+								"MIDICCToCVInterface"};
 
 		for (auto slug : blacklist) {
 			if (module->model->slug == slug)
@@ -137,6 +141,19 @@ struct ModuleDirectory {
 
 	// MIDI
 
+	static bool isCoreSplitMerge(rack::Module *module) {
+		if (!isValid(module))
+			return false;
+
+		if (module->model->plugin->slug == "Core") {
+			if (module->model->slug == "Split")
+				return true;
+			if (module->model->slug == "Merge")
+				return true;
+		}
+
+		return false;
+	}
 
 	static bool isAudioInterface(rack::Module *module) {
 		if (!isValid(module))

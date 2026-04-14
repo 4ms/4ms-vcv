@@ -279,6 +279,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
 													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
 													hubModule->use_glue_labels,
+													hubModule->use_builtin_midi,
 													hubModule->module_aliases,
 													hubModule->auto_map_audio_outs});
 		PatchFileWriter::writeToFile(patchFileName, yml);
@@ -302,6 +303,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->sampleRateNums[hubModule->suggested_samplerate_idx],
 													hubModule->blockSizeNums[hubModule->suggested_blocksize_idx],
 													hubModule->use_glue_labels,
+													hubModule->use_builtin_midi,
 													hubModule->module_aliases,
 													hubModule->auto_map_audio_outs});
 		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
@@ -426,7 +428,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			std::vector<ModuleEntry> entries;
 
 			auto addIfRegular = [&](rack::Module *module) {
-				if (!ModuleDirectory::isRegularModule(module))
+				if (!ModuleDirectory::isRegularModule(module, hubModule->use_builtin_midi))
 					return;
 				auto *mw = APP->scene->rack->getModule(module->getId());
 				if (mw)
@@ -553,14 +555,24 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			[this]() { return hubModule->suggested_blocksize_idx; },
 			[this](int idx) { hubModule->suggested_blocksize_idx = idx; });
 		menu->addChild(sugg_blocksize);
-        
+
+		menu->addChild(new MenuSeparator());
+		menu->addChild(createCheckMenuItem(
+			"Use built-in MIDI",
+			"",
+			[this]() { return hubModule->use_builtin_midi; },
+			[this]() { hubModule->use_builtin_midi = true; }));
+		menu->addChild(createCheckMenuItem(
+			"Use RackCore MIDI",
+			"",
+			[this]() { return !hubModule->use_builtin_midi; },
+			[this]() { hubModule->use_builtin_midi = false; }));
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createCheckMenuItem(
 			"Automatically map AudioInterface to panel outs",
 			"",
 			[this]() { return hubModule->auto_map_audio_outs; },
 			[this]() { hubModule->auto_map_audio_outs = !hubModule->auto_map_audio_outs; }));
-		menu->addChild(new MenuSeparator());
 	}
 
 	std::string formatWifiStatus() {

@@ -59,8 +59,10 @@ void Modules::addPolySplitCable(rack::Cable *cable) {
 }
 
 bool Modules::isPolySplitModule(rack::Module *module) {
-	auto id = module->getId();
+	return isPolySplitModule(module->getId());
+}
 
+bool Modules::isPolySplitModule(int64_t id) {
 	for (auto const &midicv_module : settings.CV) {
 		if ((id == midicv_module.voctSplitModuleId) || (id == midicv_module.gateSplitModuleId) ||
 			(id == midicv_module.velSplitModuleId) || (id == midicv_module.aftSplitModuleId) ||
