@@ -1,8 +1,16 @@
 #pragma once
 #include "jansson.h"
 #include <array>
+#include <cstdint>
 #include <string>
 #include <vector>
+
+// In a real build, rack's logger.hpp provides WARN(). doctest.h also defines a
+// WARN() assertion macro, which collides. Replace it with a no-op for tests.
+#ifdef WARN
+#undef WARN
+#endif
+#define WARN(...) ((void)0)
 
 namespace rack::app
 {
@@ -44,6 +52,12 @@ struct Module {
 	Model *getModel() {
 		return model;
 	}
+	int64_t getId() {
+		return id;
+	}
+	bool isBypassed() {
+		return false;
+	}
 };
 
 struct ParamHandle {
@@ -55,7 +69,12 @@ struct ParamHandle {
 	NVGcolor color;
 };
 
-struct Cable {};
+struct Cable {
+	Module *inputModule = nullptr;
+	Module *outputModule = nullptr;
+	int outputId = 0;
+	int inputId = 0;
+};
 
 struct _Engine {
 	void removeParamHandle(rack::ParamHandle *) {
