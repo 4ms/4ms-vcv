@@ -19,8 +19,10 @@ struct ModuleDirectory {
 		// When using RackCore MIDI, treat Core::MIDI* modules as normal regular modules
 		// (Split and Merge are always regular modules; poly-split Splits are filtered later
 		// using MIDI::Modules::isPolySplitModule in built-in MIDI mode.)
+		// MIDI-Map is the exception: its CC mappings are always converted into the patch's
+		// MIDI map and the module itself is never added (in either MIDI mode).
 		if (!use_builtin_midi) {
-			if (isCoreMIDI(module))
+			if (isCoreMIDI(module) && !isMidiMap(module))
 				return true;
 		}
 
@@ -182,6 +184,13 @@ struct ModuleDirectory {
 		}
 
 		return false;
+	}
+
+	static bool isMidiMap(rack::Module *module) {
+		if (!isValid(module))
+			return false;
+
+		return module->model->plugin->slug == "Core" && module->model->slug == "MIDI-Map";
 	}
 
 	static bool isValid(rack::Module *module) {

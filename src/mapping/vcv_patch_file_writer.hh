@@ -421,7 +421,10 @@ struct VCVPatchFileWriter {
 			}
 		}
 
-		if (use_builtin_midi) {
+		// In built-in MIDI mode, convert every Core MIDI module into patch MIDI settings.
+		// MIDI-Map is always converted (even in RackCore MIDI mode): its CC->param mappings
+		// become the patch's MIDI map, and the module itself is never added to the patch.
+		if (use_builtin_midi || ModuleDirectory::isMidiMap(module)) {
 			midimodules.addMidiModule(module);
 		}
 
