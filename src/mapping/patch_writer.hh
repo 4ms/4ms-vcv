@@ -48,6 +48,7 @@ private:
 	void mapMidiGateJack(CableMap &map, unsigned midi_chan);
 	void mapMidiCCJack(CableMap &cable, MIDI::MidiCCCVSettings const &cccv_settings);
 
+	void mapMidiCVPolyJack(CableMap &cable, uint32_t midi_chan);
 	void mapMidiCVPolySplitJack(CableMap &cable, unsigned monoJackId, unsigned midi_chan);
 
 	void setModuleList(std::vector<BrandModule> &modules);

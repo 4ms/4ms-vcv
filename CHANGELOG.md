@@ -3,6 +3,7 @@
 ## v2.1.9 (in progress)
 - Add context-menu option to automatically map the source of AudioInterface module inputs to unmapped Panel Outs
 - Do not add Stoermelder Glue module to patch files
+- Always convert MIDI-Map module CC mappings into the patch's MIDI map (even when "Use RackCore MIDI" is selected), and never add the MIDI-Map module itself to the patch
 
 ## v2.1.8
 - Add support for summed input jacks on the Hub panel (i.e. patching multiple module output jacks to a Hub "Out" jack)
