@@ -94,11 +94,11 @@ public:
 					menu->addChild(new rack::MenuSeparator);
 				}
 
-				auto mn = new RangeSlider<RangePart::Min>(hub, paramObj);
+				auto mn = new EditableRangeSlider<RangePart::Min>(hub, paramObj);
 				mn->box.size.x = 100;
 				menu->addChild(mn);
 
-				auto mx = new RangeSlider<RangePart::Max>(hub, paramObj);
+				auto mx = new EditableRangeSlider<RangePart::Max>(hub, paramObj);
 				mx->box.size.x = 100;
 				menu->addChild(mx);
 			}
