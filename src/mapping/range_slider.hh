@@ -23,7 +23,7 @@ private:
 
 public:
 	MappedRangeQuantity(MetaModuleHubBase *hub, MappableObj paramObj)
-		: _paramObj{MINMAX == RangePart::Min ? "Min: " : "Max"}
+		: _paramObj{MINMAX == RangePart::Min ? "Min" : "Max"}
 		, hub{hub}
 		, _dst_id{paramObj} {
 	}
