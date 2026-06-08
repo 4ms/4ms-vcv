@@ -180,11 +180,6 @@ public:
 			e.consume(this);
 	}
 
-	void onDoubleClick(const DoubleClickEvent &e) override {
-		switchToTextMode();
-		e.consume(this);
-	}
-
 	void draw(const DrawArgs &args) override {
 		slider->box.size = box.size;
 		textField->box.size = box.size;
