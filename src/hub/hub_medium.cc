@@ -72,6 +72,10 @@ private:
 
 std::string wifiUrl = "";
 Volume wifiVolume = Volume::Card;
+MappingMode defaultMappingMode = MappingMode::ALL;
+bool defaultUseGlueLabels = true;
+bool defaultUseBuiltinMidi = true;
+bool defaultAutoMapAudioOuts = false;
 
 struct HubMediumWidget : MetaModuleHubWidget {
 
@@ -368,7 +372,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			"Include modules from:",
 			mappingModeLabels,
 			[this]() { return hubModule->mappingMode; },
-			[this](size_t index) { hubModule->setMappingMode(index); }));
+			[this](size_t index) {
+				hubModule->setMappingMode(index);
+				defaultMappingMode = MappingMode(index);
+			}));
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuItem("Set Wi-Fi Expander address", "", [this]() { promptWifiUrl(); }));
 		menu->addChild(createIndexSubmenuItem(
@@ -538,7 +545,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			"Use stoermelder GLUE labels for module aliases",
 			"",
 			[this]() { return hubModule->use_glue_labels; },
-			[this]() { hubModule->use_glue_labels = !hubModule->use_glue_labels; }));
+			[this]() {
+				hubModule->use_glue_labels = !hubModule->use_glue_labels;
+				defaultUseGlueLabels = hubModule->use_glue_labels;
+			}));
 
 		menu->addChild(new MenuSeparator());
 
@@ -561,18 +571,27 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			"Use built-in MIDI",
 			"",
 			[this]() { return hubModule->use_builtin_midi; },
-			[this]() { hubModule->use_builtin_midi = true; }));
+			[this]() {
+				hubModule->use_builtin_midi = true;
+				defaultUseBuiltinMidi = true;
+			}));
 		menu->addChild(createCheckMenuItem(
 			"Use RackCore MIDI",
 			"",
 			[this]() { return !hubModule->use_builtin_midi; },
-			[this]() { hubModule->use_builtin_midi = false; }));
+			[this]() {
+				hubModule->use_builtin_midi = false;
+				defaultUseBuiltinMidi = false;
+			}));
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createCheckMenuItem(
 			"Automatically map AudioInterface to panel outs",
 			"",
 			[this]() { return hubModule->auto_map_audio_outs; },
-			[this]() { hubModule->auto_map_audio_outs = !hubModule->auto_map_audio_outs; }));
+			[this]() {
+				hubModule->auto_map_audio_outs = !hubModule->auto_map_audio_outs;
+				defaultAutoMapAudioOuts = hubModule->auto_map_audio_outs;
+			}));
 	}
 
 	std::string formatWifiStatus() {

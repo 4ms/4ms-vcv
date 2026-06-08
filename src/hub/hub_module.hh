@@ -25,7 +25,7 @@ struct MetaModuleHubBase : public rack::Module {
 	std::function<void()> updatePatchName;
 	std::string patchNameText = "";
 	std::string patchDescText = "";
-	MappingMode mappingMode = MetaModule::MappingMode::ALL;
+	MappingMode mappingMode = MetaModule::defaultMappingMode;
 
 	bool should_save = false;
 	bool should_send_wifi = false;
@@ -38,9 +38,9 @@ struct MetaModuleHubBase : public rack::Module {
 
 	JackAlias jack_alias{};
 
-	bool use_glue_labels = true;
-	bool use_builtin_midi = true;
-	bool auto_map_audio_outs = false;
+	bool use_glue_labels = defaultUseGlueLabels;
+	bool use_builtin_midi = defaultUseBuiltinMidi;
+	bool auto_map_audio_outs = defaultAutoMapAudioOuts;
 	std::map<int64_t, std::string> module_aliases;
 	std::map<int64_t, int> module_alias_colors;
 
@@ -297,10 +297,6 @@ struct MetaModuleHubBase : public rack::Module {
 		Module::onReset(e);
 		patchNameText = "";
 		patchDescText = "";
-		mappingMode = MetaModule::MappingMode::ALL;
-		use_glue_labels = true;
-		use_builtin_midi = true;
-		auto_map_audio_outs = false;
 		module_aliases.clear();
 		module_alias_colors.clear();
 		mappings.clear_all(ShouldLock::No);

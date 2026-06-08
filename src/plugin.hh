@@ -9,6 +9,10 @@ enum Volume { Internal = 0, USB = 1, Card = 2 };
 enum MappingMode { ALL = 0, LEFTRIGHT = 1, RIGHT = 2, LEFT = 3, CONNECTED = 4 };
 
 extern Volume wifiVolume;
+extern MappingMode defaultMappingMode;
+extern bool defaultUseGlueLabels;
+extern bool defaultUseBuiltinMidi;
+extern bool defaultAutoMapAudioOuts;
 
 } // namespace MetaModule
 
