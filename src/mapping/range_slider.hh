@@ -1,6 +1,7 @@
 #pragma once
 #include "MappableObject.h"
 #include "hub/hub_module.hh"
+#include "mapping/range_value_parser.hh"
 #include <rack.hpp>
 #include <cmath>
 #include <cstdio>
@@ -117,7 +118,8 @@ private:
 			return;
 		submitting = true;
 
-		double val = te_interp(text.c_str(), nullptr);
+		const auto expr = normalizeRangeValueExpression(text);
+		double val = te_interp(expr.c_str(), nullptr);
 		if (std::isnan(val)) {
 			if (onCancel)
 				onCancel();
