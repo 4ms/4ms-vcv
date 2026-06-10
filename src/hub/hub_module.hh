@@ -226,9 +226,14 @@ struct MetaModuleHubBase : public rack::Module {
 			mappings.changeActiveKnobSet(idx, ShouldLock::No);
 		}
 
+		// For settings with global user defaults: a patch saved before the setting
+		// existed has no key for it, so use the legacy default, not the user default,
+		// to keep old patches working as they always did
 		auto mappingModeJ = json_object_get(rootJ, "MappingMode");
 		if (json_is_integer(mappingModeJ)) {
 			mappingMode = MappingMode(json_integer_value(mappingModeJ));
+		} else {
+			mappingMode = MappingMode::ALL;
 		}
 
 		auto suggSampleRateJ = json_object_get(rootJ, "SuggestedSampleRate");
@@ -255,16 +260,13 @@ struct MetaModuleHubBase : public rack::Module {
 		jack_alias.decodeJson(aliasJ);
 
 		auto useGlueLabelsJ = json_object_get(rootJ, "UseGlueLabels");
-		if (json_is_boolean(useGlueLabelsJ))
-			use_glue_labels = json_boolean_value(useGlueLabelsJ);
+		use_glue_labels = json_is_boolean(useGlueLabelsJ) ? json_boolean_value(useGlueLabelsJ) : true;
 
 		auto useBuiltinMidiJ = json_object_get(rootJ, "UseBuiltinMidi");
-		if (json_is_boolean(useBuiltinMidiJ))
-			use_builtin_midi = json_boolean_value(useBuiltinMidiJ);
+		use_builtin_midi = json_is_boolean(useBuiltinMidiJ) ? json_boolean_value(useBuiltinMidiJ) : true;
 
 		auto autoMapAudioOutsJ = json_object_get(rootJ, "AutoMapAudioOuts");
-		if (json_is_boolean(autoMapAudioOutsJ))
-			auto_map_audio_outs = json_boolean_value(autoMapAudioOutsJ);
+		auto_map_audio_outs = json_is_boolean(autoMapAudioOutsJ) ? json_boolean_value(autoMapAudioOutsJ) : false;
 
 		auto moduleAliasesJ = json_object_get(rootJ, "ModuleAliases");
 		if (json_is_object(moduleAliasesJ)) {
