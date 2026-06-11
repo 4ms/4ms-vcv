@@ -25,7 +25,7 @@ struct MetaModuleHubBase : public rack::Module {
 	std::function<void()> updatePatchName;
 	std::string patchNameText = "";
 	std::string patchDescText = "";
-	MappingMode mappingMode = defaultMappingMode;
+	MappingMode mappingMode = pluginSettings.defaultMappingMode;
 
 	bool should_save = false;
 	bool should_send_wifi = false;
@@ -38,9 +38,9 @@ struct MetaModuleHubBase : public rack::Module {
 
 	JackAlias jack_alias{};
 
-	bool use_glue_labels = defaultUseGlueLabels;
-	bool use_builtin_midi = defaultUseBuiltinMidi;
-	bool auto_map_audio_outs = defaultAutoMapAudioOuts;
+	bool use_glue_labels = pluginSettings.defaultUseGlueLabels;
+	bool use_builtin_midi = pluginSettings.defaultUseBuiltinMidi;
+	bool auto_map_audio_outs = pluginSettings.defaultAutoMapAudioOuts;
 	std::map<int64_t, std::string> module_aliases;
 	std::map<int64_t, int> module_alias_colors;
 
@@ -53,14 +53,33 @@ struct MetaModuleHubBase : public rack::Module {
 	int suggested_samplerate_idx = 0;
 	int suggested_blocksize_idx = 0;
 
+	// Settings setters: mirror each change into pluginSettings so that newly
+	// created hubs inherit it
+
+	void setMappingMode(int index) {
+		mappingMode = MappingMode(index);
+		pluginSettings.defaultMappingMode = mappingMode;
+	}
+
+	void setUseGlueLabels(bool use) {
+		use_glue_labels = use;
+		pluginSettings.defaultUseGlueLabels = use;
+	}
+
+	void setUseBuiltinMidi(bool use) {
+		use_builtin_midi = use;
+		pluginSettings.defaultUseBuiltinMidi = use;
+	}
+
+	void setAutoMapAudioOuts(bool auto_map) {
+		auto_map_audio_outs = auto_map;
+		pluginSettings.defaultAutoMapAudioOuts = auto_map;
+	}
+
 	// Mapping State/Progress
 
 	void startMappingFrom(int hubParamId) {
 		inProgressMapParamId = hubParamId;
-	}
-
-	void setMappingMode(int index) {
-		mappingMode = MappingMode(index);
 	}
 
 	void endMapping() {
@@ -209,6 +228,7 @@ struct MetaModuleHubBase : public rack::Module {
 	}
 
 	// VCV Rack calls this on startup, and on loading a new patch file
+	// Do not use setMappingMode(), etc here -- that would change user's default settings
 	void dataFromJson(json_t *rootJ) override {
 		auto patchNameJ = json_object_get(rootJ, "PatchName");
 		if (json_is_string(patchNameJ)) {

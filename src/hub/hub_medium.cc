@@ -70,13 +70,6 @@ private:
 	}
 };
 
-std::string wifiUrl = "";
-Volume wifiVolume = Volume::Card;
-MappingMode defaultMappingMode = MappingMode::ALL;
-bool defaultUseGlueLabels = true;
-bool defaultUseBuiltinMidi = true;
-bool defaultAutoMapAudioOuts = false;
-
 struct HubMediumWidget : MetaModuleHubWidget {
 
 	using INFO = HubMediumInfo;
@@ -310,7 +303,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->use_builtin_midi,
 													hubModule->module_aliases,
 													hubModule->auto_map_audio_outs});
-		if (yml.size() > 256 * 1024 && wifiVolume == Volume::Internal) {
+		if (yml.size() > 256 * 1024 && pluginSettings.wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
 			return;
@@ -323,10 +316,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		wifiResponseLabel->text = "Sending patch file...";
 
-		std::string vol_string = (size_t)wifiVolume < volumeLabels.size() ? volumeLabels[wifiVolume] : "Card";
+		std::string vol_string = (size_t)pluginSettings.wifiVolume < volumeLabels.size() ? volumeLabels[pluginSettings.wifiVolume] : "Card";
 
 		auto encoded = FlatBuffers::encode_file(patchFileName, yml, vol_string);
-		auto response_message = network::requestRaw(rack::network::Method::METHOD_POST, wifiUrl + "/action", encoded);
+		auto response_message = network::requestRaw(rack::network::Method::METHOD_POST, pluginSettings.wifiUrl + "/action", encoded);
 		auto [success, response] = FlatBuffers::decode_response(response_message);
 
 		wifiResponseLabel->showFor(120);
@@ -342,7 +335,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 	void promptWifiUrl() {
 		auto addr = osdialog_prompt(
-			osdialog_message_level::OSDIALOG_INFO, "Enter the address (e.g. http://192.168.1.22)", wifiUrl.c_str());
+			osdialog_message_level::OSDIALOG_INFO, "Enter the address (e.g. http://192.168.1.22)", pluginSettings.wifiUrl.c_str());
 
 		if (addr) {
 			//TODO: ensure is just http://\d.\d.\d.\d[/]?
@@ -355,7 +348,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 				testWifiUrl = "http://" + testWifiUrl;
 			}
 			if (testWifiUrl.length() >= 14) { //smallest IP: http://1.2.3.4 is 14 chars
-				wifiUrl = testWifiUrl;
+				pluginSettings.wifiUrl = testWifiUrl;
 				wifiConnectionLabel->text = formatWifiStatus();
 			} else {
 				wifiResponseLabel->text = "Not a valid address";
@@ -372,18 +365,15 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			"Include modules from:",
 			mappingModeLabels,
 			[this]() { return hubModule->mappingMode; },
-			[this](size_t index) {
-				hubModule->setMappingMode(index);
-				defaultMappingMode = MappingMode(index);
-			}));
+			[this](size_t index) { hubModule->setMappingMode(index); }));
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuItem("Set Wi-Fi Expander address", "", [this]() { promptWifiUrl(); }));
 		menu->addChild(createIndexSubmenuItem(
 			"Wi-Fi sends to:",
 			volumeLabels,
-			[]() { return wifiVolume; },
+			[]() { return pluginSettings.wifiVolume; },
 			[this](size_t index) {
-				wifiVolume = Volume(index);
+				pluginSettings.wifiVolume = Volume(index);
 				wifiConnectionLabel->text = formatWifiStatus();
 			}));
 
@@ -545,10 +535,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			"Use stoermelder GLUE labels for module aliases",
 			"",
 			[this]() { return hubModule->use_glue_labels; },
-			[this]() {
-				hubModule->use_glue_labels = !hubModule->use_glue_labels;
-				defaultUseGlueLabels = hubModule->use_glue_labels;
-			}));
+			[this]() { hubModule->setUseGlueLabels(!hubModule->use_glue_labels); }));
 
 		menu->addChild(new MenuSeparator());
 
@@ -571,32 +558,23 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			"Use built-in MIDI",
 			"",
 			[this]() { return hubModule->use_builtin_midi; },
-			[this]() {
-				hubModule->use_builtin_midi = true;
-				defaultUseBuiltinMidi = true;
-			}));
+			[this]() { hubModule->setUseBuiltinMidi(true); }));
 		menu->addChild(createCheckMenuItem(
 			"Use RackCore MIDI",
 			"",
 			[this]() { return !hubModule->use_builtin_midi; },
-			[this]() {
-				hubModule->use_builtin_midi = false;
-				defaultUseBuiltinMidi = false;
-			}));
+			[this]() { hubModule->setUseBuiltinMidi(false); }));
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createCheckMenuItem(
 			"Automatically map AudioInterface to panel outs",
 			"",
 			[this]() { return hubModule->auto_map_audio_outs; },
-			[this]() {
-				hubModule->auto_map_audio_outs = !hubModule->auto_map_audio_outs;
-				defaultAutoMapAudioOuts = hubModule->auto_map_audio_outs;
-			}));
+			[this]() { hubModule->setAutoMapAudioOuts(!hubModule->auto_map_audio_outs); }));
 	}
 
 	std::string formatWifiStatus() {
-		return "Wi-Fi Connection:\n" + wifiUrl + "\n" +
-			   "Copy patch to: " + (size_t(wifiVolume) < volumeLabels.size() ? volumeLabels[wifiVolume] : "");
+		return "Wi-Fi Connection:\n" + pluginSettings.wifiUrl + "\n" +
+			   "Copy patch to: " + (size_t(pluginSettings.wifiVolume) < volumeLabels.size() ? volumeLabels[pluginSettings.wifiVolume] : "");
 	}
 
 	void updateKnobSetLabel() {
@@ -614,7 +592,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	}
 
 	void step() override {
-		if (wifiUrl.length() > 13)
+		if (pluginSettings.wifiUrl.length() > 13)
 			wifiSendButton->getLight()->setBrightnesses({0.50f});
 		else
 			wifiSendButton->getLight()->setBrightnesses({0.f});
@@ -627,11 +605,11 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 			if (hubModule->should_send_wifi) {
 				hubModule->should_send_wifi = false;
-				if (wifiUrl.length()) {
+				if (pluginSettings.wifiUrl.length()) {
 					wifiSendPatchFile();
 				} else {
 					promptWifiUrl();
-					if (wifiUrl.length()) {
+					if (pluginSettings.wifiUrl.length()) {
 						wifiSendPatchFile();
 					}
 				}

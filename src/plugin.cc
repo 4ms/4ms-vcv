@@ -7,6 +7,7 @@ rack::Plugin *pluginInstance;
 namespace MetaModule
 {
 std::string last_file_path;
+PluginSettings pluginSettings;
 }
 
 __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
@@ -71,53 +72,61 @@ extern "C" void destroy() {
 	MetaModule::Async::kill_module_threads();
 }
 
-extern "C" __attribute__((__visibility__("default"))) json_t *settingsToJson() {
-	json_t *rootJ = json_object();
-	json_object_set_new(rootJ, "wifiUrl", json_string(MetaModule::wifiUrl.c_str()));
-	json_object_set_new(rootJ, "wifiPath", json_integer((unsigned)MetaModule::wifiVolume));
-	json_object_set_new(rootJ, "defaultMappingMode", json_integer((unsigned)MetaModule::defaultMappingMode));
-	json_object_set_new(rootJ, "defaultUseGlueLabels", json_boolean(MetaModule::defaultUseGlueLabels));
-	json_object_set_new(rootJ, "defaultUseBuiltinMidi", json_boolean(MetaModule::defaultUseBuiltinMidi));
-	json_object_set_new(rootJ, "defaultAutoMapAudioOuts", json_boolean(MetaModule::defaultAutoMapAudioOuts));
-	return rootJ;
+void MetaModule::PluginSettings::encodeJson(json_t *rootJ) const {
+	json_object_set_new(rootJ, "wifiUrl", json_string(wifiUrl.c_str()));
+	json_object_set_new(rootJ, "wifiPath", json_integer((unsigned)wifiVolume));
+	json_object_set_new(rootJ, "defaultMappingMode", json_integer((unsigned)defaultMappingMode));
+	json_object_set_new(rootJ, "defaultUseGlueLabels", json_boolean(defaultUseGlueLabels));
+	json_object_set_new(rootJ, "defaultUseBuiltinMidi", json_boolean(defaultUseBuiltinMidi));
+	json_object_set_new(rootJ, "defaultAutoMapAudioOuts", json_boolean(defaultAutoMapAudioOuts));
 }
 
-extern "C" __attribute__((__visibility__("default"))) void settingsFromJson(json_t *rootJ) {
-	if (auto wifiUrlJ = json_object_get(rootJ, "wifiUrl"))
-		MetaModule::wifiUrl = json_string_value(wifiUrlJ);
+void MetaModule::PluginSettings::decodeJson(json_t *rootJ) {
+	auto wifiUrlJ = json_object_get(rootJ, "wifiUrl");
+	if (json_is_string(wifiUrlJ))
+		wifiUrl = json_string_value(wifiUrlJ);
 
 	if (auto wifiVolJ = json_object_get(rootJ, "wifiPath")) {
 		auto val = json_integer_value(wifiVolJ);
 
-		if (val == (unsigned)MetaModule::Volume::USB)
-			MetaModule::wifiVolume = MetaModule::Volume::USB;
+		if (val == (unsigned)Volume::USB)
+			wifiVolume = Volume::USB;
 
-		else if (val == (unsigned)MetaModule::Volume::Card)
-			MetaModule::wifiVolume = MetaModule::Volume::Card;
+		else if (val == (unsigned)Volume::Card)
+			wifiVolume = Volume::Card;
 
-		else if (val == (unsigned)MetaModule::Volume::Internal)
-			MetaModule::wifiVolume = MetaModule::Volume::Internal;
+		else if (val == (unsigned)Volume::Internal)
+			wifiVolume = Volume::Internal;
 	}
 
 	if (auto mappingModeJ = json_object_get(rootJ, "defaultMappingMode")) {
 		auto val = json_integer_value(mappingModeJ);
 
-		using enum MetaModule::MappingMode;
-		MetaModule::defaultMappingMode = val == 0 ? ALL :
-										 val == 1 ? LEFTRIGHT :
-										 val == 2 ? RIGHT :
-										 val == 3 ? LEFT :
-										 val == 4 ? CONNECTED :
-													ALL;
+		using enum MappingMode;
+		defaultMappingMode = val == 0 ? ALL :
+							 val == 1 ? LEFTRIGHT :
+							 val == 2 ? RIGHT :
+							 val == 3 ? LEFT :
+							 val == 4 ? CONNECTED :
+										ALL;
 	}
 
 	auto useGlueLabelsJ = json_object_get(rootJ, "defaultUseGlueLabels");
-	MetaModule::defaultUseGlueLabels = json_is_boolean(useGlueLabelsJ) ? json_boolean_value(useGlueLabelsJ) : true;
+	defaultUseGlueLabels = json_is_boolean(useGlueLabelsJ) ? json_boolean_value(useGlueLabelsJ) : true;
 
 	auto useBuiltinMidiJ = json_object_get(rootJ, "defaultUseBuiltinMidi");
-	MetaModule::defaultUseBuiltinMidi = json_is_boolean(useBuiltinMidiJ) ? json_boolean_value(useBuiltinMidiJ) : true;
+	defaultUseBuiltinMidi = json_is_boolean(useBuiltinMidiJ) ? json_boolean_value(useBuiltinMidiJ) : true;
 
 	auto autoMapAudioOutsJ = json_object_get(rootJ, "defaultAutoMapAudioOuts");
-	MetaModule::defaultAutoMapAudioOuts =
-		json_is_boolean(autoMapAudioOutsJ) ? json_boolean_value(autoMapAudioOutsJ) : false;
+	defaultAutoMapAudioOuts = json_is_boolean(autoMapAudioOutsJ) ? json_boolean_value(autoMapAudioOutsJ) : false;
+}
+
+extern "C" __attribute__((__visibility__("default"))) json_t *settingsToJson() {
+	json_t *rootJ = json_object();
+	MetaModule::pluginSettings.encodeJson(rootJ);
+	return rootJ;
+}
+
+extern "C" __attribute__((__visibility__("default"))) void settingsFromJson(json_t *rootJ) {
+	MetaModule::pluginSettings.decodeJson(rootJ);
 }

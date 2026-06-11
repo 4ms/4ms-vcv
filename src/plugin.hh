@@ -4,15 +4,25 @@
 namespace MetaModule
 {
 
-extern std::string wifiUrl;
 enum Volume { Internal = 0, USB = 1, Card = 2 };
 enum MappingMode { ALL = 0, LEFTRIGHT = 1, RIGHT = 2, LEFT = 3, CONNECTED = 4 };
 
-extern Volume wifiVolume;
-extern MappingMode defaultMappingMode;
-extern bool defaultUseGlueLabels;
-extern bool defaultUseBuiltinMidi;
-extern bool defaultAutoMapAudioOuts;
+// All user prefs persisted in Rack's plugin settings file.
+struct PluginSettings {
+	std::string wifiUrl = "";
+	Volume wifiVolume = Volume::Card;
+
+	// Defaults inherited by newly created hub modules:
+	MappingMode defaultMappingMode = MappingMode::ALL;
+	bool defaultUseGlueLabels = true;
+	bool defaultUseBuiltinMidi = true;
+	bool defaultAutoMapAudioOuts = false;
+
+	void encodeJson(json_t *rootJ) const;
+	void decodeJson(json_t *rootJ);
+};
+
+extern PluginSettings pluginSettings;
 
 } // namespace MetaModule
 
