@@ -25,7 +25,7 @@ struct MetaModuleHubBase : public rack::Module {
 	std::function<void()> updatePatchName;
 	std::string patchNameText = "";
 	std::string patchDescText = "";
-	MappingMode mappingMode = MetaModule::defaultMappingMode;
+	MappingMode mappingMode = defaultMappingMode;
 
 	bool should_save = false;
 	bool should_send_wifi = false;
@@ -171,21 +171,21 @@ struct MetaModuleHubBase : public rack::Module {
 
 			json_t *patchDescJ = json_string(patchDescText.c_str());
 			json_object_set_new(rootJ, "PatchDesc", patchDescJ);
-
-			json_t *mappingModeJ = json_integer(this->mappingMode);
-			json_object_set_new(rootJ, "MappingMode", mappingModeJ);
-
-			if ((size_t)suggested_samplerate_idx < sampleRateNums.size()) {
-				json_t *suggSampleRateJ = json_integer(sampleRateNums[suggested_samplerate_idx]);
-				json_object_set_new(rootJ, "SuggestedSampleRate", suggSampleRateJ);
-			}
-
-			if ((size_t)suggested_blocksize_idx < blockSizeNums.size()) {
-				json_t *suggBlockSizeJ = json_integer(blockSizeNums[suggested_blocksize_idx]);
-				json_object_set_new(rootJ, "SuggestedBlockSize", suggBlockSizeJ);
-			}
 		} else {
-			pr_err("Error: Widget has not been constructed, but dataToJson is being called\n");
+			pr_warn("Hub Widget has not been constructed, but dataToJson is being called\n");
+		}
+
+		json_t *mappingModeJ = json_integer(this->mappingMode);
+		json_object_set_new(rootJ, "MappingMode", mappingModeJ);
+
+		if ((size_t)suggested_samplerate_idx < sampleRateNums.size()) {
+			json_t *suggSampleRateJ = json_integer(sampleRateNums[suggested_samplerate_idx]);
+			json_object_set_new(rootJ, "SuggestedSampleRate", suggSampleRateJ);
+		}
+
+		if ((size_t)suggested_blocksize_idx < blockSizeNums.size()) {
+			json_t *suggBlockSizeJ = json_integer(blockSizeNums[suggested_blocksize_idx]);
+			json_object_set_new(rootJ, "SuggestedBlockSize", suggBlockSizeJ);
 		}
 
 		json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
@@ -244,6 +244,8 @@ struct MetaModuleHubBase : public rack::Module {
 			} else {
 				suggested_samplerate_idx = 0;
 			}
+		} else {
+			suggested_samplerate_idx = 0;
 		}
 
 		auto suggBlockSizeJ = json_object_get(rootJ, "SuggestedBlockSize");
@@ -254,6 +256,8 @@ struct MetaModuleHubBase : public rack::Module {
 			} else {
 				suggested_blocksize_idx = 0;
 			}
+		} else {
+			suggested_blocksize_idx = 0;
 		}
 
 		auto aliasJ = json_object_get(rootJ, "Alias");
@@ -275,7 +279,10 @@ struct MetaModuleHubBase : public rack::Module {
 			json_t *val;
 			json_object_foreach(moduleAliasesJ, key, val) {
 				if (json_is_string(val)) {
-					try { module_aliases[std::stoll(key)] = json_string_value(val); } catch (...) {}
+					try {
+						module_aliases[std::stoll(key)] = json_string_value(val);
+					} catch (...) {
+					}
 				}
 			}
 		}
@@ -287,7 +294,10 @@ struct MetaModuleHubBase : public rack::Module {
 			json_t *val;
 			json_object_foreach(moduleAliasColorsJ, key, val) {
 				if (json_is_integer(val)) {
-					try { module_alias_colors[std::stoll(key)] = json_integer_value(val); } catch (...) {}
+					try {
+						module_alias_colors[std::stoll(key)] = json_integer_value(val);
+					} catch (...) {
+					}
 				}
 			}
 		}
