@@ -101,16 +101,23 @@ extern "C" __attribute__((__visibility__("default"))) void settingsFromJson(json
 
 	if (auto mappingModeJ = json_object_get(rootJ, "defaultMappingMode")) {
 		auto val = json_integer_value(mappingModeJ);
-		if (val >= 0 && val <= 4)
-			MetaModule::defaultMappingMode = MetaModule::MappingMode(val);
+
+		using enum MetaModule::MappingMode;
+		MetaModule::defaultMappingMode = val == 0 ? ALL :
+										 val == 1 ? LEFTRIGHT :
+										 val == 2 ? RIGHT :
+										 val == 3 ? LEFT :
+										 val == 4 ? CONNECTED :
+													ALL;
 	}
 
-	if (auto useGlueLabelsJ = json_object_get(rootJ, "defaultUseGlueLabels"))
-		MetaModule::defaultUseGlueLabels = json_boolean_value(useGlueLabelsJ);
+	auto useGlueLabelsJ = json_object_get(rootJ, "defaultUseGlueLabels");
+	MetaModule::defaultUseGlueLabels = json_is_boolean(useGlueLabelsJ) ? json_boolean_value(useGlueLabelsJ) : true;
 
-	if (auto useBuiltinMidiJ = json_object_get(rootJ, "defaultUseBuiltinMidi"))
-		MetaModule::defaultUseBuiltinMidi = json_boolean_value(useBuiltinMidiJ);
+	auto useBuiltinMidiJ = json_object_get(rootJ, "defaultUseBuiltinMidi");
+	MetaModule::defaultUseBuiltinMidi = json_is_boolean(useBuiltinMidiJ) ? json_boolean_value(useBuiltinMidiJ) : true;
 
-	if (auto autoMapAudioOutsJ = json_object_get(rootJ, "defaultAutoMapAudioOuts"))
-		MetaModule::defaultAutoMapAudioOuts = json_boolean_value(autoMapAudioOutsJ);
+	auto autoMapAudioOutsJ = json_object_get(rootJ, "defaultAutoMapAudioOuts");
+	MetaModule::defaultAutoMapAudioOuts =
+		json_is_boolean(autoMapAudioOutsJ) ? json_boolean_value(autoMapAudioOutsJ) : false;
 }
