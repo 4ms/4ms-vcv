@@ -75,6 +75,10 @@ extern "C" __attribute__((__visibility__("default"))) json_t *settingsToJson() {
 	json_t *rootJ = json_object();
 	json_object_set_new(rootJ, "wifiUrl", json_string(MetaModule::wifiUrl.c_str()));
 	json_object_set_new(rootJ, "wifiPath", json_integer((unsigned)MetaModule::wifiVolume));
+	json_object_set_new(rootJ, "defaultMappingMode", json_integer((unsigned)MetaModule::defaultMappingMode));
+	json_object_set_new(rootJ, "defaultUseGlueLabels", json_boolean(MetaModule::defaultUseGlueLabels));
+	json_object_set_new(rootJ, "defaultUseBuiltinMidi", json_boolean(MetaModule::defaultUseBuiltinMidi));
+	json_object_set_new(rootJ, "defaultAutoMapAudioOuts", json_boolean(MetaModule::defaultAutoMapAudioOuts));
 	return rootJ;
 }
 
@@ -94,4 +98,19 @@ extern "C" __attribute__((__visibility__("default"))) void settingsFromJson(json
 		else if (val == (unsigned)MetaModule::Volume::Internal)
 			MetaModule::wifiVolume = MetaModule::Volume::Internal;
 	}
+
+	if (auto mappingModeJ = json_object_get(rootJ, "defaultMappingMode")) {
+		auto val = json_integer_value(mappingModeJ);
+		if (val >= 0 && val <= 4)
+			MetaModule::defaultMappingMode = MetaModule::MappingMode(val);
+	}
+
+	if (auto useGlueLabelsJ = json_object_get(rootJ, "defaultUseGlueLabels"))
+		MetaModule::defaultUseGlueLabels = json_boolean_value(useGlueLabelsJ);
+
+	if (auto useBuiltinMidiJ = json_object_get(rootJ, "defaultUseBuiltinMidi"))
+		MetaModule::defaultUseBuiltinMidi = json_boolean_value(useBuiltinMidiJ);
+
+	if (auto autoMapAudioOutsJ = json_object_get(rootJ, "defaultAutoMapAudioOuts"))
+		MetaModule::defaultAutoMapAudioOuts = json_boolean_value(autoMapAudioOutsJ);
 }
