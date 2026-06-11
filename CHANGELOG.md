@@ -6,7 +6,12 @@
     - Never add the MIDI-Map module itself to the patch
 - Add context-menu option to automatically map the source of AudioInterface module inputs to unmapped Panel Outs
 - Do not add Stoermelder Glue module to patch files
-- Double-clicking a min/max range slider lets you type in a value (thanks @gabriel-roth)
+- Double-clicking a min/max range slider lets you type in a value (by @gabriel-roth, thanks!)
+- Save some user settings as global defaults that apply to any newly added Hub module. Settings in existing patches are not changed. This follows the same behavior as the WiFi URL and volume. By @gabriel-roth
+    - "Include Modules From" mode
+    - Use Stoermelder Glue labels
+    - Use Built-in/RackCore MIDI
+    - Automatically map AudioInterface to Hub
 
 
 ## v2.1.8
