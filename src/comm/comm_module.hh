@@ -18,6 +18,10 @@ public:
 private:
 	bool sampleRateChanged = true;
 
+	// Per-jack poly buffers, shared with the core. Empty (nullptr) entries use the mono CoreProcessor interface.
+	std::vector<CoreProcessor::PolyPortBuffer> polyInBufs;
+	std::vector<CoreProcessor::PolyPortBuffer> polyOutBufs;
+
 	// Needed for converting legacy patch files (<2.0.15)
 	std::string patch_version;
 

@@ -1,5 +1,6 @@
 #include "comm/comm_module.hh"
 #include "widgets/4ms/quantities.hh"
+#include <algorithm>
 
 void CommModule::onSampleRateChange() {
 	sampleRateChanged = true;
@@ -29,8 +30,16 @@ void CommModule::process(const ProcessArgs &args) {
 		}
 
 		if (injack.isConnected()) {
-			auto scaledIn = injack.getValue();
-			core->set_input(id, scaledIn);
+			if (auto &poly = polyInBufs[id]; poly.voltages) {
+				// Channels beyond MaxPolyChannels are ignored
+				auto num_chans = std::clamp(injack.getChannels(), 1u, CoreProcessor::MaxPolyChannels);
+				*poly.channels = num_chans;
+				for (unsigned chan = 0; chan < num_chans; chan++)
+					poly.voltages[chan] = injack.getValue(chan);
+			} else {
+				auto scaledIn = injack.getValue();
+				core->set_input(id, scaledIn);
+			}
 		}
 	}
 
@@ -57,8 +66,15 @@ void CommModule::process(const ProcessArgs &args) {
 	// since when unpatched the value will not be used anyway
 	for (auto &out : outJacks) {
 
-		auto raw_value = core->get_output(out.getId());
-		out.setValue(raw_value);
+		if (auto &poly = polyOutBufs[out.getId()]; poly.voltages) {
+			auto num_chans = std::min<unsigned>(*poly.channels, CoreProcessor::MaxPolyChannels);
+			out.setChannels(num_chans); //no-op if unpatched
+			for (unsigned chan = 0; chan < num_chans; chan++)
+				out.setValue(poly.voltages[chan], chan);
+		} else {
+			auto raw_value = core->get_output(out.getId());
+			out.setValue(raw_value);
+		}
 	}
 
 	for (unsigned i = 0; auto &light : lights) {
@@ -85,6 +101,18 @@ void CommModule::configComm(unsigned NUM_PARAMS, unsigned NUM_INPUTS, unsigned N
 	for (unsigned i = 0; i < NUM_OUTPUTS; i++) {
 		outJacks.push_back({outputs[i], i});
 	}
+
+	// Poly-capable cores share their port buffers with us.
+	// The pointers stay valid for the life of the core, so we only fetch them once.
+	polyInBufs.assign(NUM_INPUTS, {});
+	polyOutBufs.assign(NUM_OUTPUTS, {});
+	if (auto poly_core = dynamic_cast<CoreProcessorPoly *>(core.get())) {
+		for (unsigned i = 0; i < NUM_INPUTS; i++)
+			polyInBufs[i] = poly_core->get_poly_input_buffer(i);
+		for (unsigned i = 0; i < NUM_OUTPUTS; i++)
+			polyOutBufs[i] = poly_core->get_poly_output_buffer(i);
+	}
+
 	core->mark_all_inputs_unpatched();
 	core->mark_all_outputs_unpatched();
 

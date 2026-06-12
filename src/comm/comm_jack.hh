@@ -18,12 +18,16 @@ public:
 		plugDetect.update(port.isConnected());
 	}
 
-	float getId() {
+	unsigned getId() {
 		return idx;
 	}
 
 	bool isConnected() {
 		return port.isConnected();
+	}
+
+	unsigned getChannels() {
+		return port.getChannels();
 	}
 
 	bool isJustPatched() {
@@ -40,8 +44,8 @@ struct CommInputJack : CommJack {
 		: CommJack{port, idx} {
 	}
 
-	float getValue() {
-		return port.getVoltage();
+	float getValue(unsigned channel = 0) {
+		return port.getVoltage(channel);
 	}
 };
 
@@ -50,7 +54,11 @@ struct CommOutputJack : CommJack {
 		: CommJack{port, idx} {
 	}
 
-	void setValue(float val) {
-		return port.setVoltage(val);
+	void setValue(float val, unsigned channel = 0) {
+		port.setVoltage(val, channel);
+	}
+
+	void setChannels(unsigned channels) {
+		port.setChannels(channels);
 	}
 };
