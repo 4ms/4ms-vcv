@@ -1,6 +1,16 @@
 # CHANGE LOG
 
 ## v2.1.9
+- Made many 4ms modules Polyphonic:
+    - Poly:
+        - Atvert2, BPF, ComplexEG, Dual EnvVCA, Detune, Djembe, Drum, EnOsc,
+          EnvVCA, FM, Follow, Freeverb, Gate, HPF, Karplus, Listen4, LPG,
+          MinMax, MPEG, Octave, PEG, PI, Pan, PitchShift, Sample&Hold, Shaped
+          Dual EnvVCA, SISM, Slew, StMix, Switch 1:4, Switch 4:1, VCAM, Verb
+    - Not poly: 
+        - BWAVP, CLKD, CLKM, DLD, MultiLFO, Noise, Prob8, QCD, QPLFO, RCD, SCM,
+          Seq8, Source, Tapo
+
 - Add context-menu option to add VCV Core MIDI modules to the patch as RackCore modules, or to create built-in MetaModule MIDI mappings.
     - Always convert MIDI-Map module CC mappings into the patch's MIDI map (even when "Use RackCore MIDI" is selected)
     - Never add the MIDI-Map module itself to the patch
@@ -12,6 +22,7 @@
     - Use Stoermelder Glue labels
     - Use Built-in/RackCore MIDI
     - Automatically map AudioInterface to Hub
+
 
 
 ## v2.1.8
