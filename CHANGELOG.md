@@ -28,6 +28,10 @@
     - Use Built-in/RackCore MIDI
     - Automatically map AudioInterface to Hub
 
+- Fixed Djembe pitch drifting when fed a fast square wave into Pitch CV
+
+- FM now has Carrier V/Oct jack normalized to Mod V/Oct jack
+
 
 
 ## v2.1.8
