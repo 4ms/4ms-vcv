@@ -1,17 +1,37 @@
 # CHANGE LOG
 
-## v2.1.9
+## v2.2.0
+- Made most 4ms modules polyphonic:
+    - Poly:
+        - Atvert2, BPF, ComplexEG, Dual EnvVCA, Detune, Djembe, Drum, EnOsc,
+          EnvVCA, FM, Follow, Freeverb, Gate, HPF, Karplus, Listen4, LPG,
+          MinMax, MPEG, Octave, PEG, PI, Pan, PitchShift, Sample&Hold, Shaped
+          Dual EnvVCA, SISM, Slew, StMix, Switch 1:4, Switch 4:1, VCAM, Verb
+    - Not poly: 
+        - BWAVP, CLKD, CLKM, DLD, MultiLFO, Noise, Prob8, QCD, QPLFO, RCD, SCM,
+          Seq8, Source, Tapo
+
 - Add context-menu option to add VCV Core MIDI modules to the patch as RackCore modules, or to create built-in MetaModule MIDI mappings.
     - Always convert MIDI-Map module CC mappings into the patch's MIDI map (even when "Use RackCore MIDI" is selected)
     - Never add the MIDI-Map module itself to the patch
+    - For built-in MIDI mode, MIDI poly num is set by MIDI-CV module's context menu (or is set to Auto detect if no MIDI-CV modules)
+
 - Add context-menu option to automatically map the source of AudioInterface module inputs to unmapped Panel Outs
+
 - Do not add Stoermelder Glue module to patch files
+
 - Double-clicking a min/max range slider lets you type in a value (by @gabriel-roth, thanks!)
+
 - Save some user settings as global defaults that apply to any newly added Hub module. Settings in existing patches are not changed. This follows the same behavior as the WiFi URL and volume. By @gabriel-roth
     - "Include Modules From" mode
     - Use Stoermelder Glue labels
     - Use Built-in/RackCore MIDI
     - Automatically map AudioInterface to Hub
+
+- Fixed Djembe pitch drifting when fed a fast square wave into Pitch CV
+
+- FM now has Carrier V/Oct jack normalized to Mod V/Oct jack
+
 
 
 ## v2.1.8
