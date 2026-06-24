@@ -1,5 +1,14 @@
 # CHANGE LOG
 
+## v2.2.1 (in progress)
+- Add new modules:
+    - FadeIn
+    - FadeOut
+    - SoloPush
+    - OctoPush
+    - Keyboard
+
+
 ## v2.2.0
 - Made most 4ms modules polyphonic:
     - Poly:
