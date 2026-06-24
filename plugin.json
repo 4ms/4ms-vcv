@@ -372,6 +372,49 @@
       "description": "Two-channel attenuverter",
 	  "manualUrl": "https://github.com/4ms/metamodule-core-modules/blob/main/doc/4ms-coremodules-manual.md",
       "tags": ["Attenuator", "Dual", "Utility"]
+    },
+    {
+      "slug": "OctoPush",
+      "name": "OctoPush",
+      "description": "8 button macro controller",
+      "tags": [
+        "Utility",
+        "Controller"
+      ]
+    },
+    {
+      "slug": "SoloPush",
+      "name": "SoloPush",
+      "description": "Single button macro controller",
+      "tags": [
+        "Utility",
+        "Controller"
+      ]
+    },
+    {
+      "slug": "Keyboard",
+      "name": "Keyboard",
+      "description": "1V/octave polyphonic keyboard",
+      "tags": [
+        "Utility",
+        "Controller"
+      ]
+    },
+    {
+      "slug": "FadeOut",
+      "name": "FadeOut",
+      "description": "Fade audio out at the press of a button",
+      "tags": [
+        "utility"
+      ]
+    },
+    {
+      "slug": "FadeIn",
+      "name": "FadeIn",
+      "description": "Fade audio in at the press of a button",
+      "tags": [
+        "utility"
+      ]
     }
   ]
 }

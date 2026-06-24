@@ -8,7 +8,7 @@ namespace MetaModule
 {
 std::string last_file_path;
 PluginSettings pluginSettings;
-}
+} // namespace MetaModule
 
 __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	pluginInstance = p;
@@ -65,6 +65,11 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelVerb);
 	p->addModel(modelMMAudioExpander);
 	p->addModel(modelMMButtonExpander);
+	p->addModel(modelOctoPush);
+	p->addModel(modelSoloPush);
+	p->addModel(modelKeyboard);
+	p->addModel(modelFadeIn);
+	p->addModel(modelFadeOut);
 }
 
 extern "C" void destroy() {
