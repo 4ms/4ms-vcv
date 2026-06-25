@@ -66,6 +66,50 @@ struct SubMiniToggleHoriz2pos : rack::app::SvgSwitch {
 	}
 };
 
+struct CKSSVert7 : rack::app::SvgSlider {
+	float dragDistance = 0.f;
+	float pressValue = 0.f;
+
+	CKSSVert7() {
+		using namespace rack;
+		math::Vec margin = math::Vec(3.5, 3.5);
+		maxHandlePos = math::Vec(1, 1).plus(margin);
+		minHandlePos = math::Vec(1, 45).plus(margin);
+		setBackgroundSvg(Svg::load(asset::plugin(pluginInstance, "res/components/SwitchTallVert_bg.svg")));
+		setHandleSvg(Svg::load(asset::plugin(pluginInstance, "res/components/SwitchTallVert_fg.svg")));
+		background->box.pos = margin;
+		box.size = background->box.size.plus(margin.mult(2));
+	}
+
+	// Clicking without dragging advances value
+	void onDragStart(const DragStartEvent &e) override {
+		dragDistance = 0.f;
+		if (auto *pq = getParamQuantity())
+			pressValue = pq->getValue();
+		SvgSlider::onDragStart(e);
+	}
+
+	void onDragMove(const DragMoveEvent &e) override {
+		dragDistance += e.mouseDelta.norm();
+		SvgSlider::onDragMove(e);
+	}
+
+	void onDragEnd(const DragEndEvent &e) override {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT && dragDistance < 3.f) {
+			if (auto *pq = getParamQuantity()) {
+				float val = std::round(pressValue);
+				// Wrap value to min after getting to max
+				if (val < pq->getMaxValue()) {
+					pq->setValue(val + 1.f);
+				} else {
+					pq->setValue(pq->getMinValue());
+				}
+			}
+		}
+		SvgSlider::onDragEnd(e);
+	}
+};
+
 template<typename TSwitch>
 struct LatchingSwitch : TSwitch {
 	LatchingSwitch() {

@@ -1,6 +1,7 @@
 #include "../vcv_creation_context.hh"
 #include "4ms_widgets.hh"
 #include "CoreModules/elements/element_counter.hh"
+#include "helpers/button_utils_elements.hh"
 
 namespace MetaModule::VCVImplementation::Widget
 {
@@ -86,6 +87,15 @@ inline void do_create(FlipSwitch el, const Indices &indices, const WidgetContext
 			create_4ms_param<SubMiniToggleHoriz2pos>(el.x_mm, el.y_mm, indices, context);
 		else if (el.num_pos == 3)
 			create_4ms_param<SubMiniToggleHoriz3pos>(el.x_mm, el.y_mm, indices, context);
+	}
+}
+
+inline void do_create(SlideSwitch el, const Indices &indices, const WidgetContext_t &context) {
+	if (el.image.ends_with("switch_tall_vert_x.png")) {
+		create_4ms_param<MetaModule::CKSSVert7>(el.x_mm, el.y_mm, indices, context);
+
+	} else {
+		//TODO: handle horizontal slide switch
 	}
 }
 
