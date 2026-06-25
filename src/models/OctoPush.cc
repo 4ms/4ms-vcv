@@ -1,4 +1,4 @@
-#include "CoreModules/4ms/info/Octopush_info.hh"
+#include "CoreModules/4ms/info/OctoPush_info.hh"
 #include "generic_module.hh"
 using namespace MetaModule;
 
