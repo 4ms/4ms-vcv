@@ -2,7 +2,7 @@
 <svg
    version="1.0"
    id="svg56722"
-   inkscape:version="1.2.1 (9c6d41e, 2022-07-14)"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
    x="0px"
    y="0px"
    width="3.4820001mm"
@@ -11,6 +11,9 @@
    enable-background="new 0 0 10 20.64111"
    xml:space="preserve"
    sodipodi:docname="SwitchTallVert_fg.svg"
+   inkscape:export-filename="../../../../stm32/metamodule/firmware/assets/4ms/comp/switch_tall_vert_handle.png"
+   inkscape:export-xdpi="46.5667"
+   inkscape:export-ydpi="46.5667"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -28,7 +31,7 @@
        style="stop-color:#000000;stop-opacity:0.38225257;"
        offset="0"
        id="stop1573" /><stop
-       style="stop-color:#000000;stop-opacity:0;"
+       style="stop-color:#ffffff;stop-opacity:0;"
        offset="1"
        id="stop1575" /></linearGradient><linearGradient
      inkscape:collect="always"
@@ -49,8 +52,8 @@
    fit-margin-top="0"
    id="base"
    inkscape:current-layer="svg56722"
-   inkscape:cx="-0.8903963"
-   inkscape:cy="7.1981511"
+   inkscape:cx="-6.4451308"
+   inkscape:cy="1.3678515"
    inkscape:document-rotation="0"
    inkscape:document-units="mm"
    inkscape:pageopacity="0.0"
@@ -59,8 +62,8 @@
    inkscape:window-maximized="0"
    inkscape:window-width="2264"
    inkscape:window-x="295"
-   inkscape:window-y="131"
-   inkscape:zoom="53.347032"
+   inkscape:window-y="103"
+   inkscape:zoom="21.566669"
    pagecolor="#ffffff"
    showgrid="false"
    units="px"
@@ -108,38 +111,42 @@
    inkscape:connector-curvature="0"
    fill="url(#path5815_00000176018740175221449750000008623012870990731937_)"
    d="m 1.30891,10.67955 h 10.425989 v 8.84651 H 1.30891 Z"
-   style="fill:url(#path5815_00000176018740175221449750000008623012870990731937_)"
+   style="display:inline;fill:url(#path5815_00000176018740175221449750000008623012870990731937_)"
    sodipodi:nodetypes="ccccc" />
 	<path
    id="path5817_4_"
    inkscape:connector-curvature="0"
    fill="#5e5e5e"
    d="m 1.30891,14.22647 h 10.423762 v 0.87738 H 1.30891 Z"
-   sodipodi:nodetypes="ccccc" />
+   sodipodi:nodetypes="ccccc"
+   style="fill:#ffffff;fill-opacity:1" />
 	<path
    id="path5819_4_"
    inkscape:connector-curvature="0"
    fill="#5e5e5e"
    d="m 1.30891,17.77339 h 10.423762 v 0.87738 H 1.30891 Z"
-   sodipodi:nodetypes="ccccc" />
+   sodipodi:nodetypes="ccccc"
+   style="fill:#ffffff;fill-opacity:1" />
 	<path
    id="path5821_4_"
    inkscape:connector-curvature="0"
    fill="#5e5e5e"
    d="m 1.30891,16.00079 h 10.423762 v 0.87738 H 1.30891 Z"
-   sodipodi:nodetypes="ccccc" />
+   sodipodi:nodetypes="ccccc"
+   style="fill:#ffffff;fill-opacity:1" />
 	<path
    id="path5823_4_"
    inkscape:connector-curvature="0"
    fill="#5e5e5e"
    d="m 1.30891,12.45307 h 10.423762 v 0.282779 0.594601 H 1.30891 Z"
-   sodipodi:nodetypes="cccccc" />
+   sodipodi:nodetypes="cccccc"
+   style="fill:#ffffff;fill-opacity:1" />
 	<path
    id="path5825_4_"
    inkscape:connector-curvature="0"
    fill="#797979"
    d="m 1.30891,10.67955 h 10.423762 v 0.87738 H 1.30891 Z"
-   style="fill:#5e5e5e;fill-opacity:1"
+   style="fill:#ffffff;fill-opacity:1"
    sodipodi:nodetypes="ccccc" />
 </g></g><rect
    style="fill:url(#linearGradient1579);fill-opacity:1;stroke:none;stroke-width:1.33393;stroke-linejoin:round;stroke-miterlimit:1.5"
