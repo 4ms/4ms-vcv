@@ -25,7 +25,7 @@ struct MetaModuleHubBase : public rack::Module {
 	std::function<void()> updatePatchName;
 	std::string patchNameText = "";
 	std::string patchDescText = "";
-	MappingMode mappingMode = MetaModule::MappingMode::ALL;
+	MappingMode mappingMode = pluginSettings.defaultMappingMode;
 
 	bool should_save = false;
 	bool should_send_wifi = false;
@@ -38,9 +38,9 @@ struct MetaModuleHubBase : public rack::Module {
 
 	JackAlias jack_alias{};
 
-	bool use_glue_labels = true;
-	bool use_builtin_midi = true;
-	bool auto_map_audio_outs = false;
+	bool use_glue_labels = pluginSettings.defaultUseGlueLabels;
+	bool use_builtin_midi = pluginSettings.defaultUseBuiltinMidi;
+	bool auto_map_audio_outs = pluginSettings.defaultAutoMapAudioOuts;
 	std::map<int64_t, std::string> module_aliases;
 	std::map<int64_t, int> module_alias_colors;
 
@@ -53,14 +53,33 @@ struct MetaModuleHubBase : public rack::Module {
 	int suggested_samplerate_idx = 0;
 	int suggested_blocksize_idx = 0;
 
+	// Settings setters: mirror each change into pluginSettings so that newly
+	// created hubs inherit it
+
+	void setMappingMode(int index) {
+		mappingMode = MappingMode(index);
+		pluginSettings.defaultMappingMode = mappingMode;
+	}
+
+	void setUseGlueLabels(bool use) {
+		use_glue_labels = use;
+		pluginSettings.defaultUseGlueLabels = use;
+	}
+
+	void setUseBuiltinMidi(bool use) {
+		use_builtin_midi = use;
+		pluginSettings.defaultUseBuiltinMidi = use;
+	}
+
+	void setAutoMapAudioOuts(bool auto_map) {
+		auto_map_audio_outs = auto_map;
+		pluginSettings.defaultAutoMapAudioOuts = auto_map;
+	}
+
 	// Mapping State/Progress
 
 	void startMappingFrom(int hubParamId) {
 		inProgressMapParamId = hubParamId;
-	}
-
-	void setMappingMode(int index) {
-		mappingMode = MappingMode(index);
 	}
 
 	void endMapping() {
@@ -171,21 +190,21 @@ struct MetaModuleHubBase : public rack::Module {
 
 			json_t *patchDescJ = json_string(patchDescText.c_str());
 			json_object_set_new(rootJ, "PatchDesc", patchDescJ);
-
-			json_t *mappingModeJ = json_integer(this->mappingMode);
-			json_object_set_new(rootJ, "MappingMode", mappingModeJ);
-
-			if ((size_t)suggested_samplerate_idx < sampleRateNums.size()) {
-				json_t *suggSampleRateJ = json_integer(sampleRateNums[suggested_samplerate_idx]);
-				json_object_set_new(rootJ, "SuggestedSampleRate", suggSampleRateJ);
-			}
-
-			if ((size_t)suggested_blocksize_idx < blockSizeNums.size()) {
-				json_t *suggBlockSizeJ = json_integer(blockSizeNums[suggested_blocksize_idx]);
-				json_object_set_new(rootJ, "SuggestedBlockSize", suggBlockSizeJ);
-			}
 		} else {
-			pr_err("Error: Widget has not been constructed, but dataToJson is being called\n");
+			pr_warn("Hub Widget has not been constructed, but dataToJson is being called\n");
+		}
+
+		json_t *mappingModeJ = json_integer(this->mappingMode);
+		json_object_set_new(rootJ, "MappingMode", mappingModeJ);
+
+		if ((size_t)suggested_samplerate_idx < sampleRateNums.size()) {
+			json_t *suggSampleRateJ = json_integer(sampleRateNums[suggested_samplerate_idx]);
+			json_object_set_new(rootJ, "SuggestedSampleRate", suggSampleRateJ);
+		}
+
+		if ((size_t)suggested_blocksize_idx < blockSizeNums.size()) {
+			json_t *suggBlockSizeJ = json_integer(blockSizeNums[suggested_blocksize_idx]);
+			json_object_set_new(rootJ, "SuggestedBlockSize", suggBlockSizeJ);
 		}
 
 		json_t *defaultKnobSetJ = json_integer(mappings.getActiveKnobSetIdx());
@@ -209,6 +228,7 @@ struct MetaModuleHubBase : public rack::Module {
 	}
 
 	// VCV Rack calls this on startup, and on loading a new patch file
+	// Do not use setMappingMode(), etc here -- that would change user's default settings
 	void dataFromJson(json_t *rootJ) override {
 		auto patchNameJ = json_object_get(rootJ, "PatchName");
 		if (json_is_string(patchNameJ)) {
@@ -226,9 +246,14 @@ struct MetaModuleHubBase : public rack::Module {
 			mappings.changeActiveKnobSet(idx, ShouldLock::No);
 		}
 
+		// For settings with global user defaults: a patch saved before the setting
+		// existed has no key for it, so use the legacy default, not the user default,
+		// to keep old patches working as they always did
 		auto mappingModeJ = json_object_get(rootJ, "MappingMode");
 		if (json_is_integer(mappingModeJ)) {
 			mappingMode = MappingMode(json_integer_value(mappingModeJ));
+		} else {
+			mappingMode = MappingMode::ALL;
 		}
 
 		auto suggSampleRateJ = json_object_get(rootJ, "SuggestedSampleRate");
@@ -239,6 +264,8 @@ struct MetaModuleHubBase : public rack::Module {
 			} else {
 				suggested_samplerate_idx = 0;
 			}
+		} else {
+			suggested_samplerate_idx = 0;
 		}
 
 		auto suggBlockSizeJ = json_object_get(rootJ, "SuggestedBlockSize");
@@ -249,22 +276,21 @@ struct MetaModuleHubBase : public rack::Module {
 			} else {
 				suggested_blocksize_idx = 0;
 			}
+		} else {
+			suggested_blocksize_idx = 0;
 		}
 
 		auto aliasJ = json_object_get(rootJ, "Alias");
 		jack_alias.decodeJson(aliasJ);
 
 		auto useGlueLabelsJ = json_object_get(rootJ, "UseGlueLabels");
-		if (json_is_boolean(useGlueLabelsJ))
-			use_glue_labels = json_boolean_value(useGlueLabelsJ);
+		use_glue_labels = json_is_boolean(useGlueLabelsJ) ? json_boolean_value(useGlueLabelsJ) : true;
 
 		auto useBuiltinMidiJ = json_object_get(rootJ, "UseBuiltinMidi");
-		if (json_is_boolean(useBuiltinMidiJ))
-			use_builtin_midi = json_boolean_value(useBuiltinMidiJ);
+		use_builtin_midi = json_is_boolean(useBuiltinMidiJ) ? json_boolean_value(useBuiltinMidiJ) : true;
 
 		auto autoMapAudioOutsJ = json_object_get(rootJ, "AutoMapAudioOuts");
-		if (json_is_boolean(autoMapAudioOutsJ))
-			auto_map_audio_outs = json_boolean_value(autoMapAudioOutsJ);
+		auto_map_audio_outs = json_is_boolean(autoMapAudioOutsJ) ? json_boolean_value(autoMapAudioOutsJ) : false;
 
 		auto moduleAliasesJ = json_object_get(rootJ, "ModuleAliases");
 		if (json_is_object(moduleAliasesJ)) {
@@ -273,7 +299,10 @@ struct MetaModuleHubBase : public rack::Module {
 			json_t *val;
 			json_object_foreach(moduleAliasesJ, key, val) {
 				if (json_is_string(val)) {
-					try { module_aliases[std::stoll(key)] = json_string_value(val); } catch (...) {}
+					try {
+						module_aliases[std::stoll(key)] = json_string_value(val);
+					} catch (...) {
+					}
 				}
 			}
 		}
@@ -285,7 +314,10 @@ struct MetaModuleHubBase : public rack::Module {
 			json_t *val;
 			json_object_foreach(moduleAliasColorsJ, key, val) {
 				if (json_is_integer(val)) {
-					try { module_alias_colors[std::stoll(key)] = json_integer_value(val); } catch (...) {}
+					try {
+						module_alias_colors[std::stoll(key)] = json_integer_value(val);
+					} catch (...) {
+					}
 				}
 			}
 		}
@@ -297,10 +329,6 @@ struct MetaModuleHubBase : public rack::Module {
 		Module::onReset(e);
 		patchNameText = "";
 		patchDescText = "";
-		mappingMode = MetaModule::MappingMode::ALL;
-		use_glue_labels = true;
-		use_builtin_midi = true;
-		auto_map_audio_outs = false;
 		module_aliases.clear();
 		module_alias_colors.clear();
 		mappings.clear_all(ShouldLock::No);

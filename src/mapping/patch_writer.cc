@@ -56,10 +56,15 @@ void PatchFileWriter::setMidiSettings(MIDI::Settings const &settings) {
 		// TODO: make these per MIDI channel
 		pd.midi_poly_num = std::ranges::max_element(midiSettings.CV, {}, &MIDI::MidiCVSettings::channels)->channels;
 		pd.midi_poly_num = std::min(pd.midi_poly_num, 8u);
+		// Built-In MIDI mode with at least one MIDI-CV module: hard-set the patch's max
+		// poly channels from the module(s) so the firmware doesn't auto-compute from cables.
+		pd.midi_poly_num_setting = static_cast<uint16_t>(pd.midi_poly_num);
 		pd.midi_poly_mode = midiSettings.CV[0].polyMode;
 		pd.midi_pitchwheel_range = midiSettings.CV[0].pitchwheelRange;
 	} else {
 		pd.midi_poly_num = 1;
+		// RackCore mode or no MIDI-CV modules: leave poly count on Auto (0 -> field omitted).
+		pd.midi_poly_num_setting = 0;
 		pd.midi_poly_mode = PolyMode::Rotate;
 		pd.midi_pitchwheel_range = -1;
 	}
