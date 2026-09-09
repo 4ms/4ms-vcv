@@ -67,7 +67,6 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelMMButtonExpander);
 	p->addModel(modelOctoPush);
 	p->addModel(modelSoloPush);
-	p->addModel(modelKeyboard);
 	p->addModel(modelFadeIn);
 	p->addModel(modelFadeOut);
 }

@@ -6,7 +6,6 @@
     - FadeOut
     - SoloPush
     - OctoPush
-    - Keyboard
 
 
 ## v2.2.0

@@ -392,15 +392,6 @@
       ]
     },
     {
-      "slug": "Keyboard",
-      "name": "Keyboard",
-      "description": "1V/octave polyphonic keyboard",
-      "tags": [
-        "Utility",
-        "Controller"
-      ]
-    },
-    {
       "slug": "FadeOut",
       "name": "FadeOut",
       "description": "Fade audio out at the press of a button",
