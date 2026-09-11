@@ -17,6 +17,7 @@
 #include "plugin.hh"
 #include <fstream>
 #include <rack.hpp>
+#include <tag.hpp>
 
 namespace MetaModule
 {
@@ -370,9 +371,19 @@ struct VCVPatchFileWriter {
 		return module->model->plugin->slug == "Stoermelder-P1" && module->model->slug == "Glue";
 	}
 
-	static bool isLikelyExpanderPair(rack::Module *left, rack::Module *right) {
+	static bool hasExpanderTag(rack::Module *m) {
+		static const int expanderTagId = rack::tag::findId("Expander");
+		auto &ids = m->model->tagIds;
+		return std::find(ids.begin(), ids.end(), expanderTagId) != ids.end();
+	}
+
+	static bool isSamePlugin(rack::Module *left, rack::Module *right) {
 		// Cross-plugin expanders don't exist, so two modules must be in the same plugin to be possible expanders
 		return (left->model && right->model && left->model->plugin && (left->model->plugin == right->model->plugin));
+	}
+
+	static bool isLikelyExpanderPair(rack::Module *left, rack::Module *right) {
+		return isSamePlugin(left, right) && (hasExpanderTag(left) || hasExpanderTag(right));
 	}
 
 	static std::vector<std::pair<int64_t, int64_t>>
