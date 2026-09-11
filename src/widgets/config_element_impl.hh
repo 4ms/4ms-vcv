@@ -100,7 +100,14 @@ inline void do_config_element(LatchingButton el, const Indices &indices, const M
 }
 
 inline void do_config_element(SlideSwitch el, const Indices &indices, const ModuleContext_t &context) {
-	context.module->configParam(indices.param_idx, 0, el.num_pos - 1, el.default_value, el.short_name.data());
+	std::vector<std::string> labels;
+	for (auto i = 0u; i < el.num_pos; i++) {
+		if (i < el.pos_names.size() && !el.pos_names[i].empty())
+			labels.push_back(std::string{el.pos_names[i]});
+		else
+			labels.push_back(std::to_string(i));
+	}
+	context.module->configSwitch(indices.param_idx, 0, el.num_pos - 1, el.default_value, el.short_name.data(), labels);
 };
 
 inline void do_config_element(FlipSwitch el, const Indices &indices, const ModuleContext_t &context) {
