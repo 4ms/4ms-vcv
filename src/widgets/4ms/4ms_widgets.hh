@@ -79,6 +79,7 @@ struct CKSSVert7 : rack::app::SvgSlider {
 		setHandleSvg(Svg::load(asset::plugin(pluginInstance, "res/components/SwitchTallVert_fg.svg")));
 		background->box.pos = margin;
 		box.size = background->box.size.plus(margin.mult(2));
+		snap = true;
 	}
 
 	// Clicking without dragging advances value
