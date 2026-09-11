@@ -82,5 +82,6 @@ extern rack::Model *modelMMAudioExpander;
 extern rack::Model *modelMMButtonExpander;
 extern rack::Model *modelOctoPush;
 extern rack::Model *modelSoloPush;
+extern rack::Model *modelKeyboard;
 extern rack::Model *modelFadeIn;
 extern rack::Model *modelFadeOut;
