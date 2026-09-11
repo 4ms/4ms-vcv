@@ -30,6 +30,7 @@ public:
 	void addModuleStateJson(rack::Module *module);
 	void addBypassedModule(rack::Module *module);
 	void setModuleAlias(int64_t vcvModuleId, std::string_view text);
+	void setExpanderConnections(std::vector<std::pair<int64_t, int64_t>> const &pairs);
 
 	void setSuggestedSamplerateBlocksize(unsigned sample_rate, unsigned blocksize);
 

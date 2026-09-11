@@ -300,6 +300,13 @@ void PatchFileWriter::setModuleAlias(int64_t vcvModuleId, std::string_view text)
 		pd.set_module_alias(idMap[vcvModuleId], text);
 }
 
+void PatchFileWriter::setExpanderConnections(std::vector<std::pair<int64_t, int64_t>> const &pairs) {
+	for (auto const &[leftId, rightId] : pairs) {
+		if (idMap.contains(leftId) && idMap.contains(rightId))
+			pd.expanders.push_back({idMap[leftId], idMap[rightId]});
+	}
+}
+
 void PatchFileWriter::addKnobMapSet(unsigned knobSetId, std::string_view knobSetName) {
 	if (knobSetId >= pd.knob_sets.size())
 		pd.knob_sets.resize(knobSetId + 1);

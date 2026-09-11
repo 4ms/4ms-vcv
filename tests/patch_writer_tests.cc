@@ -81,3 +81,21 @@ TEST_CASE("setModuleAlias maps VCV IDs to patch IDs") {
 	CHECK(pw.get_data().get_module_alias(2) == "Pad");  // 6  -> idx 2
 	CHECK(pw.get_data().module_aliases.size() == 2);    // unknown ID not added
 }
+
+TEST_CASE("setExpanderConnections maps VCV IDs to patch IDs") {
+	std::vector<BrandModule> modules;
+	int64_t hub_id = 30;
+	modules.push_back({11, "A"});
+	modules.push_back({6, "B"});
+	modules.push_back({30, "HubMedium"});
+
+	PatchFileWriter pw{modules, hub_id};
+
+	// 11 -> idx 1, 6 -> idx 2; pairs with unknown VCV IDs are silently dropped
+	pw.setExpanderConnections({{11, 6}, {6, 999}, {999, 11}});
+
+	auto &pd = pw.get_data();
+	REQUIRE(pd.expanders.size() == 1);
+	CHECK(pd.expanders[0].left_module_id == 1);
+	CHECK(pd.expanders[0].right_module_id == 2);
+}
