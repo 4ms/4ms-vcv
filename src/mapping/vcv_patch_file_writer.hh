@@ -158,10 +158,8 @@ struct VCVPatchFileWriter {
 
 			// Remove Split modules that are directly connected to a MIDIToCVInterface:
 			// their outputs are replaced by virtual MIDI->downstream mappings.
-			std::erase_if(moduleData,
-						  [&](BrandModule const &m) { return midimodules.isPolySplitModule(m.id); });
-			std::erase_if(paramData,
-						  [&](ParamMap const &p) { return midimodules.isPolySplitModule(p.moduleID); });
+			std::erase_if(moduleData, [&](BrandModule const &m) { return midimodules.isPolySplitModule(m.id); });
+			std::erase_if(paramData, [&](ParamMap const &p) { return midimodules.isPolySplitModule(p.moduleID); });
 		}
 
 		// Scan cables
@@ -212,7 +210,8 @@ struct VCVPatchFileWriter {
 
 				// regular module out -> AudioInterface In
 				if (ModuleDirectory::isAudioInterface(in) && ModuleDirectory::isRegularModule(out, use_builtin_midi) &&
-					!(use_builtin_midi && midimodules.isPolySplitModule(out))) {
+					!(use_builtin_midi && midimodules.isPolySplitModule(out)))
+				{
 
 					bool hasPanelOutCable = false;
 					for (auto const &c : cableData) {
@@ -371,28 +370,30 @@ struct VCVPatchFileWriter {
 		return module->model->plugin->slug == "Stoermelder-P1" && module->model->slug == "Glue";
 	}
 
-	// VCV sets leftExpander/rightExpander for every touching pair of modules.
-	// Only export pairs that plausibly communicate: same-plugin neighbors, or
-	// neighbors with expander message buffers allocated on the facing sides.
 	static bool isLikelyExpanderPair(rack::Module *left, rack::Module *right) {
-		if (left->model && right->model && left->model->plugin && left->model->plugin == right->model->plugin)
-			return true;
-		return left->rightExpander.producerMessage || left->rightExpander.consumerMessage ||
-			   right->leftExpander.producerMessage || right->leftExpander.consumerMessage;
+		// Cross-plugin expanders don't exist, so two modules must be in the same plugin to be possible expanders
+		return (left->model && right->model && left->model->plugin && (left->model->plugin == right->model->plugin));
 	}
 
-	static std::vector<std::pair<int64_t, int64_t>> detectExpanderConnections(auto *engine,
-																			  std::vector<BrandModule> const &moduleData) {
+	static std::vector<std::pair<int64_t, int64_t>>
+	detectExpanderConnections(auto *engine, std::vector<BrandModule> const &moduleData) {
 		std::vector<std::pair<int64_t, int64_t>> pairs;
 		for (auto const &m : moduleData) {
-			auto *module = engine->getModule(m.id);
-			if (!module || ModuleDirectory::isHubOrExpander(module) || isGlueModule(module))
+
+			auto *left = engine->getModule(m.id);
+			if (!left || ModuleDirectory::isHubOrExpander(left) || isGlueModule(left))
 				continue;
-			auto *right = module->rightExpander.module;
+			if (left->model->plugin->slug == "4msCompany")
+				continue;
+
+			auto *right = left->rightExpander.module;
 			if (!right || ModuleDirectory::isHubOrExpander(right) || isGlueModule(right))
 				continue;
-			if (isLikelyExpanderPair(module, right))
-				pairs.push_back({module->getId(), right->getId()});
+			if (right->model->plugin->slug == "4msCompany")
+				continue;
+
+			if (isLikelyExpanderPair(left, right))
+				pairs.push_back({left->getId(), right->getId()});
 		}
 		return pairs;
 	}
