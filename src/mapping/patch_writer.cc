@@ -100,6 +100,33 @@ void PatchFileWriter::setModuleList(std::vector<BrandModule> &modules) {
 	}
 
 	idMap = squash_ids(vcv_mod_ids);
+
+	setModulePositions(modules);
+}
+
+void PatchFileWriter::setModulePositions(std::vector<BrandModule> const &modules) {
+	pd.module_positions.clear();
+
+	if (modules.empty())
+		return;
+
+	// Offset so the top-left of the layout is 0,0
+	auto min_x = std::ranges::min(modules, {}, &BrandModule::x).x;
+	auto min_y = std::ranges::min(modules, {}, &BrandModule::y).y;
+
+	for (auto const &mod : modules) {
+		if (!idMap.contains(mod.id))
+			continue;
+
+		// VCV positions are in pixels: convert to grid units (HP and rows)
+		pd.module_positions.push_back({
+			.module_id = idMap[mod.id],
+			.x = static_cast<int16_t>(std::lround((mod.x - min_x) / rack::RACK_GRID_WIDTH)),
+			.y = static_cast<int16_t>(std::lround((mod.y - min_y) / rack::RACK_GRID_HEIGHT)),
+		});
+	}
+
+	std::ranges::sort(pd.module_positions, {}, &ModulePosition::module_id);
 }
 
 void PatchFileWriter::setCableList(std::vector<CableMap> &cables) {

@@ -53,6 +53,7 @@ private:
 	void mapMidiCVPolySplitJack(CableMap &cable, unsigned monoJackId, unsigned midi_chan);
 
 	void setModuleList(std::vector<BrandModule> &modules);
+	void setModulePositions(std::vector<BrandModule> const &modules);
 
 	PatchData pd;
 	int64_t hubModuleId = -1;
