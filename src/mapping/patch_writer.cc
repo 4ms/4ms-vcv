@@ -5,6 +5,7 @@
 #include "mapping/module_directory.hh"
 #include "patch-serial/patch_to_yaml.hh"
 #include <algorithm>
+#include <ranges>
 
 namespace MetaModule
 {
@@ -110,9 +111,19 @@ void PatchFileWriter::setModulePositions(std::vector<BrandModule> const &modules
 	if (modules.empty())
 		return;
 
-	// Offset so the top-left of the layout is 0,0
-	auto min_x = std::ranges::min(modules, {}, &BrandModule::x).x;
-	auto min_y = std::ranges::min(modules, {}, &BrandModule::y).y;
+	// Offset so the top-left of the layout is 0,0.
+	// The hub and expanders are not displayed, so don't include them
+	// (they may end up with negative positions)
+	auto displayed = modules | std::views::filter([](BrandModule const &m) {
+						 return !ModuleDirectory::isHubOrExpander(m.slug);
+					 });
+
+	float min_x = 0;
+	float min_y = 0;
+	if (!std::ranges::empty(displayed)) {
+		min_x = std::ranges::min(displayed, {}, &BrandModule::x).x;
+		min_y = std::ranges::min(displayed, {}, &BrandModule::y).y;
+	}
 
 	for (auto const &mod : modules) {
 		if (!idMap.contains(mod.id))

@@ -96,7 +96,7 @@ struct ModuleDirectory {
 
 	// Expanders
 	static bool isAudioExpander(std::string_view slug) {
-		return slug == "MMAudioExpander";
+		return slug == "MMAudioExpander" || slug == "4msCompany:MMAudioExpander";
 	}
 
 	static bool isAudioExpander(rack::Module *module) {
@@ -110,7 +110,7 @@ struct ModuleDirectory {
 	}
 
 	static bool isButtonExpander(std::string_view slug) {
-		return slug == "MMButtonExpander";
+		return slug == "MMButtonExpander" || slug == "4msCompany:MMButtonExpander";
 	}
 
 	static bool isButtonExpander(rack::Module *module) {
@@ -129,6 +129,10 @@ struct ModuleDirectory {
 
 	static bool isExpander(rack::Module *module) {
 		return isAudioExpander(module) || isButtonExpander(module);
+	}
+
+	static bool isHubOrExpander(std::string_view slug) {
+		return isHub(slug) || isExpander(slug);
 	}
 
 	static bool isHubOrExpander(rack::Module *module) {
