@@ -99,3 +99,49 @@ TEST_CASE("setExpanderConnections maps VCV IDs to patch IDs") {
 	CHECK(pd.expanders[0].left_module_id == 1);
 	CHECK(pd.expanders[0].right_module_id == 2);
 }
+
+TEST_CASE("Module positions are normalized, ignoring the hub and expanders") {
+	// Positions are in VCV pixels: 15px per HP, 380px per row
+	std::vector<BrandModule> modules;
+	int64_t hub_id = 30;
+	modules.push_back({11, "A", 150, 380});
+	modules.push_back({6, "B", 450, 760});
+	modules.push_back({30, "4msCompany:HubMedium", 0, 0});
+	modules.push_back({40, "4msCompany:MMAudioExpander", -300, 380});
+
+	PatchFileWriter pw{modules, hub_id};
+
+	// Sorted by y then x: Hub -> 0, Expander -> 1, A -> 2, B -> 3
+	auto &pos = pw.get_data().module_positions;
+	REQUIRE(pos.size() == 4);
+
+	CHECK(pos[0].module_id == 0); // Hub is left of and above A: negative
+	CHECK(pos[0].x == -10);
+	CHECK(pos[0].y == -1);
+
+	CHECK(pos[1].module_id == 1); // Expander is left of A: negative
+	CHECK(pos[1].x == -30);
+	CHECK(pos[1].y == 0);
+
+	CHECK(pos[2].module_id == 2); // A is top-left of displayed modules
+	CHECK(pos[2].x == 0);
+	CHECK(pos[2].y == 0);
+
+	CHECK(pos[3].module_id == 3);
+	CHECK(pos[3].x == 20);
+	CHECK(pos[3].y == 1);
+}
+
+TEST_CASE("Module positions with only a hub are not offset") {
+	std::vector<BrandModule> modules;
+	int64_t hub_id = 30;
+	modules.push_back({30, "4msCompany:HubMedium", 45, 760});
+
+	PatchFileWriter pw{modules, hub_id};
+
+	auto &pos = pw.get_data().module_positions;
+	REQUIRE(pos.size() == 1);
+	CHECK(pos[0].module_id == 0);
+	CHECK(pos[0].x == 3);
+	CHECK(pos[0].y == 2);
+}
