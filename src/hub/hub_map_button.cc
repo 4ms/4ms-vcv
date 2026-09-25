@@ -78,7 +78,7 @@ void HubMapButton::end_mapping() {
 		if (m->getModel()->slug == "MMButtonExpander" || m->getModel()->slug == "HubMedium") {
 			hub->endMapping();
 		} else {
-			hub->registerMap(hubParamObj.objID, m, param_id);
+			hub->registerMap(hubParamObj.objID, hubParamObj.objType, m, param_id);
 		}
 
 	} else {

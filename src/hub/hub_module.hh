@@ -3,7 +3,9 @@
 #include "hub/hub_module.hh"
 #include "hub/jack_alias.hh"
 #include "hub_knob_mappings.hh"
+#include "mapping/latch_param.hh"
 #include "mapping/module_directory.hh"
+#include "patch/patch.hh"
 #include "plugin.hh"
 #include "util/edge_detector.hh"
 #include "util/math.hh"
@@ -95,7 +97,7 @@ struct MetaModuleHubBase : public rack::Module {
 	}
 
 	// Always locks
-	bool registerMap(int hubParamId, rack::Module *module, int64_t moduleParamId) {
+	bool registerMap(int hubParamId, MappableObj::Type hubParamType, rack::Module *module, int64_t moduleParamId) {
 		if (!isMappingInProgress()) {
 			pr_dbg("registerMap() called but we aren't mapping\n");
 			return false;
@@ -122,7 +124,10 @@ struct MetaModuleHubBase : public rack::Module {
 
 		map->range_max = 1.f;
 		map->range_min = 0.0f;
-		map->curve_type = 0;
+		auto num_pos = (size_t)moduleParamId < module->paramQuantities.size() ?
+						   param_num_positions(module->paramQuantities[moduleParamId]) :
+						   0;
+		map->curve_type = default_curve_type(hubParamType == MappableObj::Type::Button, num_pos);
 		endMapping();
 
 		return true;
@@ -151,17 +156,19 @@ struct MetaModuleHubBase : public rack::Module {
 
 					auto &map = mappings.activeMap(mapset);
 
-					if (map.curve_type == 1) {
+					if (map.curve_type == MappedKnob::CurveType::Toggle) {
 						// Toggle/latching mode:
-
 						if (new_val > 0.5f && last_val < 0.5f) {
-							// if param is currently closer to min, then set it to max (and vice-versa)
 							auto cur_val = paramQuantity->getScaledValue();
-							if (std::abs(cur_val - map.range_min) < std::abs(cur_val - map.range_max)) {
-								paramQuantity->setScaledValue(map.range_max);
-							} else {
-								paramQuantity->setScaledValue(map.range_min);
-							}
+							paramQuantity->setScaledValue(toggle_value(cur_val, map.range_min, map.range_max));
+						}
+
+					} else if (map.curve_type == MappedKnob::CurveType::Cycle) {
+						// Step mode: advance to the next position (or toggle if param is continuous)
+						if (new_val > 0.5f && last_val < 0.5f) {
+							auto cur_val = paramQuantity->getScaledValue();
+							auto num_pos = param_num_positions(paramQuantity);
+							paramQuantity->setScaledValue(step_value(cur_val, map.range_min, map.range_max, num_pos));
 						}
 
 					} else {
@@ -174,6 +181,14 @@ struct MetaModuleHubBase : public rack::Module {
 			}
 			hubParamId++;
 		}
+	}
+
+	// Returns the number of discrete positions of a snapped param (switches, snapped knobs),
+	// or 0 if it's continuous
+	static unsigned param_num_positions(rack::ParamQuantity *paramQuantity) {
+		if (!paramQuantity || !paramQuantity->snapEnabled)
+			return 0;
+		return std::lround(paramQuantity->getMaxValue() - paramQuantity->getMinValue()) + 1;
 	}
 
 	// VCV Rack calls this periodically on auto-save

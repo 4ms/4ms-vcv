@@ -8,6 +8,8 @@
     - SoloPush
     - OctoPush
     - Keyboard
+- Save module XY positions, normalized so that the top module is 0 and left module is 0. Firmware v2.4.0 can display patches with the same position for the modules.
+- Button Expander can select "Step" mode for button mappings
 
 
 ## v2.2.0

@@ -86,11 +86,15 @@ public:
 				menu->addChild(new rack::MenuSeparator);
 
 				if (hubParamObj.objType == MappableObj::Type::Button) {
-					menu->addChild(rack::createBoolMenuItem(
-						"Button toggles parameter",
-						"",
-						[=, this]() { return hub->mappings.getCurveType(paramObj); },
-						[=, this](bool val) { hub->mappings.setCurveType(paramObj, val ? 1 : 0); }));
+					// Order must match MappedKnob::CurveType
+					menu->addChild(rack::createIndexSubmenuItem(
+						"Button Behavior",
+						{"Normal", "Toggle", "Step"},
+						[=, this]() -> size_t {
+							auto curve = hub->mappings.getCurveType(paramObj);
+							return curve <= MappedKnob::CurveType::Cycle ? curve : MappedKnob::CurveType::Normal;
+						},
+						[=, this](size_t val) { hub->mappings.setCurveType(paramObj, val); }));
 					menu->addChild(new rack::MenuSeparator);
 				}
 
