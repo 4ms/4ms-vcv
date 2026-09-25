@@ -34,6 +34,9 @@ inline NVGcolor nvgRGB(unsigned char r, unsigned char g, unsigned char b) {
 
 namespace rack
 {
+static const float RACK_GRID_WIDTH = 15;
+static const float RACK_GRID_HEIGHT = 380;
+
 struct Plugin {
 	std::string slug;
 	std::string version;
