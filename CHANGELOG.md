@@ -1,16 +1,22 @@
 # CHANGE LOG
 
 ## v2.3.0 (in progress)
-- Detect and save expander pair information in the patch file. Expanders must be in the same plugin, and at least one module of the pair must have the "Expander" tag. Expanders require MetaModule firmware v2.4.0 or later.
-- Add new modules:
+- Detect and save expander pair information in the patch file. Expanders must
+  be in the same plugin, and at least one module of the pair must have the
+  "Expander" tag. Expanders require MetaModule firmware v2.4.0 or later.
+- Save module XY positions, normalized so that the top module is 0 and left
+  module is 0. Firmware v2.4.0 can display patches with the same position for
+  the modules.
+- Button Expander can select "Step" mode for button mappings
+- Add new 4ms modules:
     - FadeIn
     - FadeOut
     - SoloPush
     - OctoPush
     - Keyboard
-- Save module XY positions, normalized so that the top module is 0 and left module is 0. Firmware v2.4.0 can display patches with the same position for the modules.
-- Button Expander can select "Step" mode for button mappings
-
+- EnvVCA, Dual EnvVCA, and Shaped EnvVCA get a ReTrig option to the context
+  menu. When enabled, a trigger during the rise phase resets the envelope.
+  Otherwise (default), it's ignored.
 
 ## v2.2.0
 - Made most 4ms modules polyphonic:
