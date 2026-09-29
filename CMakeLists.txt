@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 3.24)
+
+# De-duplicate static libs on the link line (avoids Apple ld "ignoring duplicate libraries" warning)
+if(POLICY CMP0156)
+  cmake_policy(SET CMP0156 NEW)
+endif()
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
 project(4msVCVModules VERSION 1.0 LANGUAGES C CXX)
 
