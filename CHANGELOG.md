@@ -2,7 +2,7 @@
 
 ## v2.3.1 (in progress)
 - Fix plugin failing to load on macOS 10.14 and earlier (x64). Minimum macOS
-  version is now 10.13.
+  version is now 10.12. See [Issue 8](https://github.com/4ms/4ms-vcv/issues/8)
 
 ## v2.3.0
 - Detect and save expander pair information in the patch file. Expanders must

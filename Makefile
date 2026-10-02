@@ -16,7 +16,8 @@ ifdef ARCH_MAC
   ifdef ARCH_ARM64
     EXTRA_CMAKE := -DCMAKE_OSX_ARCHITECTURES="arm64"
   endif
-  EXTRA_CMAKE += -DCMAKE_OSX_DEPLOYMENT_TARGET="10.13"
+  # 10.12 requires libc++ 18+ headers (Xcode 16+), see src/compat/libcxx_macos.cc
+  EXTRA_CMAKE += -DCMAKE_OSX_DEPLOYMENT_TARGET="10.12"
 endif
 
 CMAKE_BUILD ?= build

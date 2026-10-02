@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.24)
 if(POLICY CMP0156)
   cmake_policy(SET CMP0156 NEW)
 endif()
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
 project(4msVCVModules VERSION 1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -67,6 +67,7 @@ target_sources(${RACK_PLUGIN_LIB} PRIVATE
 
 	src/compat/gui.cc
 	src/compat/patch.cc
+	src/compat/libcxx_macos.cc
 	${SOURCES}
 )
 
