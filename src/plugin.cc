@@ -72,7 +72,7 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelFadeOut);
 }
 
-extern "C" void destroy() {
+extern "C" __attribute__((__visibility__("default"))) void destroy() {
 	// This does nothing if threads were never started:
 	MetaModule::Async::kill_module_threads();
 }
