@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## v2.3.1 (in progress)
+- Fix plugin failing to load on macOS 10.14 and earlier (x64). Minimum macOS
+  version is now 10.13.
+
 ## v2.3.0
 - Detect and save expander pair information in the patch file. Expanders must
   be in the same plugin, and at least one module of the pair must have the

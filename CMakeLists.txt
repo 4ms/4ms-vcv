@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.24)
 if(POLICY CMP0156)
   cmake_policy(SET CMP0156 NEW)
 endif()
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum OS X deployment version")
 project(4msVCVModules VERSION 1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -20,6 +20,9 @@ message(STATUS "Installing into '${CMAKE_INSTALL_PREFIX}'")
 target_compile_options(${RACK_PLUGIN_LIB} PRIVATE -fvisibility=hidden -fvisibility-inlines-hidden)
 
 add_compile_definitions(VCVRACK)
+
+# std::filesystem requires macOS 10.15
+add_compile_definitions(ALPACA_EXCLUDE_SUPPORT_STD_FILESYSTEM_PATH)
 
 if (("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin") AND ("${CMAKE_OSX_ARCHITECTURES}" MATCHES "x86_64"))
   message("Disabling stack check for macOS x86")
