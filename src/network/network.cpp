@@ -53,7 +53,8 @@ static CURL *createCurl() {
 static size_t writeVectorCallback(char *ptr, size_t size, size_t nmemb, void *userdata) {
 	auto *str = (std::vector<uint8_t> *)userdata;
 	size_t len = size * nmemb;
-	str->assign(ptr, ptr + len);
+	// A FlatBuffers response may arrive in several HTTP chunks.
+	str->insert(str->end(), ptr, ptr + len);
 	return len;
 }
 
