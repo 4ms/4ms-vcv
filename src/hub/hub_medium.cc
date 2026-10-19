@@ -592,11 +592,15 @@ struct HubMediumWidget : MetaModuleHubWidget {
 					menu->addChild(createMenuLabel(moduleMenuName(e)));
 
 					for (auto &d : displays) {
-						menu->addChild(createCheckMenuItem(
-							d.name,
-							"",
-							[this, display = d.display]() { return hubModule->screensaver_display == display; },
-							[this, display = d.display]() { hubModule->screensaver_display = display; }));
+						auto *item = new ScreensaverDisplayMenuItem;
+						item->text = d.name;
+						item->moduleId = e.module->getId();
+						item->target = d.widget;
+						item->isChosen = [this, display = d.display]() {
+							return hubModule->screensaver_display == display;
+						};
+						item->choose = [this, display = d.display]() { hubModule->screensaver_display = display; };
+						menu->addChild(item);
 					}
 				}
 
