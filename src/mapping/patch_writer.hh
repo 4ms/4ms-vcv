@@ -2,6 +2,7 @@
 #include "JackMap.hh"
 #include "ModuleID.h"
 #include "ParamMap.hh"
+#include "hub/hub_screensaver.hh"
 #include "hub/jack_alias.hh"
 #include "mapping/expanders.hh"
 #include "mapping/mapping.hh"
@@ -31,6 +32,7 @@ public:
 	void addBypassedModule(rack::Module *module);
 	void setModuleAlias(int64_t vcvModuleId, std::string_view text);
 	void setExpanderConnections(std::vector<std::pair<int64_t, int64_t>> const &pairs);
+	void setScreensaverDisplay(HubScreensaverDisplay const &ss);
 
 	void setSuggestedSamplerateBlocksize(unsigned sample_rate, unsigned blocksize);
 

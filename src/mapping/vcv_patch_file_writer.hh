@@ -38,6 +38,7 @@ struct VCVPatchFileWriter {
 		bool use_builtin_midi = true;
 		const std::map<int64_t, std::string> &module_aliases;
 		bool auto_map_audio_outs = false;
+		HubScreensaverDisplay screensaver_display{};
 	};
 
 	static std::string createPatchYml(FileFields data) {
@@ -289,6 +290,8 @@ struct VCVPatchFileWriter {
 		// Manual aliases take precedence over GLUE labels
 		for (auto const &[vcv_id, alias] : module_aliases)
 			pw.setModuleAlias(vcv_id, alias);
+
+		pw.setScreensaverDisplay(data.screensaver_display);
 
 		//combine hub aliases and expander aliases
 		JackAlias aliases{jack_aliases};

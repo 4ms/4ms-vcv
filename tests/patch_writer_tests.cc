@@ -145,3 +145,64 @@ TEST_CASE("Module positions with only a hub are not offset") {
 	CHECK(pos[0].x == 3);
 	CHECK(pos[0].y == 2);
 }
+
+TEST_CASE("setScreensaverDisplay maps VCV IDs to patch IDs") {
+	std::vector<BrandModule> modules;
+	modules.push_back({30, "HubMedium"});
+	modules.push_back({11, "A"});
+	modules.push_back({6, "B"});
+	PatchFileWriter pw{modules, 30};
+
+	SUBCASE("by light id") {
+		pw.setScreensaverDisplay({.moduleId = 6, .lightId = 1025});
+		auto ss = pw.get_data().find_screensaver_display();
+		REQUIRE(ss);
+		CHECK(ss->module_id == 2);
+		CHECK(ss->light_id == 1025);
+		CHECK_FALSE(ss->position_mm);
+	}
+
+	SUBCASE("by position") {
+		pw.setScreensaverDisplay({.moduleId = 11, .x_mm = 8.5f, .y_mm = 60.f});
+		auto ss = pw.get_data().find_screensaver_display();
+		REQUIRE(ss);
+		CHECK(ss->module_id == 1);
+		REQUIRE(ss->position_mm);
+		CHECK(ss->position_mm->first == doctest::Approx(8.5f));
+		CHECK(ss->position_mm->second == doctest::Approx(60.f));
+	}
+
+	SUBCASE("module not in the patch") {
+		pw.setScreensaverDisplay({.moduleId = 99, .lightId = 1});
+		CHECK(pw.get_data().screensaver_displays.empty());
+	}
+
+	SUBCASE("none chosen") {
+		pw.setScreensaverDisplay({});
+		CHECK(pw.get_data().screensaver_displays.empty());
+	}
+}
+
+TEST_CASE("HubScreensaverDisplay JSON round-trip") {
+	SUBCASE("by light id") {
+		HubScreensaverDisplay ss{.moduleId = 1234567890123, .lightId = 1025};
+		auto j = ss.encodeJson();
+		CHECK(HubScreensaverDisplay::decodeJson(j) == ss);
+		json_decref(j);
+	}
+
+	SUBCASE("by position") {
+		HubScreensaverDisplay ss{.moduleId = 42, .x_mm = 8.5f, .y_mm = 60.25f};
+		auto j = ss.encodeJson();
+		CHECK(HubScreensaverDisplay::decodeJson(j) == ss);
+		json_decref(j);
+	}
+
+	SUBCASE("missing or invalid -> not set") {
+		CHECK_FALSE(HubScreensaverDisplay::decodeJson(nullptr).is_set());
+		auto j = json_object();
+		json_object_set_new(j, "ModuleId", json_integer(3));
+		CHECK_FALSE(HubScreensaverDisplay::decodeJson(j).is_set());
+		json_decref(j);
+	}
+}
