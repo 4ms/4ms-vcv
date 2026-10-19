@@ -2,11 +2,13 @@
 #include "CoreModules/elements/units.hh"
 #include "comm/comm_module.hh"
 #include "hub/hub_screensaver.hh"
+#include "hub/rtti_derives.hh"
 #include "hub/screensaver_names.hh"
 #include "widgets/4ms/4ms_widgets.hh"
 #include <cstdlib>
 #include <cxxabi.h>
 #include <functional>
+#include <algorithm>
 #include <rack.hpp>
 #include <string>
 #include <vector>
@@ -33,6 +35,30 @@ inline std::string demangledClassName(rack::widget::Widget *w) {
 	return name;
 }
 
+template<typename T>
+bool isA(rack::widget::Widget *w) {
+	return derivesFrom(typeid(*w), typeid(T));
+}
+
+template<typename T>
+bool isExactly(rack::widget::Widget *w) {
+	return std::strcmp(typeid(*w).name(), typeid(T).name()) == 0;
+}
+
+// Draws only fixed artwork: SVG images, screws, or plain Rack containers holding only those
+// (a subclass might draw something itself, so only the exact Rack classes count)
+inline bool isStaticArtwork(rack::widget::Widget *w) {
+	using namespace rack;
+
+	if (isA<widget::SvgWidget>(w) || isA<app::SvgScrew>(w))
+		return true;
+
+	bool plain_container = isExactly<widget::Widget>(w) || isExactly<widget::TransparentWidget>(w) ||
+						   isExactly<widget::OpaqueWidget>(w) || isExactly<widget::FramebufferWidget>(w);
+
+	return plain_container && std::ranges::all_of(w->children, isStaticArtwork);
+}
+
 // The displays MetaModule could show full-screen for a module.
 //
 // 4ms modules draw each display with a GraphicDisplayWidget, which knows its light index.
@@ -40,6 +66,8 @@ inline std::string demangledClassName(rack::widget::Widget *w) {
 // a param, port, coloured light, screw, SVG image/button, or the panel
 // (see metamodule firmware/vcv_plugin/export/src/app/ModuleWidget.cpp). It identifies them by
 // the top-left position, as MetaModule does: to_mm(widget->box.pos).
+// Widgets that only draw fixed artwork are skipped too: a plugin's MetaModule build often
+// leaves them out, and showing them full-screen would be pointless anyway.
 inline std::vector<ScreensaverDisplayChoice> findScreensaverDisplays(rack::app::ModuleWidget *mw) {
 	using namespace rack;
 
@@ -78,12 +106,12 @@ inline std::vector<ScreensaverDisplayChoice> findScreensaverDisplays(rack::app::
 		if (child == mw->getPanel())
 			continue;
 
-		if (dynamic_cast<app::ParamWidget *>(child) || dynamic_cast<app::PortWidget *>(child) ||
-			dynamic_cast<app::SvgScrew *>(child) || dynamic_cast<widget::SvgWidget *>(child) ||
-			dynamic_cast<app::SvgButton *>(child) || dynamic_cast<app::SvgPanel *>(child))
+		// Compare classes by name (isA), not with dynamic_cast: see derivesFrom()
+		if (isA<app::ParamWidget>(child) || isA<app::PortWidget>(child) || isA<app::SvgButton>(child) ||
+			isA<app::SvgPanel>(child) || isStaticArtwork(child))
 			continue;
 
-		if (auto *light = dynamic_cast<app::ModuleLightWidget *>(child); light && light->getNumColors())
+		if (isA<app::ModuleLightWidget>(child) && static_cast<app::ModuleLightWidget *>(child)->getNumColors())
 			continue;
 
 		if (!big_enough(child) || isHighlight(child))
