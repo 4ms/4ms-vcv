@@ -19,8 +19,8 @@ std::atomic<bool> is_running = false;
 std::atomic<bool> kill_signal = false;
 
 struct SafeWrapper {
-	// Rack does not call plugin destroy() so we need to
-	// use RAII to do cleanup:
+	// Fallback in case rack does not call plugin destroy()
+	// (perhaps when restarting after updating plugins this happens?)
 
 	std::thread async_task_runner;
 
@@ -99,20 +99,11 @@ void kill_module_threads() {
 
 		kill_signal = true;
 
-		auto start = std::chrono::steady_clock::now().time_since_epoch().count() / 1'000'000LL;
+		if (runner.async_task_runner.joinable())
+			runner.async_task_runner.join();
 
-		while (true) {
-			if (runner.async_task_runner.joinable()) {
-				runner.async_task_runner.join();
-				return;
-			}
-
-			auto now = std::chrono::steady_clock::now().time_since_epoch().count() / 1'000'000LL;
-			if (now - start > 3000) {
-				return; //thread crashed, so we just crash on exit?!
-			}
-		}
-
+		// Allow threads to be started again
+		kill_signal = false;
 		is_running = false;
 	}
 }
