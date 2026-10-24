@@ -1,4 +1,5 @@
 #pragma once
+#include "hub/hub_screensaver.hh"
 #include "comm/comm_module.hh"
 #include "hub/hub_module.hh"
 #include "hub/jack_alias.hh"
@@ -45,6 +46,7 @@ struct MetaModuleHubBase : public rack::Module {
 	bool auto_map_audio_outs = pluginSettings.defaultAutoMapAudioOuts;
 	std::map<int64_t, std::string> module_aliases;
 	std::map<int64_t, int> module_alias_colors;
+	HubScreensaverDisplay screensaver_display{};
 
 	std::vector<float> last_knob_val{};
 
@@ -239,6 +241,9 @@ struct MetaModuleHubBase : public rack::Module {
 			json_object_set_new(moduleAliasColorsJ, std::to_string(id).c_str(), json_integer(color));
 		json_object_set_new(rootJ, "ModuleAliasColors", moduleAliasColorsJ);
 
+		if (screensaver_display.is_set())
+			json_object_set_new(rootJ, "ScreensaverDisplay", screensaver_display.encodeJson());
+
 		return rootJ;
 	}
 
@@ -337,6 +342,8 @@ struct MetaModuleHubBase : public rack::Module {
 			}
 		}
 
+		screensaver_display = HubScreensaverDisplay::decodeJson(json_object_get(rootJ, "ScreensaverDisplay"));
+
 		mappings.decodeJson(rootJ);
 	}
 
@@ -346,6 +353,7 @@ struct MetaModuleHubBase : public rack::Module {
 		patchDescText = "";
 		module_aliases.clear();
 		module_alias_colors.clear();
+		screensaver_display = {};
 		mappings.clear_all(ShouldLock::No);
 		mappings.setActiveKnobSetIdx(0);
 		mappings.refreshParamHandles(ShouldLock::No);
