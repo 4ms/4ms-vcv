@@ -5,7 +5,7 @@
 #include "hub/hub_elements.hh"
 #include "hub/knob_set_buttons.hh"
 #include "hub/module_alias.hh"
-#include "hub/screensaver_displays.hh"
+#include "hub/selectable_displays.hh"
 #include "hub_module_widget.hh"
 #include "mapping/vcv_patch_file_writer.hh"
 #include "network/network.hh"
@@ -280,7 +280,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->use_builtin_midi,
 													hubModule->module_aliases,
 													hubModule->auto_map_audio_outs,
-													hubModule->screensaver_display});
+													hubModule->selected_display});
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -305,7 +305,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->use_builtin_midi,
 													hubModule->module_aliases,
 													hubModule->auto_map_audio_outs,
-													hubModule->screensaver_display});
+													hubModule->selected_display});
 		if (yml.size() > 256 * 1024 && pluginSettings.wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -447,14 +447,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		return name;
 	}
 
-	// Name of the chosen screensaver display, for the menu
-	std::string screensaverDisplayName() {
-		if (!hubModule->screensaver_display.is_set())
+	// Name of the selected display, for the menu
+	std::string selectedDisplayName() {
+		if (!hubModule->selected_display.is_set())
 			return "None";
 
 		for (auto &e : includedModules()) {
-			for (auto &d : findScreensaverDisplays(e.widget)) {
-				if (d.display == hubModule->screensaver_display)
+			for (auto &d : findSelectableDisplays(e.widget)) {
+				if (d.display == hubModule->selected_display)
 					return d.name;
 			}
 		}
@@ -573,17 +573,17 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		menu->addChild(new MenuSeparator());
 
-		auto screensaver_menu =
-			createSubmenuItem("MetaModule screensaver", screensaverDisplayName(), [this](Menu *menu) {
+		auto selected_display_menu =
+			createSubmenuItem("MetaModule selected display", selectedDisplayName(), [this](Menu *menu) {
 				menu->addChild(createCheckMenuItem(
 					"None",
 					"",
-					[this]() { return !hubModule->screensaver_display.is_set(); },
-					[this]() { hubModule->screensaver_display = {}; }));
+					[this]() { return !hubModule->selected_display.is_set(); },
+					[this]() { hubModule->selected_display = {}; }));
 
 				bool found_any = false;
 				for (auto &e : includedModules()) {
-					auto displays = findScreensaverDisplays(e.widget);
+					auto displays = findSelectableDisplays(e.widget);
 					if (displays.empty())
 						continue;
 
@@ -592,14 +592,16 @@ struct HubMediumWidget : MetaModuleHubWidget {
 					menu->addChild(createMenuLabel(moduleMenuName(e)));
 
 					for (auto &d : displays) {
-						auto *item = new ScreensaverDisplayMenuItem;
+						auto *item = new SelectedDisplayMenuItem;
 						item->text = d.name;
 						item->moduleId = e.module->getId();
 						item->target = d.widget;
 						item->isChosen = [this, display = d.display]() {
-							return hubModule->screensaver_display == display;
+							return hubModule->selected_display == display;
 						};
-						item->choose = [this, display = d.display]() { hubModule->screensaver_display = display; };
+						item->choose = [this, display = d.display]() {
+							hubModule->selected_display = display;
+						};
 						menu->addChild(item);
 					}
 				}
@@ -609,7 +611,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 					menu->addChild(createMenuLabel("No displays in patch"));
 				}
 			});
-		menu->addChild(screensaver_menu);
+		menu->addChild(selected_display_menu);
 
 		menu->addChild(new MenuSeparator());
 

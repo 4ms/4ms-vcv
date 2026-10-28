@@ -1,5 +1,5 @@
 #include "doctest.h"
-#include "hub/screensaver_names.hh"
+#include "hub/display_names.hh"
 
 using namespace MetaModule;
 

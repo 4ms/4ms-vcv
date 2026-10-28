@@ -345,14 +345,14 @@ void PatchFileWriter::setExpanderConnections(std::vector<std::pair<int64_t, int6
 	}
 }
 
-void PatchFileWriter::setScreensaverDisplay(HubScreensaverDisplay const &ss) {
+void PatchFileWriter::setSelectedDisplay(HubSelectedDisplay const &ss) {
 	if (!ss.is_set() || !idMap.contains(ss.moduleId))
 		return;
 
 	if (ss.lightId)
-		pd.set_screensaver_display(idMap[ss.moduleId], *ss.lightId);
+		pd.set_selected_display(idMap[ss.moduleId], *ss.lightId);
 	else
-		pd.set_screensaver_display_at(idMap[ss.moduleId], ss.x_mm, ss.y_mm);
+		pd.set_selected_display_at(idMap[ss.moduleId], ss.x_mm, ss.y_mm);
 }
 
 void PatchFileWriter::addKnobMapSet(unsigned knobSetId, std::string_view knobSetName) {

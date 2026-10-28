@@ -6,10 +6,10 @@
 namespace MetaModule
 {
 
-// The display chosen in the hub's menu to be the MetaModule screensaver.
+// The display chosen in the hub's menu to be the patch's selected display on MetaModule.
 // 4ms modules' displays are identified by their light index. Other modules' displays are
 // identified by their position, since VCV can't know the light index MetaModule gives them.
-struct HubScreensaverDisplay {
+struct HubSelectedDisplay {
 	int64_t moduleId = -1;
 	std::optional<uint16_t> lightId{};
 	float x_mm = 0;
@@ -19,7 +19,7 @@ struct HubScreensaverDisplay {
 		return moduleId >= 0;
 	}
 
-	bool operator==(HubScreensaverDisplay const &) const = default;
+	bool operator==(HubSelectedDisplay const &) const = default;
 
 	json_t *encodeJson() const {
 		json_t *j = json_object();
@@ -33,8 +33,8 @@ struct HubScreensaverDisplay {
 		return j;
 	}
 
-	static HubScreensaverDisplay decodeJson(json_t *j) {
-		HubScreensaverDisplay ss{};
+	static HubSelectedDisplay decodeJson(json_t *j) {
+		HubSelectedDisplay ss{};
 
 		auto moduleIdJ = json_object_get(j, "ModuleId");
 		if (!json_is_integer(moduleIdJ))

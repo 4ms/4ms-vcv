@@ -1,14 +1,14 @@
 #pragma once
 #include "CoreModules/elements/units.hh"
 #include "comm/comm_module.hh"
-#include "hub/hub_screensaver.hh"
+#include "hub/display_names.hh"
+#include "hub/hub_selected_display.hh"
 #include "hub/rtti_derives.hh"
-#include "hub/screensaver_names.hh"
 #include "widgets/4ms/4ms_widgets.hh"
+#include <algorithm>
 #include <cstdlib>
 #include <cxxabi.h>
 #include <functional>
-#include <algorithm>
 #include <rack.hpp>
 #include <string>
 #include <vector>
@@ -16,11 +16,11 @@
 namespace MetaModule
 {
 
-struct ScreensaverDisplayHighlight;
+struct DisplayHighlight;
 
-struct ScreensaverDisplayChoice {
+struct DisplayChoice {
 	std::string name;
-	HubScreensaverDisplay display;
+	HubSelectedDisplay display;
 	rack::widget::Widget *widget;
 };
 
@@ -68,10 +68,10 @@ inline bool isStaticArtwork(rack::widget::Widget *w) {
 // the top-left position, as MetaModule does: to_mm(widget->box.pos).
 // Widgets that only draw fixed artwork are skipped too: a plugin's MetaModule build often
 // leaves them out, and showing them full-screen would be pointless anyway.
-inline std::vector<ScreensaverDisplayChoice> findScreensaverDisplays(rack::app::ModuleWidget *mw) {
+inline std::vector<DisplayChoice> findSelectableDisplays(rack::app::ModuleWidget *mw) {
 	using namespace rack;
 
-	std::vector<ScreensaverDisplayChoice> choices;
+	std::vector<DisplayChoice> choices;
 	if (!mw || !mw->module)
 		return choices;
 
@@ -130,7 +130,7 @@ inline std::vector<ScreensaverDisplayChoice> findScreensaverDisplays(rack::app::
 }
 
 // Outline drawn over a display while its menu item is hovered
-struct ScreensaverDisplayHighlight : rack::widget::TransparentWidget {
+struct DisplayHighlight : rack::widget::TransparentWidget {
 	void draw(const DrawArgs &args) override {
 		drawOutline(args);
 	}
@@ -154,18 +154,18 @@ struct ScreensaverDisplayHighlight : rack::widget::TransparentWidget {
 
 // Our own outline is not a display
 inline bool isHighlight(rack::widget::Widget *w) {
-	return dynamic_cast<ScreensaverDisplayHighlight *>(w) != nullptr;
+	return dynamic_cast<DisplayHighlight *>(w) != nullptr;
 }
 
 // Menu item for one display: hovering it outlines the display in the rack
-struct ScreensaverDisplayMenuItem : rack::ui::MenuItem {
+struct SelectedDisplayMenuItem : rack::ui::MenuItem {
 	std::function<bool()> isChosen;
 	std::function<void()> choose;
 	int64_t moduleId = -1;
 	rack::widget::Widget *target = nullptr;
-	ScreensaverDisplayHighlight *highlight = nullptr;
+	DisplayHighlight *highlight = nullptr;
 
-	~ScreensaverDisplayMenuItem() override {
+	~SelectedDisplayMenuItem() override {
 		hideHighlight();
 	}
 
@@ -200,7 +200,7 @@ private:
 		if (highlight || !mw || !target || target->parent != mw)
 			return;
 
-		highlight = new ScreensaverDisplayHighlight;
+		highlight = new DisplayHighlight;
 		highlight->box = target->box;
 		mw->addChild(highlight);
 		scrollIntoView(mw);
