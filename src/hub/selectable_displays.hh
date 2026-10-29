@@ -1,0 +1,236 @@
+#pragma once
+#include "CoreModules/elements/units.hh"
+#include "comm/comm_module.hh"
+#include "hub/display_names.hh"
+#include "hub/hub_selected_display.hh"
+#include "hub/rtti_derives.hh"
+#include "widgets/4ms/4ms_widgets.hh"
+#include <algorithm>
+#include <cstdlib>
+#include <cxxabi.h>
+#include <functional>
+#include <rack.hpp>
+#include <string>
+#include <vector>
+
+namespace MetaModule
+{
+
+struct DisplayHighlight;
+
+struct DisplayChoice {
+	std::string name;
+	HubSelectedDisplay display;
+	rack::widget::Widget *widget;
+};
+
+inline bool isHighlight(rack::widget::Widget *w);
+
+inline std::string demangledClassName(rack::widget::Widget *w) {
+	const char *mangled = typeid(*w).name();
+	int status = 0;
+	char *demangled = abi::__cxa_demangle(mangled, nullptr, nullptr, &status);
+	std::string name = (status == 0 && demangled) ? demangled : mangled;
+	std::free(demangled);
+	return name;
+}
+
+template<typename T>
+bool isA(rack::widget::Widget *w) {
+	return derivesFrom(typeid(*w), typeid(T));
+}
+
+template<typename T>
+bool isExactly(rack::widget::Widget *w) {
+	return std::strcmp(typeid(*w).name(), typeid(T).name()) == 0;
+}
+
+// Draws only fixed artwork: SVG images, screws, or plain Rack containers holding only those
+// (a subclass might draw something itself, so only the exact Rack classes count)
+inline bool isStaticArtwork(rack::widget::Widget *w) {
+	using namespace rack;
+
+	if (isA<widget::SvgWidget>(w) || isA<app::SvgScrew>(w))
+		return true;
+
+	bool plain_container = isExactly<widget::Widget>(w) || isExactly<widget::TransparentWidget>(w) ||
+						   isExactly<widget::OpaqueWidget>(w) || isExactly<widget::FramebufferWidget>(w);
+
+	return plain_container && std::ranges::all_of(w->children, isStaticArtwork);
+}
+
+// The displays MetaModule could show full-screen for a module.
+//
+// 4ms modules draw each display with a GraphicDisplayWidget, which knows its light index.
+// For other modules, MetaModule treats a ModuleWidget child as a graphic display if it isn't
+// a param, port, coloured light, screw, SVG image/button, or the panel
+// (see metamodule firmware/vcv_plugin/export/src/app/ModuleWidget.cpp). It identifies them by
+// the top-left position, as MetaModule does: to_mm(widget->box.pos).
+// Widgets that only draw fixed artwork are skipped too: a plugin's MetaModule build often
+// leaves them out, and showing them full-screen would be pointless anyway.
+inline std::vector<DisplayChoice> findSelectableDisplays(rack::app::ModuleWidget *mw) {
+	using namespace rack;
+
+	std::vector<DisplayChoice> choices;
+	if (!mw || !mw->module)
+		return choices;
+
+	auto moduleId = mw->module->getId();
+
+	// MetaModule doesn't show tiny displays full-screen
+	auto big_enough = [](widget::Widget const *w) {
+		return to_mm(w->box.size.x) >= 5 || to_mm(w->box.size.y) >= 5;
+	};
+
+	if (auto *comm = dynamic_cast<CommModule *>(mw->module)) {
+		for (auto *child : mw->children) {
+			auto *display = dynamic_cast<GraphicDisplayWidget *>(child);
+			if (!display || !big_enough(display))
+				continue;
+
+			std::string name = "Display";
+			for (auto i = 0u; i < comm->info.elements.size() && i < comm->info.indices.size(); i++) {
+				if (comm->info.indices[i].light_idx == display->display_idx) {
+					name = base_element(comm->info.elements[i]).short_name;
+					break;
+				}
+			}
+
+			choices.push_back({name, {.moduleId = moduleId, .lightId = (uint16_t)display->display_idx}, display});
+		}
+		return choices;
+	}
+
+	std::vector<std::string> class_names;
+	for (auto *child : mw->children) {
+		if (child == mw->getPanel())
+			continue;
+
+		// Compare classes by name (isA), not with dynamic_cast: see derivesFrom()
+		if (isA<app::ParamWidget>(child) || isA<app::PortWidget>(child) || isA<app::SvgButton>(child) ||
+			isA<app::SvgPanel>(child) || isStaticArtwork(child))
+			continue;
+
+		if (isA<app::ModuleLightWidget>(child) && static_cast<app::ModuleLightWidget *>(child)->getNumColors())
+			continue;
+
+		if (!big_enough(child) || isHighlight(child))
+			continue;
+
+		class_names.push_back(displayNameFromClass(demangledClassName(child)));
+		choices.push_back(
+			{"", {.moduleId = moduleId, .x_mm = to_mm(child->box.pos.x), .y_mm = to_mm(child->box.pos.y)}, child});
+	}
+
+	auto names = nameDisplays(class_names);
+	for (auto i = 0u; i < choices.size(); i++)
+		choices[i].name = names[i];
+
+	return choices;
+}
+
+// Outline drawn over a display while its menu item is hovered
+struct DisplayHighlight : rack::widget::TransparentWidget {
+	void draw(const DrawArgs &args) override {
+		drawOutline(args);
+	}
+
+	// Also draw on the light layer, so it shows over self-lit displays and in a dim room
+	void drawLayer(const DrawArgs &args, int layer) override {
+		if (layer == 1)
+			drawOutline(args);
+	}
+
+	void drawOutline(const DrawArgs &args) {
+		nvgBeginPath(args.vg);
+		nvgRect(args.vg, -2, -2, box.size.x + 4, box.size.y + 4);
+		nvgFillColor(args.vg, nvgRGBA(0xfd, 0x8b, 0x18, 0x40));
+		nvgFill(args.vg);
+		nvgStrokeColor(args.vg, nvgRGBA(0xfd, 0x8b, 0x18, 0xff));
+		nvgStrokeWidth(args.vg, 2);
+		nvgStroke(args.vg);
+	}
+};
+
+// Our own outline is not a display
+inline bool isHighlight(rack::widget::Widget *w) {
+	return dynamic_cast<DisplayHighlight *>(w) != nullptr;
+}
+
+// Menu item for one display: hovering it outlines the display in the rack
+struct SelectedDisplayMenuItem : rack::ui::MenuItem {
+	std::function<bool()> isChosen;
+	std::function<void()> choose;
+	int64_t moduleId = -1;
+	rack::widget::Widget *target = nullptr;
+	DisplayHighlight *highlight = nullptr;
+
+	~SelectedDisplayMenuItem() override {
+		hideHighlight();
+	}
+
+	void step() override {
+		rightText = CHECKMARK(isChosen && isChosen());
+		MenuItem::step();
+	}
+
+	void onAction(const ActionEvent &e) override {
+		if (choose)
+			choose();
+	}
+
+	void onEnter(const EnterEvent &e) override {
+		MenuItem::onEnter(e);
+		showHighlight();
+	}
+
+	void onLeave(const LeaveEvent &e) override {
+		MenuItem::onLeave(e);
+		hideHighlight();
+	}
+
+private:
+	// The module may have been deleted since the menu was made
+	rack::app::ModuleWidget *moduleWidget() {
+		return APP->scene->rack->getModule(moduleId);
+	}
+
+	void showHighlight() {
+		auto *mw = moduleWidget();
+		if (highlight || !mw || !target || target->parent != mw)
+			return;
+
+		highlight = new DisplayHighlight;
+		highlight->box = target->box;
+		mw->addChild(highlight);
+		scrollIntoView(mw);
+	}
+
+	void hideHighlight() {
+		if (!highlight)
+			return;
+		if (auto *mw = moduleWidget()) {
+			mw->removeChild(highlight);
+			delete highlight;
+		}
+		highlight = nullptr;
+	}
+
+	// Scroll the rack if the module is (partly) out of view
+	static void scrollIntoView(rack::app::ModuleWidget *mw) {
+		using namespace rack;
+		auto *scroll = APP->scene->rackScroll;
+
+		math::Rect module_rect = math::Rect::fromMinMax(mw->getRelativeOffset(math::Vec{}, APP->scene),
+														mw->getRelativeOffset(mw->box.size, APP->scene));
+		math::Rect view{scroll->getRelativeOffset(math::Vec{}, APP->scene), scroll->box.size};
+		if (view.contains(module_rect))
+			return;
+
+		// scrollTo() takes a rect in the scroll container's coordinates
+		auto container_pos = scroll->container->getRelativeOffset(math::Vec{}, APP->scene);
+		scroll->scrollTo(math::Rect{module_rect.pos.minus(container_pos), module_rect.size});
+	}
+};
+
+} // namespace MetaModule

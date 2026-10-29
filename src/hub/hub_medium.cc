@@ -5,6 +5,7 @@
 #include "hub/hub_elements.hh"
 #include "hub/knob_set_buttons.hh"
 #include "hub/module_alias.hh"
+#include "hub/selectable_displays.hh"
 #include "hub_module_widget.hh"
 #include "mapping/vcv_patch_file_writer.hh"
 #include "network/network.hh"
@@ -278,7 +279,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->use_glue_labels,
 													hubModule->use_builtin_midi,
 													hubModule->module_aliases,
-													hubModule->auto_map_audio_outs});
+													hubModule->auto_map_audio_outs,
+													hubModule->selected_display});
 		PatchFileWriter::writeToFile(patchFileName, yml);
 	}
 
@@ -302,7 +304,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->use_glue_labels,
 													hubModule->use_builtin_midi,
 													hubModule->module_aliases,
-													hubModule->auto_map_audio_outs});
+													hubModule->auto_map_audio_outs,
+													hubModule->selected_display});
 		if (yml.size() > 256 * 1024 && pluginSettings.wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -356,6 +359,106 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			}
 			free(addr);
 		}
+	}
+
+	struct ModuleEntry {
+		rack::app::ModuleWidget *widget;
+		rack::Module *module;
+	};
+
+	// The modules that will be in the exported patch (per "Include modules from"),
+	// sorted by their position in the rack
+	std::vector<ModuleEntry> includedModules() {
+		using namespace rack;
+		auto engine = APP->engine;
+
+		std::vector<ModuleEntry> entries;
+
+		auto addIfRegular = [&](rack::Module *module) {
+			if (!ModuleDirectory::isRegularModule(module, hubModule->use_builtin_midi))
+				return;
+			auto *mw = APP->scene->rack->getModule(module->getId());
+			if (mw)
+				entries.push_back({mw, module});
+		};
+
+		if (hubModule->mappingMode == MappingMode::ALL) {
+			for (auto id : engine->getModuleIds())
+				addIfRegular(engine->getModule(id));
+
+		} else if (hubModule->mappingMode == MappingMode::CONNECTED) {
+			std::set<int64_t> connected;
+			connected.insert(hubModule->id);
+			auto cable_ids = engine->getCableIds();
+			unsigned num_found = 0;
+			while (connected.size() != num_found) {
+				num_found = connected.size();
+				for (auto cable_id : cable_ids) {
+					auto *cable = engine->getCable(cable_id);
+					if (cable->inputModule && cable->outputModule) {
+						auto in_id = cable->inputModule->getId();
+						auto out_id = cable->outputModule->getId();
+						if (connected.count(in_id))
+							connected.insert(out_id);
+						else if (connected.count(out_id))
+							connected.insert(in_id);
+					}
+				}
+			}
+			for (auto id : connected)
+				addIfRegular(engine->getModule(id));
+
+		} else {
+			if (hubModule->mappingMode == MappingMode::LEFTRIGHT || hubModule->mappingMode == MappingMode::LEFT) {
+				auto *module = engine->getModule(hubModule->id);
+				while (module) {
+					addIfRegular(module);
+					if (module->leftExpander.moduleId < 0)
+						break;
+					module = module->leftExpander.module;
+				}
+			}
+			if (hubModule->mappingMode == MappingMode::LEFTRIGHT || hubModule->mappingMode == MappingMode::RIGHT) {
+				auto *module = engine->getModule(hubModule->id);
+				while (module) {
+					addIfRegular(module);
+					if (module->rightExpander.moduleId < 0)
+						break;
+					module = module->rightExpander.module;
+				}
+			}
+		}
+
+		std::sort(entries.begin(), entries.end(), [](auto &a, auto &b) {
+			auto pa = a.widget->getBox().pos;
+			auto pb = b.widget->getBox().pos;
+			if (pa.y != pb.y)
+				return pa.y < pb.y;
+			return pa.x < pb.x;
+		});
+
+		return entries;
+	}
+
+	std::string moduleMenuName(ModuleEntry const &e) {
+		std::string name = e.module->model->plugin->name + " " + e.module->model->name;
+		if (auto it = hubModule->module_aliases.find(e.module->getId()); it != hubModule->module_aliases.end())
+			name = it->second + " (" + name + ")";
+		return name;
+	}
+
+	// Name of the selected display, for the menu
+	std::string selectedDisplayName() {
+		if (!hubModule->selected_display.is_set())
+			return "None";
+
+		for (auto &e : includedModules()) {
+			for (auto &d : findSelectableDisplays(e.widget)) {
+				if (d.display == hubModule->selected_display)
+					return d.name;
+			}
+		}
+		return "Not in patch";
 	}
 
 	void appendContextMenu(rack::Menu *menu) override {
@@ -416,76 +519,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		menu->addChild(new MenuSeparator());
 
 		auto module_alias_menu = createSubmenuItem("Module Aliases", "", [this](Menu *menu) {
-			auto engine = APP->engine;
-
-			struct ModuleEntry {
-				rack::app::ModuleWidget *widget;
-				rack::Module *module;
-			};
-			std::vector<ModuleEntry> entries;
-
-			auto addIfRegular = [&](rack::Module *module) {
-				if (!ModuleDirectory::isRegularModule(module, hubModule->use_builtin_midi))
-					return;
-				auto *mw = APP->scene->rack->getModule(module->getId());
-				if (mw)
-					entries.push_back({mw, module});
-			};
-
-			if (hubModule->mappingMode == MappingMode::ALL) {
-				for (auto id : engine->getModuleIds())
-					addIfRegular(engine->getModule(id));
-
-			} else if (hubModule->mappingMode == MappingMode::CONNECTED) {
-				std::set<int64_t> connected;
-				connected.insert(hubModule->id);
-				auto cable_ids = engine->getCableIds();
-				unsigned num_found = 0;
-				while (connected.size() != num_found) {
-					num_found = connected.size();
-					for (auto cable_id : cable_ids) {
-						auto *cable = engine->getCable(cable_id);
-						if (cable->inputModule && cable->outputModule) {
-							auto in_id = cable->inputModule->getId();
-							auto out_id = cable->outputModule->getId();
-							if (connected.count(in_id))
-								connected.insert(out_id);
-							else if (connected.count(out_id))
-								connected.insert(in_id);
-						}
-					}
-				}
-				for (auto id : connected)
-					addIfRegular(engine->getModule(id));
-
-			} else {
-				if (hubModule->mappingMode == MappingMode::LEFTRIGHT || hubModule->mappingMode == MappingMode::LEFT) {
-					auto *module = engine->getModule(hubModule->id);
-					while (module) {
-						addIfRegular(module);
-						if (module->leftExpander.moduleId < 0)
-							break;
-						module = module->leftExpander.module;
-					}
-				}
-				if (hubModule->mappingMode == MappingMode::LEFTRIGHT || hubModule->mappingMode == MappingMode::RIGHT) {
-					auto *module = engine->getModule(hubModule->id);
-					while (module) {
-						addIfRegular(module);
-						if (module->rightExpander.moduleId < 0)
-							break;
-						module = module->rightExpander.module;
-					}
-				}
-			}
-
-			std::sort(entries.begin(), entries.end(), [](auto &a, auto &b) {
-				auto pa = a.widget->getBox().pos;
-				auto pb = b.widget->getBox().pos;
-				if (pa.y != pb.y)
-					return pa.y < pb.y;
-				return pa.x < pb.x;
-			});
+			auto entries = includedModules();
 
 			if (entries.empty()) {
 				menu->addChild(createMenuLabel("No modules in patch"));
@@ -536,6 +570,48 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			"",
 			[this]() { return hubModule->use_glue_labels; },
 			[this]() { hubModule->setUseGlueLabels(!hubModule->use_glue_labels); }));
+
+		menu->addChild(new MenuSeparator());
+
+		auto selected_display_menu =
+			createSubmenuItem("MetaModule selected display", selectedDisplayName(), [this](Menu *menu) {
+				menu->addChild(createCheckMenuItem(
+					"None",
+					"",
+					[this]() { return !hubModule->selected_display.is_set(); },
+					[this]() { hubModule->selected_display = {}; }));
+
+				bool found_any = false;
+				for (auto &e : includedModules()) {
+					auto displays = findSelectableDisplays(e.widget);
+					if (displays.empty())
+						continue;
+
+					found_any = true;
+					menu->addChild(new MenuSeparator());
+					menu->addChild(createMenuLabel(moduleMenuName(e)));
+
+					for (auto &d : displays) {
+						auto *item = new SelectedDisplayMenuItem;
+						item->text = d.name;
+						item->moduleId = e.module->getId();
+						item->target = d.widget;
+						item->isChosen = [this, display = d.display]() {
+							return hubModule->selected_display == display;
+						};
+						item->choose = [this, display = d.display]() {
+							hubModule->selected_display = display;
+						};
+						menu->addChild(item);
+					}
+				}
+
+				if (!found_any) {
+					menu->addChild(new MenuSeparator());
+					menu->addChild(createMenuLabel("No displays in patch"));
+				}
+			});
+		menu->addChild(selected_display_menu);
 
 		menu->addChild(new MenuSeparator());
 
