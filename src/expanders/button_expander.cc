@@ -72,7 +72,7 @@ void ButtonExpanderModule::dataFromJson(json_t *rootJ) {
 
 	auto expIdJ = json_object_get(rootJ, "ButtonExpanderId");
 	if (json_is_integer(expIdJ)) {
-		buttonExpanderId = std::clamp<unsigned>(json_integer_value(expIdJ), 0u, MaxButtonExpanders - 1);
+		buttonExpanderId = std::clamp<unsigned>(json_integer_value(expIdJ), 0u, MetaModule::Expander::Button::MaxExpanders - 1);
 	}
 
 	auto aliasJ = json_object_get(rootJ, "Alias");
@@ -114,7 +114,7 @@ IndexLabel::IndexLabel(ButtonExpanderModule *module)
 void IndexLabel::onButton(const ButtonEvent &e) {
 	if (e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS && e.mods == 0) {
 		if (parent) {
-			if (parent->buttonExpanderId >= (MaxButtonExpanders - 1))
+			if (parent->buttonExpanderId >= (MetaModule::Expander::Button::MaxExpanders - 1))
 				parent->buttonExpanderId = 0;
 			else
 				parent->buttonExpanderId++;

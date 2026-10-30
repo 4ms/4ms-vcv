@@ -1,6 +1,6 @@
 #pragma once
-#include "CoreModules/hub/audio_expander_defs.hh"
-#include "CoreModules/hub/panel_medium_defs.hh"
+#include "patch/panels/medium/audio_expander_defs.hh"
+#include "patch/panels/medium/button_expander_defs.hh"
 #include "mapping/JackMap.hh"
 #include "mapping/module_directory.hh"
 #include <cstdint>
@@ -14,7 +14,7 @@ struct ExpanderMappings {
 private:
 	int64_t audio_exp_module_id = -1;
 
-	constexpr static size_t MaxButtonExpanders = 4;
+	constexpr static size_t MaxButtonExpanders = Expander::Button::MaxExpanders;
 	std::vector<int64_t> button_exps{};
 
 public:

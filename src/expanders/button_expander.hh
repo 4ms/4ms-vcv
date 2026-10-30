@@ -2,7 +2,7 @@
 #include "CoreModules/hub/MMButtonExpander_info.hh"
 #include "hub/hub_module.hh"
 #include "hub/hub_module_widget.hh"
-#include "patch/mapping_ids.hh"
+#include "patch/panels/medium/button_expander_defs.hh"
 
 namespace MetaModule
 {

@@ -330,7 +330,7 @@ struct VCVPatchFileWriter {
 		for (auto moduleID : button_exps) {
 			auto *module = engine->getModule(moduleID);
 			if (auto buttonExp = dynamic_cast<ButtonExpanderModule *>(module)) {
-				const auto firstButtonParamId = FirstButton + (buttonExp->buttonExpanderId * ButtonsPerExpander);
+				const auto firstButtonParamId = FirstButton + (buttonExp->buttonExpanderId * Expander::Button::NumButtonsPerExpander);
 				addAllMappings(firstButtonParamId, pw, buttonExp->mappings);
 			}
 		}
