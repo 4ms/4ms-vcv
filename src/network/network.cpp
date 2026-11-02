@@ -1,3 +1,5 @@
+#include "network.hh"
+#include <mutex>
 #include <span>
 #include <string>
 #include <vector>
@@ -72,8 +74,13 @@ static std::string getCookieString(const rack::network::CookieMap &cookies) {
 std::vector<uint8_t> requestRaw(rack::network::Method method,
 								const std::string &url,
 								const std::span<uint8_t> &reqStr,
-								const rack::network::CookieMap &cookies) {
+								const rack::network::CookieMap &cookies,
+								const RequestOptions &options) {
 	using namespace rack::network;
+
+	// The MetaModule handles one Wi-Fi request at a time
+	static std::mutex request_mutex;
+	std::lock_guard lock{request_mutex};
 
 	std::string urlS = url;
 	CURL *curl = createCurl();
@@ -93,7 +100,8 @@ std::vector<uint8_t> requestRaw(rack::network::Method method,
 
 	// Set headers
 	struct curl_slist *headers = NULL;
-	headers = curl_slist_append(headers, "bridge-timeout-ms: 10000");
+	auto timeout_header = "bridge-timeout-ms: " + std::to_string(options.bridge_timeout_ms);
+	headers = curl_slist_append(headers, timeout_header.c_str());
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
 	// Cookies
@@ -112,9 +120,12 @@ std::vector<uint8_t> requestRaw(rack::network::Method method,
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resBytes);
 
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5);
+	if (options.total_timeout_ms > 0)
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, options.total_timeout_ms);
 
 	// Perform request
-	INFO("Requesting Raw %s %s", methodNames[method].c_str(), urlS.c_str());
+	if (options.log)
+		INFO("Requesting Raw %s %s", methodNames[method].c_str(), urlS.c_str());
 	CURLcode res = curl_easy_perform(curl);
 
 	// Cleanup
@@ -122,7 +133,8 @@ std::vector<uint8_t> requestRaw(rack::network::Method method,
 	curl_slist_free_all(headers);
 
 	if (res != CURLE_OK) {
-		WARN("Could not request %s: %s", urlS.c_str(), curl_easy_strerror(res));
+		if (options.log)
+			WARN("Could not request %s: %s", urlS.c_str(), curl_easy_strerror(res));
 		return {};
 	}
 

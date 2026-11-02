@@ -20,6 +20,7 @@ TEST_SOURCES += lib/patch-serial/ryml/ryml_serial.cc
 TEST_SOURCES += lib/patch-serial/ryml/ryml_init.cc
 TEST_SOURCES += src/mapping/patch_writer.cc
 TEST_SOURCES += src/flatbuffers/encode.cc
+TEST_SOURCES += src/hub/wifi_status_poller.cc
 TEST_SOURCES += $(wildcard $(RYMLDIR)/src/c4/yml/*.cpp)
 TEST_SOURCES += $(wildcard $(RYMLDIR)/ext/c4core/src/c4/*.cpp)
 TEST_SOURCES += $(wildcard $(JANSSON_DIR)/*.c)
