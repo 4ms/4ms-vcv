@@ -394,7 +394,8 @@ struct UploadPatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CONTENT = 4,
     VT_VOLUME = 6,
-    VT_FILENAME = 8
+    VT_FILENAME = 8,
+    VT_LOAD_AFTER_SAVE = 10
   };
   const ::flatbuffers::Vector<uint8_t> *content() const {
     return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_CONTENT);
@@ -414,6 +415,12 @@ struct UploadPatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::String *mutable_filename() {
     return GetPointer<::flatbuffers::String *>(VT_FILENAME);
   }
+  bool load_after_save() const {
+    return GetField<uint8_t>(VT_LOAD_AFTER_SAVE, 0) != 0;
+  }
+  bool mutate_load_after_save(bool _load_after_save = 0) {
+    return SetField<uint8_t>(VT_LOAD_AFTER_SAVE, static_cast<uint8_t>(_load_after_save), 0);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_CONTENT) &&
@@ -422,6 +429,7 @@ struct UploadPatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyString(volume()) &&
            VerifyOffset(verifier, VT_FILENAME) &&
            verifier.VerifyString(filename()) &&
+           VerifyField<uint8_t>(verifier, VT_LOAD_AFTER_SAVE, 1) &&
            verifier.EndTable();
   }
 };
@@ -439,6 +447,9 @@ struct UploadPatchBuilder {
   void add_filename(::flatbuffers::Offset<::flatbuffers::String> filename) {
     fbb_.AddOffset(UploadPatch::VT_FILENAME, filename);
   }
+  void add_load_after_save(bool load_after_save) {
+    fbb_.AddElement<uint8_t>(UploadPatch::VT_LOAD_AFTER_SAVE, static_cast<uint8_t>(load_after_save), 0);
+  }
   explicit UploadPatchBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -454,11 +465,13 @@ inline ::flatbuffers::Offset<UploadPatch> CreateUploadPatch(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> content = 0,
     ::flatbuffers::Offset<::flatbuffers::String> volume = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> filename = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> filename = 0,
+    bool load_after_save = false) {
   UploadPatchBuilder builder_(_fbb);
   builder_.add_filename(filename);
   builder_.add_volume(volume);
   builder_.add_content(content);
+  builder_.add_load_after_save(load_after_save);
   return builder_.Finish();
 }
 
@@ -466,7 +479,8 @@ inline ::flatbuffers::Offset<UploadPatch> CreateUploadPatchDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const std::vector<uint8_t> *content = nullptr,
     const char *volume = nullptr,
-    const char *filename = nullptr) {
+    const char *filename = nullptr,
+    bool load_after_save = false) {
   auto content__ = content ? _fbb.CreateVector<uint8_t>(*content) : 0;
   auto volume__ = volume ? _fbb.CreateString(volume) : 0;
   auto filename__ = filename ? _fbb.CreateString(filename) : 0;
@@ -474,14 +488,16 @@ inline ::flatbuffers::Offset<UploadPatch> CreateUploadPatchDirect(
       _fbb,
       content__,
       volume__,
-      filename__);
+      filename__,
+      load_after_save);
 }
 
 struct Result FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ResultBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_SUCCESS = 4,
-    VT_MESSAGE = 6
+    VT_MESSAGE = 6,
+    VT_LOAD_REQUESTED = 8
   };
   bool success() const {
     return GetField<uint8_t>(VT_SUCCESS, 0) != 0;
@@ -495,11 +511,18 @@ struct Result FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::String *mutable_message() {
     return GetPointer<::flatbuffers::String *>(VT_MESSAGE);
   }
+  bool load_requested() const {
+    return GetField<uint8_t>(VT_LOAD_REQUESTED, 0) != 0;
+  }
+  bool mutate_load_requested(bool _load_requested = 0) {
+    return SetField<uint8_t>(VT_LOAD_REQUESTED, static_cast<uint8_t>(_load_requested), 0);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_SUCCESS, 1) &&
            VerifyOffset(verifier, VT_MESSAGE) &&
            verifier.VerifyString(message()) &&
+           VerifyField<uint8_t>(verifier, VT_LOAD_REQUESTED, 1) &&
            verifier.EndTable();
   }
 };
@@ -513,6 +536,9 @@ struct ResultBuilder {
   }
   void add_message(::flatbuffers::Offset<::flatbuffers::String> message) {
     fbb_.AddOffset(Result::VT_MESSAGE, message);
+  }
+  void add_load_requested(bool load_requested) {
+    fbb_.AddElement<uint8_t>(Result::VT_LOAD_REQUESTED, static_cast<uint8_t>(load_requested), 0);
   }
   explicit ResultBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -528,9 +554,11 @@ struct ResultBuilder {
 inline ::flatbuffers::Offset<Result> CreateResult(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     bool success = false,
-    ::flatbuffers::Offset<::flatbuffers::String> message = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> message = 0,
+    bool load_requested = false) {
   ResultBuilder builder_(_fbb);
   builder_.add_message(message);
+  builder_.add_load_requested(load_requested);
   builder_.add_success(success);
   return builder_.Finish();
 }
@@ -538,12 +566,14 @@ inline ::flatbuffers::Offset<Result> CreateResult(
 inline ::flatbuffers::Offset<Result> CreateResultDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     bool success = false,
-    const char *message = nullptr) {
+    const char *message = nullptr,
+    bool load_requested = false) {
   auto message__ = message ? _fbb.CreateString(message) : 0;
   return CreateResult(
       _fbb,
       success,
-      message__);
+      message__,
+      load_requested);
 }
 
 struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {

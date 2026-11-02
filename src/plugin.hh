@@ -13,6 +13,7 @@ struct PluginSettings {
 	std::string wifiUrl = "";
 	Volume wifiVolume = Volume::Card;
 	CpuMonitor wifiCpuMonitor = CpuMonitor::Off;
+	bool wifiLoadAfterSend = false;
 
 	// Defaults inherited by newly created hub modules:
 	MappingMode defaultMappingMode = MappingMode::ALL;

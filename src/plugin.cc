@@ -84,6 +84,7 @@ void MetaModule::PluginSettings::encodeJson(json_t *rootJ) const {
 	json_object_set_new(rootJ, "wifiUrl", json_string(wifiUrl.c_str()));
 	json_object_set_new(rootJ, "wifiPath", json_integer((unsigned)wifiVolume));
 	write_cpu_monitor_setting(rootJ, wifiCpuMonitor);
+	json_object_set_new(rootJ, "wifiLoadAfterSend", json_boolean(wifiLoadAfterSend));
 	json_object_set_new(rootJ, "defaultMappingMode", json_integer((unsigned)defaultMappingMode));
 	json_object_set_new(rootJ, "defaultUseGlueLabels", json_boolean(defaultUseGlueLabels));
 	json_object_set_new(rootJ, "defaultUseBuiltinMidi", json_boolean(defaultUseBuiltinMidi));
@@ -130,6 +131,9 @@ void MetaModule::PluginSettings::decodeJson(json_t *rootJ) {
 	defaultAutoMapAudioOuts = json_is_boolean(autoMapAudioOutsJ) ? json_boolean_value(autoMapAudioOutsJ) : false;
 
 	wifiCpuMonitor = read_cpu_monitor_setting(rootJ);
+
+	auto loadAfterSendJ = json_object_get(rootJ, "wifiLoadAfterSend");
+	wifiLoadAfterSend = json_is_boolean(loadAfterSendJ) ? json_boolean_value(loadAfterSendJ) : false;
 }
 
 extern "C" __attribute__((__visibility__("default"))) json_t *settingsToJson() {

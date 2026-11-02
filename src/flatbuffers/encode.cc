@@ -6,13 +6,16 @@
 namespace MetaModule::FlatBuffers
 {
 
-std::vector<uint8_t> encode_file(std::string_view filename, std::string_view contents, std::string_view volume) {
+std::vector<uint8_t> encode_file(std::string_view filename,
+								 std::string_view contents,
+								 std::string_view volume,
+								 bool load_after_save) {
 	flatbuffers::FlatBufferBuilder fbb;
 
 	auto contentsF = fbb.CreateVector((uint8_t *)contents.data(), contents.size());
 	auto volumeF = fbb.CreateString(volume);
 	auto filenameF = fbb.CreateString(filename);
-	auto upload_patch = CreateUploadPatch(fbb, contentsF, volumeF, filenameF);
+	auto upload_patch = CreateUploadPatch(fbb, contentsF, volumeF, filenameF, load_after_save);
 
 	auto message = CreateMessage(fbb, AnyMessage_UploadPatch, upload_patch.Union());
 	fbb.Finish(message);
@@ -49,6 +52,15 @@ std::pair<bool, std::string> decode_response(std::vector<uint8_t> rawmsg) {
 
 bool is_bridge_timeout(std::span<const uint8_t> rawmsg) {
 	return std::string_view{(const char *)rawmsg.data(), rawmsg.size()} == "Request timed out";
+}
+
+bool decode_load_requested(std::span<const uint8_t> rawmsg) {
+	auto verifier = flatbuffers::Verifier(rawmsg.data(), rawmsg.size());
+	if (!VerifyMessageBuffer(verifier))
+		return false;
+
+	auto result = GetMessage(rawmsg.data())->content_as_Result();
+	return result && result->load_requested();
 }
 
 std::vector<uint8_t> encode_status_request(bool include_modules) {

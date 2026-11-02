@@ -370,13 +370,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		std::string vol_string = (size_t)pluginSettings.wifiVolume < volumeLabels.size() ? volumeLabels[pluginSettings.wifiVolume] : "Card";
 
-		auto encoded = FlatBuffers::encode_file(patchFileName, yml, vol_string);
+		auto encoded = FlatBuffers::encode_file(patchFileName, yml, vol_string, pluginSettings.wifiLoadAfterSend);
 		auto response_message = network::requestRaw(rack::network::Method::METHOD_POST, pluginSettings.wifiUrl + "/action", encoded);
 		auto [success, response] = FlatBuffers::decode_response(response_message);
 
 		wifiResponseLabel->showFor(120);
 		if (success) {
-			wifiResponseLabel->text = "Sent patch file";
+			wifiResponseLabel->text =
+				FlatBuffers::decode_load_requested(response_message) ? "Sent patch file, loading" : "Sent patch file";
 
 			auto ids = APP->engine->getModuleIds();
 			sentPatch = SentPatch{std::move(idMap),
@@ -434,6 +435,11 @@ struct HubMediumWidget : MetaModuleHubWidget {
 				pluginSettings.wifiVolume = Volume(index);
 				wifiConnectionLabel->text = formatWifiStatus();
 			}));
+		menu->addChild(createBoolMenuItem(
+			"Load patch after send",
+			"",
+			[]() { return pluginSettings.wifiLoadAfterSend; },
+			[](bool load) { pluginSettings.wifiLoadAfterSend = load; }));
 		menu->addChild(createIndexSubmenuItem(
 			"Wi-Fi live CPU load monitor",
 			cpuMonitorLabels,

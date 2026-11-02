@@ -7,11 +7,17 @@
 
 namespace MetaModule::FlatBuffers
 {
-std::vector<uint8_t> encode_file(std::string_view filename, std::string_view contents, std::string_view volume);
+std::vector<uint8_t> encode_file(std::string_view filename,
+								 std::string_view contents,
+								 std::string_view volume,
+								 bool load_after_save = false);
 std::pair<bool, std::string> decode_response(std::vector<uint8_t> rawmsg);
 
 // The Wi-Fi Expander answered, but the MetaModule didn't (e.g. its firmware doesn't know the request)
 bool is_bridge_timeout(std::span<const uint8_t> rawmsg);
+
+// The MetaModule will load and play the patch it saved (false from firmware without this feature)
+bool decode_load_requested(std::span<const uint8_t> rawmsg);
 
 struct WifiStatus {
 	uint8_t cpu_load;

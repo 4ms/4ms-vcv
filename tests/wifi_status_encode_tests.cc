@@ -101,6 +101,29 @@ TEST_CASE("decodes patch fingerprint") {
 	CHECK(decoded->patch_fingerprint == 89770027u);
 }
 
+TEST_CASE("upload asks to load the patch only when told to") {
+	auto plain = encode_file("My Patch.yml", "contents", "Card");
+	CHECK_FALSE(GetMessage(plain.data())->content_as_UploadPatch()->load_after_save());
+
+	auto with_load = encode_file("My Patch.yml", "contents", "Card", true);
+	CHECK(GetMessage(with_load.data())->content_as_UploadPatch()->load_after_save());
+}
+
+TEST_CASE("upload reply says if the patch will be loaded") {
+	auto reply = [](bool load_requested) {
+		flatbuffers::FlatBufferBuilder fbb;
+		auto result = CreateResult(fbb, true, 0, load_requested);
+		fbb.Finish(CreateMessage(fbb, AnyMessage_Result, result.Union()));
+		auto span = fbb.GetBufferSpan();
+		return std::vector<uint8_t>{span.begin(), span.end()};
+	};
+
+	CHECK(decode_load_requested(reply(true)));
+	CHECK_FALSE(decode_load_requested(reply(false)));
+	CHECK_FALSE(decode_load_requested(make_result_message())); // old firmware: no such field
+	CHECK_FALSE(decode_load_requested(std::vector<uint8_t>{0x12, 0x34}));
+}
+
 TEST_CASE("reply without per-module fields decodes with empty loads") {
 	auto decoded = decode_status_response(make_status_message(47, true));
 	REQUIRE(decoded.has_value());
