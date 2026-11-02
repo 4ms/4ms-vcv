@@ -10,6 +10,9 @@ namespace MetaModule::FlatBuffers
 std::vector<uint8_t> encode_file(std::string_view filename, std::string_view contents, std::string_view volume);
 std::pair<bool, std::string> decode_response(std::vector<uint8_t> rawmsg);
 
+// The Wi-Fi Expander answered, but the MetaModule didn't (e.g. its firmware doesn't know the request)
+bool is_bridge_timeout(std::span<const uint8_t> rawmsg);
+
 struct WifiStatus {
 	uint8_t cpu_load;
 	bool playing;
@@ -22,6 +25,9 @@ struct WifiStatus {
 	std::vector<uint8_t> module_cores{}; // core each module runs on (empty: no load balancing info)
 	std::vector<uint16_t> core_loads{};	 // each core's modules + cables, tenths of a percent
 	uint32_t patch_fingerprint = 0; // of the playing patch, 0 if not sent
+
+	// Not part of the reply: whether the request asked for per-module loads
+	bool modules_requested = false;
 
 	bool operator==(WifiStatus const &) const = default;
 };

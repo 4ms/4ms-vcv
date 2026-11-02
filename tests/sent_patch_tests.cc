@@ -29,6 +29,22 @@ WifiStatus playing_status() {
 
 } // namespace
 
+TEST_CASE("firmware without per-module loads is reported") {
+	auto status = playing_status();
+	status.modules_requested = true;
+	status.patch_fingerprint = 0; // firmware that only knows the total CPU load
+	status.module_loads = {};
+	status.module_loads_valid = false;
+
+	CHECK(sync_state(std::nullopt, {100}, status) == SyncState::FirmwareUnsupported);
+	auto sent = sent_patch();
+	CHECK(sync_state(sent, sent.rack_module_ids, status) == SyncState::FirmwareUnsupported);
+
+	// A reply to a request without per-module loads says nothing about the firmware
+	status.modules_requested = false;
+	CHECK(sync_state(sent, sent.rack_module_ids, status) == SyncState::NoData);
+}
+
 TEST_CASE("nothing sent yet is not synced") {
 	CHECK(sync_state(std::nullopt, {100, 200}, playing_status()) == SyncState::NotSynced);
 }

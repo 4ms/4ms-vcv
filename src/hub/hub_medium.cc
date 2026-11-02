@@ -689,7 +689,9 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			}
 		}
 
-		if (state == SyncState::NotSynced)
+		if (state == SyncState::FirmwareUnsupported || WifiStatusPoller::instance().metamodule_not_answering())
+			texts[hubModule->id] = "Update MetaModule Firmware";
+		else if (state == SyncState::NotSynced)
 			texts[hubModule->id] = "Send patch to sync with MetaModule";
 		else if (state == SyncState::Synced)
 			texts[hubModule->id] = format_hub_loads(*status);

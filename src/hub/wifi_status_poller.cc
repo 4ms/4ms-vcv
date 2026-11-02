@@ -32,8 +32,10 @@ void WifiStatusPoller::set_active(bool is_active) {
 		std::lock_guard lock{mtx};
 		active = is_active;
 
-		if (!active)
+		if (!active) {
 			status.reset();
+			bridge_timeouts = 0;
+		}
 
 		// The thread is started once and sleeps while inactive,
 		// so stopping never waits for a request in flight
@@ -56,6 +58,11 @@ void WifiStatusPoller::set_include_modules(bool include) {
 	include_modules = include;
 }
 
+bool WifiStatusPoller::metamodule_not_answering() const {
+	std::lock_guard lock{mtx};
+	return bridge_timeouts >= BridgeTimeoutsBeforeReporting;
+}
+
 std::optional<FlatBuffers::WifiStatus> WifiStatusPoller::latest() const {
 	std::lock_guard lock{mtx};
 	return status;
@@ -76,12 +83,16 @@ void WifiStatusPoller::run() {
 		lock.unlock();
 
 		bool skipped = false;
+		bool bridge_timeout = false;
 		std::optional<FlatBuffers::WifiStatus> result;
 		try {
 			auto body = FlatBuffers::encode_status_request(request_modules);
-			if (auto reply = request(request_url, body))
+			if (auto reply = request(request_url, body)) {
 				result = FlatBuffers::decode_status_response(*reply);
-			else
+				bridge_timeout = FlatBuffers::is_bridge_timeout(*reply);
+				if (result)
+					result->modules_requested = request_modules;
+			} else
 				skipped = true;
 		} catch (...) {
 			// Treat any failure as no answer: never let an exception escape this thread
@@ -100,6 +111,10 @@ void WifiStatusPoller::run() {
 		}
 
 		status = result;
+		if (result)
+			bridge_timeouts = 0;
+		else if (bridge_timeout)
+			bridge_timeouts++;
 		cv.wait_for(lock, result ? interval_ok : interval_fail, [this] { return shutting_down || !active; });
 	}
 }

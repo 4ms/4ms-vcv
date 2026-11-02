@@ -39,6 +39,10 @@ public:
 	// Call before the plugin is unloaded (joining in a static destructor can deadlock on Windows).
 	void shutdown();
 
+	// The Wi-Fi Expander keeps saying the MetaModule didn't answer: its firmware probably
+	// doesn't know the status request
+	bool metamodule_not_answering() const;
+
 	// nullopt: no answer (yet)
 	std::optional<FlatBuffers::WifiStatus> latest() const;
 
@@ -58,6 +62,8 @@ private:
 	std::optional<FlatBuffers::WifiStatus> status;
 	bool active = false;
 	bool include_modules = false;
+	unsigned bridge_timeouts = 0; // in a row
+	static constexpr unsigned BridgeTimeoutsBeforeReporting = 3;
 	bool shutting_down = false;
 
 	std::thread thread;

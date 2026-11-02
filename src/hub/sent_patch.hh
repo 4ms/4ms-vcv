@@ -20,12 +20,17 @@ struct SentPatch {
 enum class SyncState {
 	NoData,	   // no reply, nothing playing, or per-module loads not measured yet
 	NotSynced, // the MetaModule is playing something other than what's in the rack
+	FirmwareUnsupported, // the MetaModule's firmware can't report per-module loads
 	Synced,
 };
 
 inline SyncState sync_state(std::optional<SentPatch> const &sent,
 							std::set<int64_t> const &rack_module_ids,
 							std::optional<FlatBuffers::WifiStatus> const &status) {
+	// Firmware with per-module loads always sends the playing patch's fingerprint
+	if (status && status->modules_requested && status->playing && status->patch_fingerprint == 0)
+		return SyncState::FirmwareUnsupported;
+
 	if (!sent)
 		return SyncState::NotSynced;
 

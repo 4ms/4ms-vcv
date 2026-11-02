@@ -110,6 +110,13 @@ TEST_CASE("reply without per-module fields decodes with empty loads") {
 	CHECK_FALSE(decoded->module_loads_valid);
 }
 
+TEST_CASE("recognizes the bridge's timeout reply") {
+	std::string_view timeout = "Request timed out";
+	CHECK(is_bridge_timeout(std::vector<uint8_t>(timeout.begin(), timeout.end())));
+	CHECK_FALSE(is_bridge_timeout(std::vector<uint8_t>{}));
+	CHECK_FALSE(is_bridge_timeout(make_status_message(10, true)));
+}
+
 TEST_CASE("rejects non-Status and garbage") {
 	std::string_view timeout = "Request timed out";
 	std::vector<uint8_t> timeout_bytes(timeout.begin(), timeout.end());

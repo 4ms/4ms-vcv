@@ -47,6 +47,10 @@ std::pair<bool, std::string> decode_response(std::vector<uint8_t> rawmsg) {
 	return {false, "No response"};
 }
 
+bool is_bridge_timeout(std::span<const uint8_t> rawmsg) {
+	return std::string_view{(const char *)rawmsg.data(), rawmsg.size()} == "Request timed out";
+}
+
 std::vector<uint8_t> encode_status_request(bool include_modules) {
 	flatbuffers::FlatBufferBuilder fbb;
 

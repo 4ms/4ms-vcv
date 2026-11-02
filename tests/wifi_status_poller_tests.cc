@@ -142,6 +142,32 @@ TEST_CASE("asks for per-module loads when told to") {
 	CHECK(eventually([&] { return with_modules > 0; }));
 }
 
+TEST_CASE("MetaModule not answering is reported after a few bridge timeouts") {
+	FakeBridge bridge;
+	bridge.set_reply(timeout_reply());
+	WifiStatusPoller poller{bridge.fn(), 5ms, 5ms};
+	poller.set_url("http://mm");
+	poller.set_active(true);
+
+	CHECK(eventually([&] { return poller.metamodule_not_answering(); }));
+	CHECK(bridge.calls >= 3);
+
+	// An answer clears it
+	bridge.set_reply(status_reply(10, true));
+	CHECK(eventually([&] { return !poller.metamodule_not_answering(); }));
+}
+
+TEST_CASE("no reply from the bridge is not the MetaModule's fault") {
+	FakeBridge bridge;
+	bridge.set_reply({}); // e.g. Wi-Fi Expander unreachable
+	WifiStatusPoller poller{bridge.fn(), 5ms, 5ms};
+	poller.set_url("http://mm");
+	poller.set_active(true);
+
+	REQUIRE(eventually([&] { return bridge.calls > 5; }));
+	CHECK_FALSE(poller.metamodule_not_answering());
+}
+
 TEST_CASE("inactive makes no requests") {
 	FakeBridge bridge;
 	WifiStatusPoller poller{bridge.fn(), 20ms, 50ms};
