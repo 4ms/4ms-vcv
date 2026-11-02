@@ -12,9 +12,9 @@ namespace MetaModule
 // What the Hub last sent to the MetaModule over Wi-Fi, to match the
 // MetaModule's per-module loads to the modules in the rack
 struct SentPatch {
-	std::string name;
 	std::map<int64_t, uint16_t> id_map; // VCV module id -> module id in the patch (0 = Hub)
 	std::set<int64_t> rack_module_ids;	// every module in the rack when the patch was sent
+	uint32_t fingerprint = 0;			// patch_fingerprint() of the sent patch
 };
 
 enum class SyncState {
@@ -35,7 +35,9 @@ inline SyncState sync_state(std::optional<SentPatch> const &sent,
 	if (rack_module_ids != sent->rack_module_ids)
 		return SyncState::NotSynced;
 
-	if (status->patch_name != sent->name)
+	// The fingerprint tells if the MetaModule plays the same modules in the same order.
+	// The name alone could match a different file, or a patch edited on the MetaModule.
+	if (status->patch_fingerprint == 0 || status->patch_fingerprint != sent->fingerprint)
 		return SyncState::NotSynced;
 
 	return SyncState::Synced;

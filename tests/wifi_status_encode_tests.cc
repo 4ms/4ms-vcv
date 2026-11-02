@@ -89,6 +89,18 @@ TEST_CASE("decodes module cores and core loads") {
 	CHECK(decoded->core_loads == core_loads);
 }
 
+TEST_CASE("decodes patch fingerprint") {
+	flatbuffers::FlatBufferBuilder fbb;
+	auto status = CreateStatus(fbb, 40, true, false, 0, 0, 0, true, 0, 0, 89770027u);
+	fbb.Finish(CreateMessage(fbb, AnyMessage_Status, status.Union()));
+	auto span = fbb.GetBufferSpan();
+	std::vector<uint8_t> msg{span.begin(), span.end()};
+
+	auto decoded = decode_status_response(msg);
+	REQUIRE(decoded.has_value());
+	CHECK(decoded->patch_fingerprint == 89770027u);
+}
+
 TEST_CASE("reply without per-module fields decodes with empty loads") {
 	auto decoded = decode_status_response(make_status_message(47, true));
 	REQUIRE(decoded.has_value());

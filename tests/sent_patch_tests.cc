@@ -9,9 +9,9 @@ namespace
 
 SentPatch sent_patch() {
 	SentPatch sent;
-	sent.name = "My Patch";
 	sent.id_map = {{100, 0}, {200, 1}, {300, 2}}; // 100 is the Hub
 	sent.rack_module_ids = {100, 200, 300, 400}; // 400 isn't in the patch (e.g. unsupported)
+	sent.fingerprint = 1234;
 	return sent;
 }
 
@@ -23,6 +23,7 @@ WifiStatus playing_status() {
 	status.module_loads = {0, 32, 105};
 	status.overhead = 41;
 	status.module_loads_valid = true;
+	status.patch_fingerprint = 1234;
 	return status;
 }
 
@@ -56,11 +57,25 @@ TEST_CASE("added or removed module is not synced") {
 	CHECK(sync_state(sent, {100, 200, 400}, playing_status()) == SyncState::NotSynced);
 }
 
-TEST_CASE("different patch playing is not synced") {
+TEST_CASE("different modules playing on the MetaModule is not synced, even with the same name") {
 	auto sent = sent_patch();
 	auto status = playing_status();
-	status.patch_name = "Other Patch";
+	status.patch_fingerprint = 5678;
 	CHECK(sync_state(sent, sent.rack_module_ids, status) == SyncState::NotSynced);
+}
+
+TEST_CASE("reply without a fingerprint is not synced") {
+	auto sent = sent_patch();
+	auto status = playing_status();
+	status.patch_fingerprint = 0;
+	CHECK(sync_state(sent, sent.rack_module_ids, status) == SyncState::NotSynced);
+}
+
+TEST_CASE("the fingerprint decides, not the name") {
+	auto sent = sent_patch();
+	auto status = playing_status();
+	status.patch_name = "Renamed on the MetaModule";
+	CHECK(sync_state(sent, sent.rack_module_ids, status) == SyncState::Synced);
 }
 
 TEST_CASE("module load lookup") {

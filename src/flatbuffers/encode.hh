@@ -21,6 +21,7 @@ struct WifiStatus {
 	bool module_loads_valid = false;
 	std::vector<uint8_t> module_cores{}; // core each module runs on (empty: no load balancing info)
 	std::vector<uint16_t> core_loads{};	 // each core's modules + cables, tenths of a percent
+	uint32_t patch_fingerprint = 0; // of the playing patch, 0 if not sent
 
 	bool operator==(WifiStatus const &) const = default;
 };

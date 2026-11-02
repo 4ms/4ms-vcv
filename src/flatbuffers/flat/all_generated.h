@@ -557,7 +557,8 @@ struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_OVERHEAD = 14,
     VT_MODULE_LOADS_VALID = 16,
     VT_MODULE_CORES = 18,
-    VT_CORE_LOADS = 20
+    VT_CORE_LOADS = 20,
+    VT_PATCH_FINGERPRINT = 22
   };
   uint8_t cpu_load() const {
     return GetField<uint8_t>(VT_CPU_LOAD, 0);
@@ -613,6 +614,12 @@ struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<uint16_t> *mutable_core_loads() {
     return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_CORE_LOADS);
   }
+  uint32_t patch_fingerprint() const {
+    return GetField<uint32_t>(VT_PATCH_FINGERPRINT, 0);
+  }
+  bool mutate_patch_fingerprint(uint32_t _patch_fingerprint = 0) {
+    return SetField<uint32_t>(VT_PATCH_FINGERPRINT, _patch_fingerprint, 0);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_CPU_LOAD, 1) &&
@@ -628,6 +635,7 @@ struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyVector(module_cores()) &&
            VerifyOffset(verifier, VT_CORE_LOADS) &&
            verifier.VerifyVector(core_loads()) &&
+           VerifyField<uint32_t>(verifier, VT_PATCH_FINGERPRINT, 4) &&
            verifier.EndTable();
   }
 };
@@ -663,6 +671,9 @@ struct StatusBuilder {
   void add_core_loads(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> core_loads) {
     fbb_.AddOffset(Status::VT_CORE_LOADS, core_loads);
   }
+  void add_patch_fingerprint(uint32_t patch_fingerprint) {
+    fbb_.AddElement<uint32_t>(Status::VT_PATCH_FINGERPRINT, patch_fingerprint, 0);
+  }
   explicit StatusBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -684,8 +695,10 @@ inline ::flatbuffers::Offset<Status> CreateStatus(
     uint16_t overhead = 0,
     bool module_loads_valid = false,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> module_cores = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> core_loads = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> core_loads = 0,
+    uint32_t patch_fingerprint = 0) {
   StatusBuilder builder_(_fbb);
+  builder_.add_patch_fingerprint(patch_fingerprint);
   builder_.add_core_loads(core_loads);
   builder_.add_module_cores(module_cores);
   builder_.add_module_loads(module_loads);
@@ -708,7 +721,8 @@ inline ::flatbuffers::Offset<Status> CreateStatusDirect(
     uint16_t overhead = 0,
     bool module_loads_valid = false,
     const std::vector<uint8_t> *module_cores = nullptr,
-    const std::vector<uint16_t> *core_loads = nullptr) {
+    const std::vector<uint16_t> *core_loads = nullptr,
+    uint32_t patch_fingerprint = 0) {
   auto patch_name__ = patch_name ? _fbb.CreateString(patch_name) : 0;
   auto module_loads__ = module_loads ? _fbb.CreateVector<uint16_t>(*module_loads) : 0;
   auto module_cores__ = module_cores ? _fbb.CreateVector<uint8_t>(*module_cores) : 0;
@@ -723,7 +737,8 @@ inline ::flatbuffers::Offset<Status> CreateStatusDirect(
       overhead,
       module_loads_valid,
       module_cores__,
-      core_loads__);
+      core_loads__,
+      patch_fingerprint);
 }
 
 struct Message FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {

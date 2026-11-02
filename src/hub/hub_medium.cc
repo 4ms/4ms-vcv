@@ -7,6 +7,7 @@
 #include "hub/knob_set_buttons.hh"
 #include "hub/module_alias.hh"
 #include "hub/module_load_overlay.hh"
+#include "hub/patch_fingerprint.hh"
 #include "hub/sent_patch.hh"
 #include "hub/wifi_status_poller.hh"
 #include "hub_module_widget.hh"
@@ -339,6 +340,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::MaxMapsPerPot, MaxKnobSets>;
 		std::map<int64_t, uint16_t> idMap;
+		std::vector<std::string> slugs;
 		auto yml = PatchFileWriter::createPatchYml({hubModule->id,
 													hubModule->mappings,
 													hubModule->jack_alias,
@@ -351,7 +353,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->use_builtin_midi,
 													hubModule->module_aliases,
 													hubModule->auto_map_audio_outs,
-													&idMap});
+													&idMap,
+													&slugs});
 		if (yml.size() > 256 * 1024 && pluginSettings.wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -375,9 +378,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		if (success) {
 			wifiResponseLabel->text = "Sent patch file";
 
-			// The MetaModule keeps up to 63 characters of the patch name
 			auto ids = APP->engine->getModuleIds();
-			sentPatch = SentPatch{patchName->text.substr(0, 63), std::move(idMap), {ids.begin(), ids.end()}};
+			sentPatch = SentPatch{std::move(idMap),
+								  {ids.begin(), ids.end()},
+								  patch_fingerprint(slugs)};
 		} else {
 			wifiResponseLabel->text = "Failed";
 		}

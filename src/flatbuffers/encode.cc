@@ -79,6 +79,7 @@ std::optional<WifiStatus> decode_status_response(std::span<const uint8_t> rawmsg
 		result.module_cores.assign(cores->begin(), cores->end());
 	if (auto core_loads = status->core_loads())
 		result.core_loads.assign(core_loads->begin(), core_loads->end());
+	result.patch_fingerprint = status->patch_fingerprint();
 
 	return result;
 }
