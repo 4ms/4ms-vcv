@@ -6,6 +6,8 @@
 #include "hub/hub_elements.hh"
 #include "hub/knob_set_buttons.hh"
 #include "hub/module_alias.hh"
+#include "hub/module_load_overlay.hh"
+#include "hub/sent_patch.hh"
 #include "hub/wifi_status_poller.hh"
 #include "hub_module_widget.hh"
 #include "mapping/vcv_patch_file_writer.hh"
@@ -95,13 +97,19 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	HubSaveButton *saveButton;
 
 	ModuleAliasContainer *aliasContainer = nullptr;
+	ModuleLoadContainer *moduleLoadContainer = nullptr;
+
+	// What this Hub last sent over Wi-Fi, to match per-module loads to modules
+	std::optional<SentPatch> sentPatch;
+	std::set<int64_t> rackModuleIds;
+	unsigned moduleLoadUpdateCounter = 0;
 
 	std::string lastPatchFilePath;
 
 	std::string wifiConnectionText;
 
 	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
-	static inline const std::vector<std::string> cpuMonitorLabels = {"Off", "Total"};
+	static inline const std::vector<std::string> cpuMonitorLabels = {"Off", "Total", "Total + per module"};
 	const std::vector<std::string> mappingModeLabels = {
 		"All", "Left & Right Only", "Right Only", "Left Only", "Connected"};
 
@@ -120,6 +128,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 			aliasContainer = new ModuleAliasContainer(hubModule);
 			APP->scene->rack->addChild(aliasContainer);
+
+			moduleLoadContainer = new ModuleLoadContainer;
+			moduleLoadContainer->wideLabelModuleId = hubModule->id;
+			APP->scene->rack->addChild(moduleLoadContainer);
 		}
 
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/modules/HubMedium_artwork.svg")));
@@ -239,6 +251,11 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			delete aliasContainer;
 		}
 
+		if (moduleLoadContainer) {
+			APP->scene->rack->removeChild(moduleLoadContainer);
+			delete moduleLoadContainer;
+		}
+
 		if (hubModule != nullptr) {
 			numHubWidgets--;
 			updateWifiStatusPolling();
@@ -249,6 +266,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	static void updateWifiStatusPolling() {
 		auto &poller = WifiStatusPoller::instance();
 		poller.set_url(pluginSettings.wifiUrl);
+		poller.set_include_modules(pluginSettings.wifiCpuMonitor == CpuMonitor::TotalAndPerModule);
 		poller.set_active(pluginSettings.wifiCpuMonitor != CpuMonitor::Off && pluginSettings.wifiUrl.length() &&
 						  numHubWidgets > 0);
 	}
@@ -320,6 +338,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		}
 
 		using PatchFileWriter = VCVPatchFileWriter<HubMedium::MaxMapsPerPot, MaxKnobSets>;
+		std::map<int64_t, uint16_t> idMap;
 		auto yml = PatchFileWriter::createPatchYml({hubModule->id,
 													hubModule->mappings,
 													hubModule->jack_alias,
@@ -331,7 +350,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 													hubModule->use_glue_labels,
 													hubModule->use_builtin_midi,
 													hubModule->module_aliases,
-													hubModule->auto_map_audio_outs});
+													hubModule->auto_map_audio_outs,
+													&idMap});
 		if (yml.size() > 256 * 1024 && pluginSettings.wifiVolume == Volume::Internal) {
 			wifiResponseLabel->showFor(180);
 			wifiResponseLabel->text = "File too large for Internal: max is 256kB";
@@ -354,6 +374,10 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		wifiResponseLabel->showFor(120);
 		if (success) {
 			wifiResponseLabel->text = "Sent patch file";
+
+			// The MetaModule keeps up to 63 characters of the patch name
+			auto ids = APP->engine->getModuleIds();
+			sentPatch = SentPatch{patchName->text.substr(0, 63), std::move(idMap), {ids.begin(), ids.end()}};
 		} else {
 			wifiResponseLabel->text = "Failed";
 		}
@@ -629,7 +653,52 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		knobSetButtons->active_idx = activeKnobSetIdx;
 	}
 
+	// Texts under each module from the latest per-module loads
+	void updateModuleLoads() {
+		bool show = hubModule && pluginSettings.wifiCpuMonitor == CpuMonitor::TotalAndPerModule;
+		moduleLoadContainer->setVisible(show);
+		if (!show) {
+			moduleLoadContainer->clear();
+			return;
+		}
+
+		// No need to update every frame
+		if (moduleLoadUpdateCounter++ % 10 != 0)
+			return;
+
+		auto ids = APP->engine->getModuleIds();
+		rackModuleIds = {ids.begin(), ids.end()};
+
+		auto status = WifiStatusPoller::instance().latest();
+		auto state = sync_state(sentPatch, rackModuleIds, status);
+
+		std::map<int64_t, std::string> texts;
+
+		if (sentPatch) {
+			for (auto const &[vcvId, patchId] : sentPatch->id_map) {
+				if (patchId == 0)
+					continue; // the Hub shows the overhead instead
+				texts[vcvId] = state == SyncState::Synced ?
+								   format_module_label(module_load_for(*sentPatch, *status, vcvId),
+													   module_core_for(*sentPatch, *status, vcvId)) :
+								   format_module_load(std::nullopt);
+			}
+		}
+
+		if (state == SyncState::NotSynced)
+			texts[hubModule->id] = "Send patch to sync with MetaModule";
+		else if (state == SyncState::Synced)
+			texts[hubModule->id] = format_hub_loads(*status);
+		else
+			texts[hubModule->id] = "Overhead " + format_module_load(std::nullopt);
+
+		moduleLoadContainer->setTexts(texts);
+	}
+
 	void step() override {
+		if (moduleLoadContainer)
+			updateModuleLoads();
+
 		if (cpuLoadLabel) {
 			bool showCpuLoad = hubModule && pluginSettings.wifiCpuMonitor != CpuMonitor::Off;
 			cpuLoadLabel->setVisible(showCpuLoad);

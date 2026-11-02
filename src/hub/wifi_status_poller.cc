@@ -51,6 +51,11 @@ void WifiStatusPoller::set_url(std::string new_url) {
 	cv.notify_all();
 }
 
+void WifiStatusPoller::set_include_modules(bool include) {
+	std::lock_guard lock{mtx};
+	include_modules = include;
+}
+
 std::optional<FlatBuffers::WifiStatus> WifiStatusPoller::latest() const {
 	std::lock_guard lock{mtx};
 	return status;
@@ -67,12 +72,13 @@ void WifiStatusPoller::run() {
 		}
 
 		auto request_url = url;
+		auto request_modules = include_modules;
 		lock.unlock();
 
 		bool skipped = false;
 		std::optional<FlatBuffers::WifiStatus> result;
 		try {
-			auto body = FlatBuffers::encode_status_request();
+			auto body = FlatBuffers::encode_status_request(request_modules);
 			if (auto reply = request(request_url, body))
 				result = FlatBuffers::decode_status_response(*reply);
 			else

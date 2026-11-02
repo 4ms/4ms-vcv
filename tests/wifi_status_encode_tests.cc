@@ -44,6 +44,60 @@ TEST_CASE("decodes Status response") {
 	CHECK(decode_status_response(msg) == WifiStatus{0, false});
 }
 
+TEST_CASE("status request asks for per-module loads only when told to") {
+	auto plain = encode_status_request();
+	CHECK_FALSE(GetMessage(plain.data())->content_as_Status()->include_modules());
+
+	auto with_modules = encode_status_request(true);
+	CHECK(GetMessage(with_modules.data())->content_as_Status()->include_modules());
+}
+
+TEST_CASE("decodes per-module loads") {
+	flatbuffers::FlatBufferBuilder fbb;
+	auto name = fbb.CreateString("My Patch");
+	std::vector<uint16_t> loads{0, 32, 105};
+	auto loads_vec = fbb.CreateVector(loads);
+	auto status = CreateStatus(fbb, 40, true, false, name, loads_vec, 41, true);
+	fbb.Finish(CreateMessage(fbb, AnyMessage_Status, status.Union()));
+	auto span = fbb.GetBufferSpan();
+	std::vector<uint8_t> msg{span.begin(), span.end()};
+
+	auto decoded = decode_status_response(msg);
+	REQUIRE(decoded.has_value());
+	CHECK(decoded->cpu_load == 40);
+	CHECK(decoded->playing);
+	CHECK(decoded->patch_name == "My Patch");
+	CHECK(decoded->module_loads == loads);
+	CHECK(decoded->overhead == 41);
+	CHECK(decoded->module_loads_valid);
+}
+
+TEST_CASE("decodes module cores and core loads") {
+	flatbuffers::FlatBufferBuilder fbb;
+	std::vector<uint8_t> cores{0, 0, 1};
+	std::vector<uint16_t> core_loads{200, 197};
+	auto cores_vec = fbb.CreateVector(cores);
+	auto core_loads_vec = fbb.CreateVector(core_loads);
+	auto status = CreateStatus(fbb, 35, true, false, 0, 0, 150, true, cores_vec, core_loads_vec);
+	fbb.Finish(CreateMessage(fbb, AnyMessage_Status, status.Union()));
+	auto span = fbb.GetBufferSpan();
+	std::vector<uint8_t> msg{span.begin(), span.end()};
+
+	auto decoded = decode_status_response(msg);
+	REQUIRE(decoded.has_value());
+	CHECK(decoded->module_cores == cores);
+	CHECK(decoded->core_loads == core_loads);
+}
+
+TEST_CASE("reply without per-module fields decodes with empty loads") {
+	auto decoded = decode_status_response(make_status_message(47, true));
+	REQUIRE(decoded.has_value());
+	CHECK(decoded->patch_name.empty());
+	CHECK(decoded->module_loads.empty());
+	CHECK(decoded->overhead == 0);
+	CHECK_FALSE(decoded->module_loads_valid);
+}
+
 TEST_CASE("rejects non-Status and garbage") {
 	std::string_view timeout = "Request timed out";
 	std::vector<uint8_t> timeout_bytes(timeout.begin(), timeout.end());

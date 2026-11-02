@@ -32,6 +32,9 @@ public:
 	// Address of the Wi-Fi Expander, used from the next request on. Empty: don't poll.
 	void set_url(std::string url);
 
+	// Also ask for per-module loads (makes the MetaModule measure them)
+	void set_include_modules(bool include);
+
 	// Stops polling for good and waits for the thread to finish.
 	// Call before the plugin is unloaded (joining in a static destructor can deadlock on Windows).
 	void shutdown();
@@ -54,6 +57,7 @@ private:
 	std::string url;
 	std::optional<FlatBuffers::WifiStatus> status;
 	bool active = false;
+	bool include_modules = false;
 	bool shutting_down = false;
 
 	std::thread thread;

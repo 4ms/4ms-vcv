@@ -5,7 +5,7 @@ namespace MetaModule
 {
 
 // "Wi-Fi live CPU load monitor" in the Hub's menu
-enum class CpuMonitor { Off = 0, Total = 1 };
+enum class CpuMonitor { Off = 0, Total = 1, TotalAndPerModule = 2 };
 
 inline CpuMonitor read_cpu_monitor_setting(json_t *rootJ) {
 	auto *modeJ = json_object_get(rootJ, "wifiCpuMonitor");
@@ -15,6 +15,8 @@ inline CpuMonitor read_cpu_monitor_setting(json_t *rootJ) {
 	auto val = json_integer_value(modeJ);
 	if (val == (int)CpuMonitor::Total)
 		return CpuMonitor::Total;
+	if (val == (int)CpuMonitor::TotalAndPerModule)
+		return CpuMonitor::TotalAndPerModule;
 	return CpuMonitor::Off;
 }
 

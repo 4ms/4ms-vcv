@@ -40,6 +40,9 @@ public:
 	std::string printPatchYAML();
 
 	PatchData &get_data();
+	std::map<int64_t, uint16_t> const &getIdMap() const {
+		return idMap;
+	}
 	static std::map<int64_t, uint16_t> squash_ids(std::vector<int64_t> ids);
 
 private:

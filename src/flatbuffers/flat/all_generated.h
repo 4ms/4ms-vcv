@@ -550,7 +550,14 @@ struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef StatusBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CPU_LOAD = 4,
-    VT_PLAYING = 6
+    VT_PLAYING = 6,
+    VT_INCLUDE_MODULES = 8,
+    VT_PATCH_NAME = 10,
+    VT_MODULE_LOADS = 12,
+    VT_OVERHEAD = 14,
+    VT_MODULE_LOADS_VALID = 16,
+    VT_MODULE_CORES = 18,
+    VT_CORE_LOADS = 20
   };
   uint8_t cpu_load() const {
     return GetField<uint8_t>(VT_CPU_LOAD, 0);
@@ -564,10 +571,63 @@ struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_playing(bool _playing = 0) {
     return SetField<uint8_t>(VT_PLAYING, static_cast<uint8_t>(_playing), 0);
   }
+  bool include_modules() const {
+    return GetField<uint8_t>(VT_INCLUDE_MODULES, 0) != 0;
+  }
+  bool mutate_include_modules(bool _include_modules = 0) {
+    return SetField<uint8_t>(VT_INCLUDE_MODULES, static_cast<uint8_t>(_include_modules), 0);
+  }
+  const ::flatbuffers::String *patch_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PATCH_NAME);
+  }
+  ::flatbuffers::String *mutable_patch_name() {
+    return GetPointer<::flatbuffers::String *>(VT_PATCH_NAME);
+  }
+  const ::flatbuffers::Vector<uint16_t> *module_loads() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_MODULE_LOADS);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_module_loads() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_MODULE_LOADS);
+  }
+  uint16_t overhead() const {
+    return GetField<uint16_t>(VT_OVERHEAD, 0);
+  }
+  bool mutate_overhead(uint16_t _overhead = 0) {
+    return SetField<uint16_t>(VT_OVERHEAD, _overhead, 0);
+  }
+  bool module_loads_valid() const {
+    return GetField<uint8_t>(VT_MODULE_LOADS_VALID, 0) != 0;
+  }
+  bool mutate_module_loads_valid(bool _module_loads_valid = 0) {
+    return SetField<uint8_t>(VT_MODULE_LOADS_VALID, static_cast<uint8_t>(_module_loads_valid), 0);
+  }
+  const ::flatbuffers::Vector<uint8_t> *module_cores() const {
+    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_MODULE_CORES);
+  }
+  ::flatbuffers::Vector<uint8_t> *mutable_module_cores() {
+    return GetPointer<::flatbuffers::Vector<uint8_t> *>(VT_MODULE_CORES);
+  }
+  const ::flatbuffers::Vector<uint16_t> *core_loads() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_CORE_LOADS);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_core_loads() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_CORE_LOADS);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_CPU_LOAD, 1) &&
            VerifyField<uint8_t>(verifier, VT_PLAYING, 1) &&
+           VerifyField<uint8_t>(verifier, VT_INCLUDE_MODULES, 1) &&
+           VerifyOffset(verifier, VT_PATCH_NAME) &&
+           verifier.VerifyString(patch_name()) &&
+           VerifyOffset(verifier, VT_MODULE_LOADS) &&
+           verifier.VerifyVector(module_loads()) &&
+           VerifyField<uint16_t>(verifier, VT_OVERHEAD, 2) &&
+           VerifyField<uint8_t>(verifier, VT_MODULE_LOADS_VALID, 1) &&
+           VerifyOffset(verifier, VT_MODULE_CORES) &&
+           verifier.VerifyVector(module_cores()) &&
+           VerifyOffset(verifier, VT_CORE_LOADS) &&
+           verifier.VerifyVector(core_loads()) &&
            verifier.EndTable();
   }
 };
@@ -581,6 +641,27 @@ struct StatusBuilder {
   }
   void add_playing(bool playing) {
     fbb_.AddElement<uint8_t>(Status::VT_PLAYING, static_cast<uint8_t>(playing), 0);
+  }
+  void add_include_modules(bool include_modules) {
+    fbb_.AddElement<uint8_t>(Status::VT_INCLUDE_MODULES, static_cast<uint8_t>(include_modules), 0);
+  }
+  void add_patch_name(::flatbuffers::Offset<::flatbuffers::String> patch_name) {
+    fbb_.AddOffset(Status::VT_PATCH_NAME, patch_name);
+  }
+  void add_module_loads(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> module_loads) {
+    fbb_.AddOffset(Status::VT_MODULE_LOADS, module_loads);
+  }
+  void add_overhead(uint16_t overhead) {
+    fbb_.AddElement<uint16_t>(Status::VT_OVERHEAD, overhead, 0);
+  }
+  void add_module_loads_valid(bool module_loads_valid) {
+    fbb_.AddElement<uint8_t>(Status::VT_MODULE_LOADS_VALID, static_cast<uint8_t>(module_loads_valid), 0);
+  }
+  void add_module_cores(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> module_cores) {
+    fbb_.AddOffset(Status::VT_MODULE_CORES, module_cores);
+  }
+  void add_core_loads(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> core_loads) {
+    fbb_.AddOffset(Status::VT_CORE_LOADS, core_loads);
   }
   explicit StatusBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -596,11 +677,53 @@ struct StatusBuilder {
 inline ::flatbuffers::Offset<Status> CreateStatus(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint8_t cpu_load = 0,
-    bool playing = false) {
+    bool playing = false,
+    bool include_modules = false,
+    ::flatbuffers::Offset<::flatbuffers::String> patch_name = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> module_loads = 0,
+    uint16_t overhead = 0,
+    bool module_loads_valid = false,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> module_cores = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> core_loads = 0) {
   StatusBuilder builder_(_fbb);
+  builder_.add_core_loads(core_loads);
+  builder_.add_module_cores(module_cores);
+  builder_.add_module_loads(module_loads);
+  builder_.add_patch_name(patch_name);
+  builder_.add_overhead(overhead);
+  builder_.add_module_loads_valid(module_loads_valid);
+  builder_.add_include_modules(include_modules);
   builder_.add_playing(playing);
   builder_.add_cpu_load(cpu_load);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Status> CreateStatusDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t cpu_load = 0,
+    bool playing = false,
+    bool include_modules = false,
+    const char *patch_name = nullptr,
+    const std::vector<uint16_t> *module_loads = nullptr,
+    uint16_t overhead = 0,
+    bool module_loads_valid = false,
+    const std::vector<uint8_t> *module_cores = nullptr,
+    const std::vector<uint16_t> *core_loads = nullptr) {
+  auto patch_name__ = patch_name ? _fbb.CreateString(patch_name) : 0;
+  auto module_loads__ = module_loads ? _fbb.CreateVector<uint16_t>(*module_loads) : 0;
+  auto module_cores__ = module_cores ? _fbb.CreateVector<uint8_t>(*module_cores) : 0;
+  auto core_loads__ = core_loads ? _fbb.CreateVector<uint16_t>(*core_loads) : 0;
+  return CreateStatus(
+      _fbb,
+      cpu_load,
+      playing,
+      include_modules,
+      patch_name__,
+      module_loads__,
+      overhead,
+      module_loads_valid,
+      module_cores__,
+      core_loads__);
 }
 
 struct Message FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {

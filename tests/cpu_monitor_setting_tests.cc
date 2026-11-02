@@ -21,6 +21,7 @@ CpuMonitor read(char const *json) {
 TEST_CASE("reads the CPU monitor setting") {
 	CHECK(read(R"({"wifiCpuMonitor": 0})") == CpuMonitor::Off);
 	CHECK(read(R"({"wifiCpuMonitor": 1})") == CpuMonitor::Total);
+	CHECK(read(R"({"wifiCpuMonitor": 2})") == CpuMonitor::TotalAndPerModule);
 }
 
 TEST_CASE("missing or invalid CPU monitor setting is off") {

@@ -38,6 +38,7 @@ struct VCVPatchFileWriter {
 		bool use_builtin_midi = true;
 		const std::map<int64_t, std::string> &module_aliases;
 		bool auto_map_audio_outs = false;
+		std::map<int64_t, uint16_t> *id_map_out = nullptr; // filled with VCV module id -> module id in the patch
 	};
 
 	static std::string createPatchYml(FileFields data) {
@@ -334,6 +335,9 @@ struct VCVPatchFileWriter {
 				addAllMappings(firstButtonParamId, pw, buttonExp->mappings);
 			}
 		}
+
+		if (data.id_map_out)
+			*data.id_map_out = pw.getIdMap();
 
 		return pw.printPatchYAML();
 	}

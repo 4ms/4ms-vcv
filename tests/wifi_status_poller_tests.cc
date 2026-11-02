@@ -123,6 +123,25 @@ TEST_CASE("skipped request keeps last status and retries soon") {
 	CHECK(poller.latest() == WifiStatus{47, true});
 }
 
+TEST_CASE("asks for per-module loads when told to") {
+	std::atomic<int> with_modules{0};
+	std::atomic<int> without_modules{0};
+	auto request = [&](std::string const &, std::span<uint8_t> body) -> std::optional<std::vector<uint8_t>> {
+		auto status = GetMessage(body.data())->content_as_Status();
+		(status && status->include_modules() ? with_modules : without_modules)++;
+		return status_reply(10, true);
+	};
+
+	WifiStatusPoller poller{request, 10ms, 10ms};
+	poller.set_url("http://mm");
+	poller.set_active(true);
+	REQUIRE(eventually([&] { return without_modules > 0; }));
+	CHECK(with_modules == 0);
+
+	poller.set_include_modules(true);
+	CHECK(eventually([&] { return with_modules > 0; }));
+}
+
 TEST_CASE("inactive makes no requests") {
 	FakeBridge bridge;
 	WifiStatusPoller poller{bridge.fn(), 20ms, 50ms};
