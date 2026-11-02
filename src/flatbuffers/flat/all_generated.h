@@ -30,6 +30,9 @@ struct UploadPatchBuilder;
 struct Result;
 struct ResultBuilder;
 
+struct Status;
+struct StatusBuilder;
+
 struct Message;
 struct MessageBuilder;
 
@@ -39,35 +42,38 @@ enum AnyMessage : uint8_t {
   AnyMessage_UploadPatch = 2,
   AnyMessage_Patches = 3,
   AnyMessage_Result = 4,
+  AnyMessage_Status = 5,
   AnyMessage_MIN = AnyMessage_NONE,
-  AnyMessage_MAX = AnyMessage_Result
+  AnyMessage_MAX = AnyMessage_Status
 };
 
-inline const AnyMessage (&EnumValuesAnyMessage())[5] {
+inline const AnyMessage (&EnumValuesAnyMessage())[6] {
   static const AnyMessage values[] = {
     AnyMessage_NONE,
     AnyMessage_Heartbeat,
     AnyMessage_UploadPatch,
     AnyMessage_Patches,
-    AnyMessage_Result
+    AnyMessage_Result,
+    AnyMessage_Status
   };
   return values;
 }
 
 inline const char * const *EnumNamesAnyMessage() {
-  static const char * const names[6] = {
+  static const char * const names[7] = {
     "NONE",
     "Heartbeat",
     "UploadPatch",
     "Patches",
     "Result",
+    "Status",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameAnyMessage(AnyMessage e) {
-  if (::flatbuffers::IsOutRange(e, AnyMessage_NONE, AnyMessage_Result)) return "";
+  if (::flatbuffers::IsOutRange(e, AnyMessage_NONE, AnyMessage_Status)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesAnyMessage()[index];
 }
@@ -90,6 +96,10 @@ template<> struct AnyMessageTraits<Patches> {
 
 template<> struct AnyMessageTraits<Result> {
   static const AnyMessage enum_value = AnyMessage_Result;
+};
+
+template<> struct AnyMessageTraits<Status> {
+  static const AnyMessage enum_value = AnyMessage_Status;
 };
 
 bool VerifyAnyMessage(::flatbuffers::Verifier &verifier, const void *obj, AnyMessage type);
@@ -536,6 +546,63 @@ inline ::flatbuffers::Offset<Result> CreateResultDirect(
       message__);
 }
 
+struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef StatusBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CPU_LOAD = 4,
+    VT_PLAYING = 6
+  };
+  uint8_t cpu_load() const {
+    return GetField<uint8_t>(VT_CPU_LOAD, 0);
+  }
+  bool mutate_cpu_load(uint8_t _cpu_load = 0) {
+    return SetField<uint8_t>(VT_CPU_LOAD, _cpu_load, 0);
+  }
+  bool playing() const {
+    return GetField<uint8_t>(VT_PLAYING, 0) != 0;
+  }
+  bool mutate_playing(bool _playing = 0) {
+    return SetField<uint8_t>(VT_PLAYING, static_cast<uint8_t>(_playing), 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_CPU_LOAD, 1) &&
+           VerifyField<uint8_t>(verifier, VT_PLAYING, 1) &&
+           verifier.EndTable();
+  }
+};
+
+struct StatusBuilder {
+  typedef Status Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_cpu_load(uint8_t cpu_load) {
+    fbb_.AddElement<uint8_t>(Status::VT_CPU_LOAD, cpu_load, 0);
+  }
+  void add_playing(bool playing) {
+    fbb_.AddElement<uint8_t>(Status::VT_PLAYING, static_cast<uint8_t>(playing), 0);
+  }
+  explicit StatusBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Status> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Status>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Status> CreateStatus(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t cpu_load = 0,
+    bool playing = false) {
+  StatusBuilder builder_(_fbb);
+  builder_.add_playing(playing);
+  builder_.add_cpu_load(cpu_load);
+  return builder_.Finish();
+}
+
 struct Message FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MessageBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -560,6 +627,9 @@ struct Message FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   const Result *content_as_Result() const {
     return content_type() == AnyMessage_Result ? static_cast<const Result *>(content()) : nullptr;
+  }
+  const Status *content_as_Status() const {
+    return content_type() == AnyMessage_Status ? static_cast<const Status *>(content()) : nullptr;
   }
   void *mutable_content() {
     return GetPointer<void *>(VT_CONTENT);
@@ -587,6 +657,10 @@ template<> inline const Patches *Message::content_as<Patches>() const {
 
 template<> inline const Result *Message::content_as<Result>() const {
   return content_as_Result();
+}
+
+template<> inline const Status *Message::content_as<Status>() const {
+  return content_as_Status();
 }
 
 struct MessageBuilder {
@@ -638,6 +712,10 @@ inline bool VerifyAnyMessage(::flatbuffers::Verifier &verifier, const void *obj,
     }
     case AnyMessage_Result: {
       auto ptr = reinterpret_cast<const Result *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case AnyMessage_Status: {
+      auto ptr = reinterpret_cast<const Status *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;

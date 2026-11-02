@@ -1,3 +1,4 @@
+#include "encode.hh"
 #include "flat/all_generated.h"
 #include <string_view>
 #include <vector>
@@ -44,6 +45,29 @@ std::pair<bool, std::string> decode_response(std::vector<uint8_t> rawmsg) {
 	}
 
 	return {false, "No response"};
+}
+
+std::vector<uint8_t> encode_status_request() {
+	flatbuffers::FlatBufferBuilder fbb;
+
+	auto status = CreateStatus(fbb);
+	auto message = CreateMessage(fbb, AnyMessage_Status, status.Union());
+	fbb.Finish(message);
+
+	auto data = fbb.GetBufferSpan();
+	return {data.begin(), data.end()};
+}
+
+std::optional<WifiStatus> decode_status_response(std::span<const uint8_t> rawmsg) {
+	auto verifier = flatbuffers::Verifier(rawmsg.data(), rawmsg.size());
+	if (!VerifyMessageBuffer(verifier))
+		return std::nullopt;
+
+	auto status = GetMessage(rawmsg.data())->content_as_Status();
+	if (!status)
+		return std::nullopt;
+
+	return WifiStatus{status->cpu_load(), status->playing()};
 }
 
 }; // namespace MetaModule::FlatBuffers
