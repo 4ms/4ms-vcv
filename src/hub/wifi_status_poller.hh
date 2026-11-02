@@ -32,6 +32,10 @@ public:
 	// Address of the Wi-Fi Expander, used from the next request on. Empty: don't poll.
 	void set_url(std::string url);
 
+	// Stops polling for good and waits for the thread to finish.
+	// Call before the plugin is unloaded (joining in a static destructor can deadlock on Windows).
+	void shutdown();
+
 	// nullopt: no answer (yet)
 	std::optional<FlatBuffers::WifiStatus> latest() const;
 

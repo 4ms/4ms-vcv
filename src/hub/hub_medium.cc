@@ -2,9 +2,11 @@
 #include "CoreModules/hub/HubMedium_info.hh"
 #include "flatbuffers/encode.hh"
 #include "hub/buttons.hh"
+#include "hub/cpu_load_display.hh"
 #include "hub/hub_elements.hh"
 #include "hub/knob_set_buttons.hh"
 #include "hub/module_alias.hh"
+#include "hub/wifi_status_poller.hh"
 #include "hub_module_widget.hh"
 #include "mapping/vcv_patch_file_writer.hh"
 #include "network/network.hh"
@@ -87,6 +89,8 @@ struct HubMediumWidget : MetaModuleHubWidget {
 
 	HubWifiButton *wifiSendButton;
 	MetaModule::LabelOverlay *wifiConnectionLabel;
+	CpuLoadDisplay *cpuLoadLabel = nullptr;
+	static inline unsigned numHubWidgets = 0;
 
 	HubSaveButton *saveButton;
 
@@ -97,6 +101,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	std::string wifiConnectionText;
 
 	const std::vector<std::string> volumeLabels = {"Internal", "USB", "Card"};
+	static inline const std::vector<std::string> cpuMonitorLabels = {"Off", "Total"};
 	const std::vector<std::string> mappingModeLabels = {
 		"All", "Left & Right Only", "Right Only", "Left Only", "Connected"};
 
@@ -215,6 +220,17 @@ struct HubMediumWidget : MetaModuleHubWidget {
 		addChild(wifiConnectionLabel);
 		addChild(patchDesc);
 		wifiSendButton->setLabels(wifiConnectionLabel, patchDesc);
+
+		// MetaModule CPU load, below the Wi-Fi icon
+		cpuLoadLabel = createWidget<CpuLoadDisplay>(rack::math::Vec(318.f - 20.f, 71.f));
+		cpuLoadLabel->box.size = {40.f, 20.f};
+		cpuLoadLabel->hide();
+		addChild(cpuLoadLabel);
+
+		if (hubModule != nullptr) {
+			numHubWidgets++;
+			updateWifiStatusPolling();
+		}
 	}
 
 	~HubMediumWidget() {
@@ -222,6 +238,19 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			APP->scene->rack->removeChild(aliasContainer);
 			delete aliasContainer;
 		}
+
+		if (hubModule != nullptr) {
+			numHubWidgets--;
+			updateWifiStatusPolling();
+		}
+	}
+
+	// Poll only while the option is on, an address is set, and a Hub is in the rack
+	static void updateWifiStatusPolling() {
+		auto &poller = WifiStatusPoller::instance();
+		poller.set_url(pluginSettings.wifiUrl);
+		poller.set_active(pluginSettings.wifiCpuMonitor != CpuMonitor::Off && pluginSettings.wifiUrl.length() &&
+						  numHubWidgets > 0);
 	}
 
 	std::string cleanupPatchName(std::string patchnm) {
@@ -350,6 +379,7 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			if (testWifiUrl.length() >= 14) { //smallest IP: http://1.2.3.4 is 14 chars
 				pluginSettings.wifiUrl = testWifiUrl;
 				wifiConnectionLabel->text = formatWifiStatus();
+				updateWifiStatusPolling();
 			} else {
 				wifiResponseLabel->text = "Not a valid address";
 				wifiResponseLabel->showFor(120);
@@ -375,6 +405,14 @@ struct HubMediumWidget : MetaModuleHubWidget {
 			[this](size_t index) {
 				pluginSettings.wifiVolume = Volume(index);
 				wifiConnectionLabel->text = formatWifiStatus();
+			}));
+		menu->addChild(createIndexSubmenuItem(
+			"Wi-Fi live CPU load monitor",
+			cpuMonitorLabels,
+			[]() { return (size_t)pluginSettings.wifiCpuMonitor; },
+			[](size_t index) {
+				pluginSettings.wifiCpuMonitor = CpuMonitor(index);
+				updateWifiStatusPolling();
 			}));
 
 		menu->addChild(new MenuSeparator());
@@ -592,6 +630,13 @@ struct HubMediumWidget : MetaModuleHubWidget {
 	}
 
 	void step() override {
+		if (cpuLoadLabel) {
+			bool showCpuLoad = hubModule && pluginSettings.wifiCpuMonitor != CpuMonitor::Off;
+			cpuLoadLabel->setVisible(showCpuLoad);
+			if (showCpuLoad)
+				cpuLoadLabel->value = format_cpu_badge(WifiStatusPoller::instance().latest());
+		}
+
 		if (pluginSettings.wifiUrl.length() > 13)
 			wifiSendButton->getLight()->setBrightnesses({0.50f});
 		else

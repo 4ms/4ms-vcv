@@ -12,9 +12,14 @@ WifiStatusPoller::WifiStatusPoller(RequestFn request,
 }
 
 WifiStatusPoller::~WifiStatusPoller() {
+	shutdown();
+}
+
+void WifiStatusPoller::shutdown() {
 	{
 		std::lock_guard lock{mtx};
 		shutting_down = true;
+		status.reset();
 	}
 	cv.notify_all();
 
@@ -32,7 +37,7 @@ void WifiStatusPoller::set_active(bool is_active) {
 
 		// The thread is started once and sleeps while inactive,
 		// so stopping never waits for a request in flight
-		if (active && !thread.joinable())
+		if (active && !thread.joinable() && !shutting_down)
 			thread = std::thread{[this] { run(); }};
 	}
 	cv.notify_all();

@@ -159,6 +159,22 @@ TEST_CASE("stopping does not wait for a request in flight") {
 	CHECK_FALSE(poller.latest().has_value());
 }
 
+TEST_CASE("shutdown stops polling for good") {
+	FakeBridge bridge;
+	WifiStatusPoller poller{bridge.fn(), 20ms, 50ms};
+	poller.set_url("http://mm");
+	poller.set_active(true);
+	REQUIRE(eventually([&] { return bridge.calls > 0; }));
+
+	poller.shutdown();
+	int calls_after_shutdown = bridge.calls;
+
+	poller.set_active(true);
+	std::this_thread::sleep_for(100ms);
+	CHECK(bridge.calls == calls_after_shutdown);
+	CHECK_FALSE(poller.latest().has_value());
+}
+
 TEST_CASE("no requests without a url") {
 	FakeBridge bridge;
 	WifiStatusPoller poller{bridge.fn(), 20ms, 50ms};
