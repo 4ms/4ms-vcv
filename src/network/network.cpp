@@ -1,5 +1,5 @@
 #include "network.hh"
-#include <mutex>
+#include "request_gate.hh"
 #include <span>
 #include <string>
 #include <vector>
@@ -71,16 +71,22 @@ static std::string getCookieString(const rack::network::CookieMap &cookies) {
 	return s;
 }
 
-std::vector<uint8_t> requestRaw(rack::network::Method method,
-								const std::string &url,
-								const std::span<uint8_t> &reqStr,
-								const rack::network::CookieMap &cookies,
-								const RequestOptions &options) {
-	using namespace rack::network;
+// The MetaModule handles one Wi-Fi request at a time
+static RequestGate request_gate;
 
-	// The MetaModule handles one Wi-Fi request at a time
-	static std::mutex request_mutex;
-	std::lock_guard lock{request_mutex};
+// Aborts a background request as soon as a foreground request is waiting
+static int abortIfForegroundWaiting(void *, curl_off_t, curl_off_t, curl_off_t, curl_off_t) {
+	return request_gate.foreground_waiting() ? 1 : 0;
+}
+
+static std::vector<uint8_t> perform(rack::network::Method method,
+									const std::string &url,
+									const std::span<uint8_t> &reqStr,
+									const rack::network::CookieMap &cookies,
+									const RequestOptions &options,
+									bool background,
+									bool &aborted) {
+	using namespace rack::network;
 
 	std::string urlS = url;
 	CURL *curl = createCurl();
@@ -123,6 +129,11 @@ std::vector<uint8_t> requestRaw(rack::network::Method method,
 	if (options.total_timeout_ms > 0)
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, options.total_timeout_ms);
 
+	if (background) {
+		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, abortIfForegroundWaiting);
+		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+	}
+
 	// Perform request
 	if (options.log)
 		INFO("Requesting Raw %s %s", methodNames[method].c_str(), urlS.c_str());
@@ -132,6 +143,8 @@ std::vector<uint8_t> requestRaw(rack::network::Method method,
 	curl_easy_cleanup(curl);
 	curl_slist_free_all(headers);
 
+	aborted = (res == CURLE_ABORTED_BY_CALLBACK);
+
 	if (res != CURLE_OK) {
 		if (options.log)
 			WARN("Could not request %s: %s", urlS.c_str(), curl_easy_strerror(res));
@@ -139,6 +152,32 @@ std::vector<uint8_t> requestRaw(rack::network::Method method,
 	}
 
 	return resBytes;
+}
+
+std::vector<uint8_t> requestRaw(rack::network::Method method,
+								const std::string &url,
+								const std::span<uint8_t> &reqStr,
+								const rack::network::CookieMap &cookies,
+								const RequestOptions &options) {
+	auto lock = request_gate.foreground();
+	bool aborted = false;
+	return perform(method, url, reqStr, cookies, options, false, aborted);
+}
+
+std::optional<std::vector<uint8_t>> tryRequestRawInBackground(rack::network::Method method,
+															   const std::string &url,
+															   const std::span<uint8_t> &reqStr,
+															   const RequestOptions &options) {
+	auto lock = request_gate.try_background();
+	if (!lock)
+		return std::nullopt;
+
+	bool aborted = false;
+	auto reply = perform(method, url, reqStr, {}, options, true, aborted);
+	if (aborted)
+		return std::nullopt;
+
+	return reply;
 }
 
 } // namespace MetaModule::network

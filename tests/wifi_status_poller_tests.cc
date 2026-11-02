@@ -35,6 +35,7 @@ struct FakeBridge {
 	std::atomic<bool> overlapped{false};
 	std::atomic<bool> in_flight{false};
 	std::chrono::milliseconds delay{0};
+	std::atomic<bool> skip{false}; // request skipped (e.g. a patch is being sent)
 
 	std::mutex mtx;
 	std::string last_url;
@@ -56,11 +57,12 @@ struct FakeBridge {
 				overlapped = true;
 			calls++;
 			std::this_thread::sleep_for(delay);
-			std::vector<uint8_t> r;
+			std::optional<std::vector<uint8_t>> r;
 			{
 				std::lock_guard lock{mtx};
 				last_url = url;
-				r = reply;
+				if (!skip)
+					r = reply;
 			}
 			in_flight = false;
 			return r;
@@ -105,6 +107,20 @@ TEST_CASE("failure clears status") {
 
 	bridge.set_reply(timeout_reply());
 	CHECK(eventually([&] { return !poller.latest().has_value(); }));
+}
+
+TEST_CASE("skipped request keeps last status and retries soon") {
+	FakeBridge bridge;
+	WifiStatusPoller poller{bridge.fn(), 20ms, 5000ms};
+	poller.set_url("http://mm");
+	poller.set_active(true);
+	REQUIRE(eventually([&] { return poller.latest().has_value(); }));
+
+	bridge.skip = true;
+	int calls_before = bridge.calls;
+	// Retries at the normal interval, not the 5 s failure interval
+	REQUIRE(eventually([&] { return bridge.calls > calls_before + 2; }, 500ms));
+	CHECK(poller.latest() == WifiStatus{47, true});
 }
 
 TEST_CASE("inactive makes no requests") {

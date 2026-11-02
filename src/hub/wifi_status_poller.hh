@@ -17,7 +17,9 @@ namespace MetaModule
 // The Hub reads the latest result from the GUI thread.
 class WifiStatusPoller {
 public:
-	using RequestFn = std::function<std::vector<uint8_t>(std::string const &url, std::span<uint8_t> body)>;
+	// Returns the reply, or nullopt if the request was skipped (e.g. a patch is being sent)
+	using RequestFn =
+		std::function<std::optional<std::vector<uint8_t>>(std::string const &url, std::span<uint8_t> body)>;
 
 	WifiStatusPoller(RequestFn request,
 					 std::chrono::milliseconds interval_ok = std::chrono::milliseconds{1000},

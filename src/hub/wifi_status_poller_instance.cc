@@ -11,7 +11,7 @@ WifiStatusPoller &WifiStatusPoller::instance() {
 			.total_timeout_ms = 4000,
 			.log = false,
 		};
-		return network::requestRaw(rack::network::METHOD_POST, url + "/action", body, {}, options);
+		return network::tryRequestRawInBackground(rack::network::METHOD_POST, url + "/action", body, options);
 	}};
 	return poller;
 }

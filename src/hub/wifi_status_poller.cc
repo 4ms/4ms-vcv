@@ -64,11 +64,14 @@ void WifiStatusPoller::run() {
 		auto request_url = url;
 		lock.unlock();
 
+		bool skipped = false;
 		std::optional<FlatBuffers::WifiStatus> result;
 		try {
 			auto body = FlatBuffers::encode_status_request();
-			auto reply = request(request_url, body);
-			result = FlatBuffers::decode_status_response(reply);
+			if (auto reply = request(request_url, body))
+				result = FlatBuffers::decode_status_response(*reply);
+			else
+				skipped = true;
 		} catch (...) {
 			// Treat any failure as no answer: never let an exception escape this thread
 		}
@@ -78,6 +81,12 @@ void WifiStatusPoller::run() {
 		// Stopped while the request was in flight: drop the result
 		if (shutting_down || !active)
 			continue;
+
+		// Skipped: keep showing the last status and try again soon
+		if (skipped) {
+			cv.wait_for(lock, interval_ok, [this] { return shutting_down || !active; });
+			continue;
+		}
 
 		status = result;
 		cv.wait_for(lock, result ? interval_ok : interval_fail, [this] { return shutting_down || !active; });
