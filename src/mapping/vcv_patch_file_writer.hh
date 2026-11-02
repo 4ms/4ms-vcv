@@ -38,6 +38,8 @@ struct VCVPatchFileWriter {
 		bool use_builtin_midi = true;
 		const std::map<int64_t, std::string> &module_aliases;
 		bool auto_map_audio_outs = false;
+		std::map<int64_t, uint16_t> *id_map_out = nullptr; // filled with VCV module id -> module id in the patch
+		std::vector<std::string> *slugs_out = nullptr;		// filled with the patch's module slugs, in order
 	};
 
 	static std::string createPatchYml(FileFields data) {
@@ -333,6 +335,15 @@ struct VCVPatchFileWriter {
 				const auto firstButtonParamId = FirstButton + (buttonExp->buttonExpanderId * ButtonsPerExpander);
 				addAllMappings(firstButtonParamId, pw, buttonExp->mappings);
 			}
+		}
+
+		if (data.id_map_out)
+			*data.id_map_out = pw.getIdMap();
+
+		if (data.slugs_out) {
+			data.slugs_out->clear();
+			for (auto const &slug : pw.get_data().module_slugs)
+				data.slugs_out->emplace_back(std::string_view{slug});
 		}
 
 		return pw.printPatchYAML();

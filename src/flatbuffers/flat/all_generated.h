@@ -30,6 +30,9 @@ struct UploadPatchBuilder;
 struct Result;
 struct ResultBuilder;
 
+struct Status;
+struct StatusBuilder;
+
 struct Message;
 struct MessageBuilder;
 
@@ -39,35 +42,38 @@ enum AnyMessage : uint8_t {
   AnyMessage_UploadPatch = 2,
   AnyMessage_Patches = 3,
   AnyMessage_Result = 4,
+  AnyMessage_Status = 5,
   AnyMessage_MIN = AnyMessage_NONE,
-  AnyMessage_MAX = AnyMessage_Result
+  AnyMessage_MAX = AnyMessage_Status
 };
 
-inline const AnyMessage (&EnumValuesAnyMessage())[5] {
+inline const AnyMessage (&EnumValuesAnyMessage())[6] {
   static const AnyMessage values[] = {
     AnyMessage_NONE,
     AnyMessage_Heartbeat,
     AnyMessage_UploadPatch,
     AnyMessage_Patches,
-    AnyMessage_Result
+    AnyMessage_Result,
+    AnyMessage_Status
   };
   return values;
 }
 
 inline const char * const *EnumNamesAnyMessage() {
-  static const char * const names[6] = {
+  static const char * const names[7] = {
     "NONE",
     "Heartbeat",
     "UploadPatch",
     "Patches",
     "Result",
+    "Status",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameAnyMessage(AnyMessage e) {
-  if (::flatbuffers::IsOutRange(e, AnyMessage_NONE, AnyMessage_Result)) return "";
+  if (::flatbuffers::IsOutRange(e, AnyMessage_NONE, AnyMessage_Status)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesAnyMessage()[index];
 }
@@ -90,6 +96,10 @@ template<> struct AnyMessageTraits<Patches> {
 
 template<> struct AnyMessageTraits<Result> {
   static const AnyMessage enum_value = AnyMessage_Result;
+};
+
+template<> struct AnyMessageTraits<Status> {
+  static const AnyMessage enum_value = AnyMessage_Status;
 };
 
 bool VerifyAnyMessage(::flatbuffers::Verifier &verifier, const void *obj, AnyMessage type);
@@ -384,7 +394,8 @@ struct UploadPatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CONTENT = 4,
     VT_VOLUME = 6,
-    VT_FILENAME = 8
+    VT_FILENAME = 8,
+    VT_LOAD_AFTER_SAVE = 10
   };
   const ::flatbuffers::Vector<uint8_t> *content() const {
     return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_CONTENT);
@@ -404,6 +415,12 @@ struct UploadPatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::String *mutable_filename() {
     return GetPointer<::flatbuffers::String *>(VT_FILENAME);
   }
+  bool load_after_save() const {
+    return GetField<uint8_t>(VT_LOAD_AFTER_SAVE, 0) != 0;
+  }
+  bool mutate_load_after_save(bool _load_after_save = 0) {
+    return SetField<uint8_t>(VT_LOAD_AFTER_SAVE, static_cast<uint8_t>(_load_after_save), 0);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_CONTENT) &&
@@ -412,6 +429,7 @@ struct UploadPatch FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyString(volume()) &&
            VerifyOffset(verifier, VT_FILENAME) &&
            verifier.VerifyString(filename()) &&
+           VerifyField<uint8_t>(verifier, VT_LOAD_AFTER_SAVE, 1) &&
            verifier.EndTable();
   }
 };
@@ -429,6 +447,9 @@ struct UploadPatchBuilder {
   void add_filename(::flatbuffers::Offset<::flatbuffers::String> filename) {
     fbb_.AddOffset(UploadPatch::VT_FILENAME, filename);
   }
+  void add_load_after_save(bool load_after_save) {
+    fbb_.AddElement<uint8_t>(UploadPatch::VT_LOAD_AFTER_SAVE, static_cast<uint8_t>(load_after_save), 0);
+  }
   explicit UploadPatchBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -444,11 +465,13 @@ inline ::flatbuffers::Offset<UploadPatch> CreateUploadPatch(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> content = 0,
     ::flatbuffers::Offset<::flatbuffers::String> volume = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> filename = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> filename = 0,
+    bool load_after_save = false) {
   UploadPatchBuilder builder_(_fbb);
   builder_.add_filename(filename);
   builder_.add_volume(volume);
   builder_.add_content(content);
+  builder_.add_load_after_save(load_after_save);
   return builder_.Finish();
 }
 
@@ -456,7 +479,8 @@ inline ::flatbuffers::Offset<UploadPatch> CreateUploadPatchDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const std::vector<uint8_t> *content = nullptr,
     const char *volume = nullptr,
-    const char *filename = nullptr) {
+    const char *filename = nullptr,
+    bool load_after_save = false) {
   auto content__ = content ? _fbb.CreateVector<uint8_t>(*content) : 0;
   auto volume__ = volume ? _fbb.CreateString(volume) : 0;
   auto filename__ = filename ? _fbb.CreateString(filename) : 0;
@@ -464,14 +488,16 @@ inline ::flatbuffers::Offset<UploadPatch> CreateUploadPatchDirect(
       _fbb,
       content__,
       volume__,
-      filename__);
+      filename__,
+      load_after_save);
 }
 
 struct Result FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ResultBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_SUCCESS = 4,
-    VT_MESSAGE = 6
+    VT_MESSAGE = 6,
+    VT_LOAD_REQUESTED = 8
   };
   bool success() const {
     return GetField<uint8_t>(VT_SUCCESS, 0) != 0;
@@ -485,11 +511,18 @@ struct Result FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::String *mutable_message() {
     return GetPointer<::flatbuffers::String *>(VT_MESSAGE);
   }
+  bool load_requested() const {
+    return GetField<uint8_t>(VT_LOAD_REQUESTED, 0) != 0;
+  }
+  bool mutate_load_requested(bool _load_requested = 0) {
+    return SetField<uint8_t>(VT_LOAD_REQUESTED, static_cast<uint8_t>(_load_requested), 0);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_SUCCESS, 1) &&
            VerifyOffset(verifier, VT_MESSAGE) &&
            verifier.VerifyString(message()) &&
+           VerifyField<uint8_t>(verifier, VT_LOAD_REQUESTED, 1) &&
            verifier.EndTable();
   }
 };
@@ -503,6 +536,9 @@ struct ResultBuilder {
   }
   void add_message(::flatbuffers::Offset<::flatbuffers::String> message) {
     fbb_.AddOffset(Result::VT_MESSAGE, message);
+  }
+  void add_load_requested(bool load_requested) {
+    fbb_.AddElement<uint8_t>(Result::VT_LOAD_REQUESTED, static_cast<uint8_t>(load_requested), 0);
   }
   explicit ResultBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -518,9 +554,11 @@ struct ResultBuilder {
 inline ::flatbuffers::Offset<Result> CreateResult(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     bool success = false,
-    ::flatbuffers::Offset<::flatbuffers::String> message = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> message = 0,
+    bool load_requested = false) {
   ResultBuilder builder_(_fbb);
   builder_.add_message(message);
+  builder_.add_load_requested(load_requested);
   builder_.add_success(success);
   return builder_.Finish();
 }
@@ -528,12 +566,209 @@ inline ::flatbuffers::Offset<Result> CreateResult(
 inline ::flatbuffers::Offset<Result> CreateResultDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     bool success = false,
-    const char *message = nullptr) {
+    const char *message = nullptr,
+    bool load_requested = false) {
   auto message__ = message ? _fbb.CreateString(message) : 0;
   return CreateResult(
       _fbb,
       success,
-      message__);
+      message__,
+      load_requested);
+}
+
+struct Status FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef StatusBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CPU_LOAD = 4,
+    VT_PLAYING = 6,
+    VT_INCLUDE_MODULES = 8,
+    VT_PATCH_NAME = 10,
+    VT_MODULE_LOADS = 12,
+    VT_OVERHEAD = 14,
+    VT_MODULE_LOADS_VALID = 16,
+    VT_MODULE_CORES = 18,
+    VT_CORE_LOADS = 20,
+    VT_PATCH_FINGERPRINT = 22
+  };
+  uint8_t cpu_load() const {
+    return GetField<uint8_t>(VT_CPU_LOAD, 0);
+  }
+  bool mutate_cpu_load(uint8_t _cpu_load = 0) {
+    return SetField<uint8_t>(VT_CPU_LOAD, _cpu_load, 0);
+  }
+  bool playing() const {
+    return GetField<uint8_t>(VT_PLAYING, 0) != 0;
+  }
+  bool mutate_playing(bool _playing = 0) {
+    return SetField<uint8_t>(VT_PLAYING, static_cast<uint8_t>(_playing), 0);
+  }
+  bool include_modules() const {
+    return GetField<uint8_t>(VT_INCLUDE_MODULES, 0) != 0;
+  }
+  bool mutate_include_modules(bool _include_modules = 0) {
+    return SetField<uint8_t>(VT_INCLUDE_MODULES, static_cast<uint8_t>(_include_modules), 0);
+  }
+  const ::flatbuffers::String *patch_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PATCH_NAME);
+  }
+  ::flatbuffers::String *mutable_patch_name() {
+    return GetPointer<::flatbuffers::String *>(VT_PATCH_NAME);
+  }
+  const ::flatbuffers::Vector<uint16_t> *module_loads() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_MODULE_LOADS);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_module_loads() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_MODULE_LOADS);
+  }
+  uint16_t overhead() const {
+    return GetField<uint16_t>(VT_OVERHEAD, 0);
+  }
+  bool mutate_overhead(uint16_t _overhead = 0) {
+    return SetField<uint16_t>(VT_OVERHEAD, _overhead, 0);
+  }
+  bool module_loads_valid() const {
+    return GetField<uint8_t>(VT_MODULE_LOADS_VALID, 0) != 0;
+  }
+  bool mutate_module_loads_valid(bool _module_loads_valid = 0) {
+    return SetField<uint8_t>(VT_MODULE_LOADS_VALID, static_cast<uint8_t>(_module_loads_valid), 0);
+  }
+  const ::flatbuffers::Vector<uint8_t> *module_cores() const {
+    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_MODULE_CORES);
+  }
+  ::flatbuffers::Vector<uint8_t> *mutable_module_cores() {
+    return GetPointer<::flatbuffers::Vector<uint8_t> *>(VT_MODULE_CORES);
+  }
+  const ::flatbuffers::Vector<uint16_t> *core_loads() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_CORE_LOADS);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_core_loads() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_CORE_LOADS);
+  }
+  uint32_t patch_fingerprint() const {
+    return GetField<uint32_t>(VT_PATCH_FINGERPRINT, 0);
+  }
+  bool mutate_patch_fingerprint(uint32_t _patch_fingerprint = 0) {
+    return SetField<uint32_t>(VT_PATCH_FINGERPRINT, _patch_fingerprint, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_CPU_LOAD, 1) &&
+           VerifyField<uint8_t>(verifier, VT_PLAYING, 1) &&
+           VerifyField<uint8_t>(verifier, VT_INCLUDE_MODULES, 1) &&
+           VerifyOffset(verifier, VT_PATCH_NAME) &&
+           verifier.VerifyString(patch_name()) &&
+           VerifyOffset(verifier, VT_MODULE_LOADS) &&
+           verifier.VerifyVector(module_loads()) &&
+           VerifyField<uint16_t>(verifier, VT_OVERHEAD, 2) &&
+           VerifyField<uint8_t>(verifier, VT_MODULE_LOADS_VALID, 1) &&
+           VerifyOffset(verifier, VT_MODULE_CORES) &&
+           verifier.VerifyVector(module_cores()) &&
+           VerifyOffset(verifier, VT_CORE_LOADS) &&
+           verifier.VerifyVector(core_loads()) &&
+           VerifyField<uint32_t>(verifier, VT_PATCH_FINGERPRINT, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct StatusBuilder {
+  typedef Status Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_cpu_load(uint8_t cpu_load) {
+    fbb_.AddElement<uint8_t>(Status::VT_CPU_LOAD, cpu_load, 0);
+  }
+  void add_playing(bool playing) {
+    fbb_.AddElement<uint8_t>(Status::VT_PLAYING, static_cast<uint8_t>(playing), 0);
+  }
+  void add_include_modules(bool include_modules) {
+    fbb_.AddElement<uint8_t>(Status::VT_INCLUDE_MODULES, static_cast<uint8_t>(include_modules), 0);
+  }
+  void add_patch_name(::flatbuffers::Offset<::flatbuffers::String> patch_name) {
+    fbb_.AddOffset(Status::VT_PATCH_NAME, patch_name);
+  }
+  void add_module_loads(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> module_loads) {
+    fbb_.AddOffset(Status::VT_MODULE_LOADS, module_loads);
+  }
+  void add_overhead(uint16_t overhead) {
+    fbb_.AddElement<uint16_t>(Status::VT_OVERHEAD, overhead, 0);
+  }
+  void add_module_loads_valid(bool module_loads_valid) {
+    fbb_.AddElement<uint8_t>(Status::VT_MODULE_LOADS_VALID, static_cast<uint8_t>(module_loads_valid), 0);
+  }
+  void add_module_cores(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> module_cores) {
+    fbb_.AddOffset(Status::VT_MODULE_CORES, module_cores);
+  }
+  void add_core_loads(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> core_loads) {
+    fbb_.AddOffset(Status::VT_CORE_LOADS, core_loads);
+  }
+  void add_patch_fingerprint(uint32_t patch_fingerprint) {
+    fbb_.AddElement<uint32_t>(Status::VT_PATCH_FINGERPRINT, patch_fingerprint, 0);
+  }
+  explicit StatusBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Status> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Status>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Status> CreateStatus(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t cpu_load = 0,
+    bool playing = false,
+    bool include_modules = false,
+    ::flatbuffers::Offset<::flatbuffers::String> patch_name = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> module_loads = 0,
+    uint16_t overhead = 0,
+    bool module_loads_valid = false,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> module_cores = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> core_loads = 0,
+    uint32_t patch_fingerprint = 0) {
+  StatusBuilder builder_(_fbb);
+  builder_.add_patch_fingerprint(patch_fingerprint);
+  builder_.add_core_loads(core_loads);
+  builder_.add_module_cores(module_cores);
+  builder_.add_module_loads(module_loads);
+  builder_.add_patch_name(patch_name);
+  builder_.add_overhead(overhead);
+  builder_.add_module_loads_valid(module_loads_valid);
+  builder_.add_include_modules(include_modules);
+  builder_.add_playing(playing);
+  builder_.add_cpu_load(cpu_load);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Status> CreateStatusDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t cpu_load = 0,
+    bool playing = false,
+    bool include_modules = false,
+    const char *patch_name = nullptr,
+    const std::vector<uint16_t> *module_loads = nullptr,
+    uint16_t overhead = 0,
+    bool module_loads_valid = false,
+    const std::vector<uint8_t> *module_cores = nullptr,
+    const std::vector<uint16_t> *core_loads = nullptr,
+    uint32_t patch_fingerprint = 0) {
+  auto patch_name__ = patch_name ? _fbb.CreateString(patch_name) : 0;
+  auto module_loads__ = module_loads ? _fbb.CreateVector<uint16_t>(*module_loads) : 0;
+  auto module_cores__ = module_cores ? _fbb.CreateVector<uint8_t>(*module_cores) : 0;
+  auto core_loads__ = core_loads ? _fbb.CreateVector<uint16_t>(*core_loads) : 0;
+  return CreateStatus(
+      _fbb,
+      cpu_load,
+      playing,
+      include_modules,
+      patch_name__,
+      module_loads__,
+      overhead,
+      module_loads_valid,
+      module_cores__,
+      core_loads__,
+      patch_fingerprint);
 }
 
 struct Message FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -561,6 +796,9 @@ struct Message FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const Result *content_as_Result() const {
     return content_type() == AnyMessage_Result ? static_cast<const Result *>(content()) : nullptr;
   }
+  const Status *content_as_Status() const {
+    return content_type() == AnyMessage_Status ? static_cast<const Status *>(content()) : nullptr;
+  }
   void *mutable_content() {
     return GetPointer<void *>(VT_CONTENT);
   }
@@ -587,6 +825,10 @@ template<> inline const Patches *Message::content_as<Patches>() const {
 
 template<> inline const Result *Message::content_as<Result>() const {
   return content_as_Result();
+}
+
+template<> inline const Status *Message::content_as<Status>() const {
+  return content_as_Status();
 }
 
 struct MessageBuilder {
@@ -638,6 +880,10 @@ inline bool VerifyAnyMessage(::flatbuffers::Verifier &verifier, const void *obj,
     }
     case AnyMessage_Result: {
       auto ptr = reinterpret_cast<const Result *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case AnyMessage_Status: {
+      auto ptr = reinterpret_cast<const Status *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;

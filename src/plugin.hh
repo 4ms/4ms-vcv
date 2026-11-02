@@ -1,4 +1,5 @@
 #pragma once
+#include "hub/cpu_monitor_setting.hh"
 #include <rack.hpp>
 
 namespace MetaModule
@@ -11,6 +12,8 @@ enum MappingMode { ALL = 0, LEFTRIGHT = 1, RIGHT = 2, LEFT = 3, CONNECTED = 4 };
 struct PluginSettings {
 	std::string wifiUrl = "";
 	Volume wifiVolume = Volume::Card;
+	CpuMonitor wifiCpuMonitor = CpuMonitor::Off;
+	bool wifiLoadAfterSend = false;
 
 	// Defaults inherited by newly created hub modules:
 	MappingMode defaultMappingMode = MappingMode::ALL;

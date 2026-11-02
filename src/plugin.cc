@@ -1,5 +1,6 @@
 #include "plugin.hh"
 #include "console/pr_dbg.hh"
+#include "hub/wifi_status_poller.hh"
 #include "thread/async_thread_control.hh"
 
 rack::Plugin *pluginInstance;
@@ -72,14 +73,18 @@ __attribute__((__visibility__("default"))) void init(rack::Plugin *p) {
 	p->addModel(modelFadeOut);
 }
 
-extern "C" void destroy() {
+extern "C" __attribute__((__visibility__("default"))) void destroy() {
 	// This does nothing if threads were never started:
 	MetaModule::Async::kill_module_threads();
+
+	MetaModule::WifiStatusPoller::instance().shutdown();
 }
 
 void MetaModule::PluginSettings::encodeJson(json_t *rootJ) const {
 	json_object_set_new(rootJ, "wifiUrl", json_string(wifiUrl.c_str()));
 	json_object_set_new(rootJ, "wifiPath", json_integer((unsigned)wifiVolume));
+	write_cpu_monitor_setting(rootJ, wifiCpuMonitor);
+	json_object_set_new(rootJ, "wifiLoadAfterSend", json_boolean(wifiLoadAfterSend));
 	json_object_set_new(rootJ, "defaultMappingMode", json_integer((unsigned)defaultMappingMode));
 	json_object_set_new(rootJ, "defaultUseGlueLabels", json_boolean(defaultUseGlueLabels));
 	json_object_set_new(rootJ, "defaultUseBuiltinMidi", json_boolean(defaultUseBuiltinMidi));
@@ -124,6 +129,11 @@ void MetaModule::PluginSettings::decodeJson(json_t *rootJ) {
 
 	auto autoMapAudioOutsJ = json_object_get(rootJ, "defaultAutoMapAudioOuts");
 	defaultAutoMapAudioOuts = json_is_boolean(autoMapAudioOutsJ) ? json_boolean_value(autoMapAudioOutsJ) : false;
+
+	wifiCpuMonitor = read_cpu_monitor_setting(rootJ);
+
+	auto loadAfterSendJ = json_object_get(rootJ, "wifiLoadAfterSend");
+	wifiLoadAfterSend = json_is_boolean(loadAfterSendJ) ? json_boolean_value(loadAfterSendJ) : false;
 }
 
 extern "C" __attribute__((__visibility__("default"))) json_t *settingsToJson() {

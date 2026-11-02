@@ -46,6 +46,8 @@ target_sources(${RACK_PLUGIN_LIB} PRIVATE
 	src/hub/hub_jack_label.cc
 	src/hub/hub_medium.cc
 	src/hub/mm_blendish.cc
+	src/hub/wifi_status_poller.cc
+	src/hub/wifi_status_poller_instance.cc
 	src/comm/comm_module.cc
 	src/mapping/midi_modules.cc
 	src/mapping/patch_writer.cc
