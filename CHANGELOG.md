@@ -3,6 +3,8 @@
 ## v2.3.1 (in progress)
 - Fix plugin failing to load on macOS 10.14 and earlier (x64). Minimum macOS
   version is now 10.13.
+- Fix QPLFO crashing with divide-by-zero
+- Add hysteresis and threshold to QPLFO ping and reset inputs
 
 ## v2.3.0
 - Detect and save expander pair information in the patch file. Expanders must
