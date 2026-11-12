@@ -382,7 +382,25 @@ struct VCVPatchFileWriter {
 		return (left->model && right->model && left->model->plugin && (left->model->plugin == right->model->plugin));
 	}
 
+	// Pairs that work as expanders, but neither module has the Expander tag
+	static bool isSpecialCaseExpanderPair(rack::Module *left, rack::Module *right) {
+		if (!left->model || !right->model || !left->model->plugin || !right->model->plugin)
+			return false;
+
+		auto const &left_brand = left->model->plugin->slug;
+		auto const &right_brand = right->model->plugin->slug;
+
+		if (left_brand == "SurgeXTRack" && right_brand == "SurgeXTRack") {
+			return left->model->slug == "SurgeXTUnisonHelper" && right->model->slug == "SurgeXTUnisonHelperCVExpander";
+		}
+
+		return false;
+	}
+
 	static bool isLikelyExpanderPair(rack::Module *left, rack::Module *right) {
+		if (isSpecialCaseExpanderPair(left, right))
+			return true;
+
 		return isSamePlugin(left, right) && (hasExpanderTag(left) || hasExpanderTag(right));
 	}
 
